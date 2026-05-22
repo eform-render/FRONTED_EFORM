@@ -1,0 +1,23 @@
+.card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 16px;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+  height: 100%;
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+.price {
+  color: #39a900;
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+.stock {
+  color: #6b7280;
+  font-size: 0.9rem;
+}

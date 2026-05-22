@@ -1,0 +1,22 @@
+'Log files:
+C:\Users\carol\OneDrive\Desktop\APIeform\EA_11\productos-react-frontend\.npm-cache\_logs\2026-05-03T21_45_31_636Z-debug-0.log
+
+# npm resolution error report
+
+While resolving: productos-frontend@0.0.0
+Found: @vitejs/plugin-react@6.0.1
+node_modules/@vitejs/plugin-react
+  dev @vitejs/plugin-react@"5.1.1" from the root project
+
+Could not resolve dependency:
+dev @vitejs/plugin-react@"5.1.1" from the root project
+
+Conflicting peer dependency: vite@7.2.7
+node_modules/vite
+  peer vite@"^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0" from @vitejs/plugin-react@5.1.1
+  node_modules/@vitejs/plugin-react
+    dev @vitejs/plugin-react@"5.1.1" from the root project
+
+Fix the upstream dependency conflict, or retry
+this command with --force or --legacy-peer-deps
+to accept an incorrect (and potentially broken) dependency resolution.
