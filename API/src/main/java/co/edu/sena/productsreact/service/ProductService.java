@@ -8,6 +8,7 @@ import co.edu.sena.productsreact.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
@@ -16,6 +17,9 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
+    /**
+     * Obtener lista de productos activos
+     */
     public List<ProductResponse> findAll() {
         return productRepository.findAllByIsDeletedFalse()
                 .stream()
@@ -23,15 +27,23 @@ public class ProductService {
                 .toList();
     }
 
+    /**
+     * Buscar producto por ID
+     */
     public ProductResponse findById(Long id) {
         Product product = productRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Producto con id " + id + " no encontrado"));
+
         return toResponse(product);
     }
 
+    /**
+     * Crear un nuevo producto
+     */
     @Transactional
     public ProductResponse create(ProductRequest request) {
+
         Product product = Product.builder()
                 .nombre(request.nombre())
                 .descripcion(request.descripcion())
@@ -40,13 +52,17 @@ public class ProductService {
                 .isDeleted(false)
                 .build();
 
-				Product saved = productRepository.save(product);
+        Product saved = productRepository.save(product);
+
         return toResponse(saved);
-				
     }
 
+    /**
+     * Actualizar producto existente
+     */
     @Transactional
     public ProductResponse update(Long id, ProductRequest request) {
+
         Product product = productRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Producto con id " + id + " no encontrado"));
@@ -57,20 +73,30 @@ public class ProductService {
         product.setStock(request.stock());
 
         Product updated = productRepository.save(product);
+
         return toResponse(updated);
     }
 
+    /**
+     * Eliminar producto lógicamente
+     */
     @Transactional
     public void delete(Long id) {
+
         Product product = productRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Producto con id " + id + " no encontrado"));
 
         product.setIsDeleted(true);
+
         productRepository.save(product);
     }
 
+    /**
+     * Convertir entidad Product a ProductResponse
+     */
     private ProductResponse toResponse(Product p) {
+
         return new ProductResponse(
                 p.getId(),
                 p.getNombre(),
