@@ -39,8 +39,12 @@ public class ProductController {
      */
     @PostMapping
     public ResponseEntity<ProductResponse> create(@Valid @RequestBody ProductRequest request) {
+
         ProductResponse created = productService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .header("message", "Registro exitoso del producto")
+                .body(created);
     }
 
     /**
