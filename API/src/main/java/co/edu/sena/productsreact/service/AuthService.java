@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
@@ -29,6 +30,9 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
+    /**
+     * Registrar nuevo usuario
+     */
     @Transactional
     public AuthResponse register(RegisterRequest request) {
 
@@ -36,6 +40,7 @@ public class AuthService {
             throw new DuplicateResourceException(
                     "El username '" + request.username() + "' ya está registrado");
         }
+
         if (userRepository.existsByEmail(request.email())) {
             throw new DuplicateResourceException(
                     "El email '" + request.email() + "' ya está registrado");
@@ -51,11 +56,18 @@ public class AuthService {
         User saved = userRepository.save(user);
 
         UserDetails userDetails = buildUserDetails(saved);
+
         String token = jwtService.generateToken(userDetails);
 
-        return new AuthResponse(token, new UserDto(saved.getUsername()));
+        return new AuthResponse(
+                token,
+                new UserDto(saved.getUsername())
+        );
     }
 
+    /**
+     * Iniciar sesión de usuario
+     */
     public AuthResponse login(LoginRequest request) {
 
         Authentication authentication = authenticationManager.authenticate(
@@ -69,10 +81,17 @@ public class AuthService {
 
         String token = jwtService.generateToken(userDetails);
 
-        return new AuthResponse(token, new UserDto(userDetails.getUsername()));
+        return new AuthResponse(
+                token,
+                new UserDto(userDetails.getUsername())
+        );
     }
 
+    /**
+     * Construir UserDetails para Spring Security
+     */
     private UserDetails buildUserDetails(User user) {
+
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
