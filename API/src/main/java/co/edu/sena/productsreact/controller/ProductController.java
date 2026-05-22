@@ -18,24 +18,38 @@ public class ProductController {
 
     private final ProductService productService;
 
+    /**
+     * Obtener todos los productos
+     */
     @GetMapping
     public ResponseEntity<List<ProductResponse>> getAll() {
         return ResponseEntity.ok(productService.findAll());
     }
 
+    /**
+     * Obtener producto por ID
+     */
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(productService.findById(id));
     }
 
+    /**
+     * Crear un nuevo producto
+     */
     @PostMapping
     public ResponseEntity<ProductResponse> create(@Valid @RequestBody ProductRequest request) {
+
         ProductResponse created = productService.create(request);
+
         return ResponseEntity.status(HttpStatus.CREATED)
-                .header("message", "Producto registrado correctamente")
+                .header("message", "Producto registrado exitosamente")
                 .body(created);
     }
 
+    /**
+     * Actualizar producto existente
+     */
     @PutMapping("/{id}")
     public ResponseEntity<ProductResponse> update(
             @PathVariable Long id,
@@ -44,6 +58,9 @@ public class ProductController {
         return ResponseEntity.ok(productService.update(id, request));
     }
 
+    /**
+     * Eliminar producto
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         productService.delete(id);
