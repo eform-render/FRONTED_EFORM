@@ -46,6 +46,8 @@ public class AuthService {
                     "El email '" + request.email() + "' ya está registrado");
         }
 
+        System.out.println(request);
+        
         User user = User.builder()
                 .username(request.username())
                 .email(request.email())
