@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +49,8 @@ public class ProductService {
         Product product = Product.builder()
                 .nombre(request.nombre())
                 .descripcion(request.descripcion())
+                .imageUrl(request.imageUrl())
+                .tallasDisponibles(joinTallas(request.tallasDisponibles()))
                 .precio(request.precio())
                 .stock(request.stock())
                 .isDeleted(false)
@@ -69,12 +73,34 @@ public class ProductService {
 
         product.setNombre(request.nombre());
         product.setDescripcion(request.descripcion());
+        product.setImageUrl(request.imageUrl());
+        product.setTallasDisponibles(joinTallas(request.tallasDisponibles()));
         product.setPrecio(request.precio());
         product.setStock(request.stock());
 
         Product updated = productRepository.save(product);
 
         return toResponse(updated);
+    }
+
+    private String joinTallas(List<String> tallas) {
+        if (tallas == null || tallas.isEmpty()) {
+            return null;
+        }
+
+        return tallas.stream()
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.joining(", "));
+    }
+
+    private List<String> parseTallas(String tallas) {
+        if (tallas == null || tallas.isBlank()) {
+            return List.of();
+        }
+
+        return List.of(tallas.split("\\s*,\\s*"));
     }
 
     /**
@@ -101,6 +127,8 @@ public class ProductService {
                 p.getId(),
                 p.getNombre(),
                 p.getDescripcion(),
+                p.getImageUrl(),
+                parseTallas(p.getTallasDisponibles()),
                 p.getPrecio(),
                 p.getStock(),
                 p.getCreatedAt(),

@@ -7,6 +7,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public record ProductRequest(
         @NotBlank(message = "El nombre es obligatorio")
@@ -15,6 +16,11 @@ public record ProductRequest(
 
         @Size(max = 1000, message = "La descripción no puede superar los 1000 caracteres")
         String descripcion,
+
+        @Size(max = 2000, message = "El enlace de imagen no puede superar los 2000 caracteres")
+        String imageUrl,
+
+        List<String> tallasDisponibles,
 
         @NotNull(message = "El precio es obligatorio")
         @DecimalMin(value = "0.0", inclusive = true, message = "El precio no puede ser negativo")

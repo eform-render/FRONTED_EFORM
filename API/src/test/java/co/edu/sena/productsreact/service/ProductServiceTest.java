@@ -68,6 +68,8 @@ class ProductServiceTest {
         ProductRequest request = new ProductRequest(
                 "Mouse",
                 "Mouse gamer",
+                null,
+                List.of("S", "M", "L"),
                 new BigDecimal("150"),
                 5
         );

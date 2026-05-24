@@ -47,7 +47,7 @@ export default function DashboardPage({ onLogout }) {
           <div className="stat-card">
             <h3>{stats.totalProducts}</h3>
             <p>Total de Productos</p>
-            <Link to="/products" className="btn btn-outline">
+            <Link to="/products" className="btn btn-outline-primary">
               Ver productos
             </Link>
           </div>
@@ -55,7 +55,7 @@ export default function DashboardPage({ onLogout }) {
           <div className="stat-card">
             <h3>{stats.totalSets}</h3>
             <p>Total de Sets</p>
-            <Link to="/sets" className="btn btn-outline">
+            <Link to="/sets" className="btn btn-outline-primary">
               Ver sets
             </Link>
           </div>

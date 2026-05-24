@@ -35,6 +35,12 @@ public class Product {
     @Column(length = 1000)
     private String descripcion;
 
+    @Column(length = 2000)
+    private String imageUrl;
+
+    @Column(name = "tallas_disponibles", length = 512)
+    private String tallasDisponibles;
+
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal precio;
 
