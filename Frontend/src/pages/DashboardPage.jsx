@@ -70,17 +70,12 @@ export default function DashboardPage({ onLogout }) {
             <>
               <Link to="/products/new" className="action-card">
                 <h3>Nuevo Producto</h3>
-                <p>Agregar un nuevo producto al catalogo</p>
+                <p>Agregar un producto nuevo al catálogo del cliente</p>
               </Link>
 
               <Link to="/sets/new" className="action-card">
                 <h3>Crear Set</h3>
                 <p>Crear un nuevo set de productos</p>
-              </Link>
-
-              <Link to="/products/new" className="action-card">
-                <h3>Agregar producto</h3>
-                <p>Crear nuevo producto para el catalogo del cliente</p>
               </Link>
 
               <Link to="/products" className="action-card">
