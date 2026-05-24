@@ -19,9 +19,43 @@ const ProductPage = ({ user }) => {
 
   useEffect(() => {
     getAll()
-      .then(setProducts)
+      .then((data) => {
+        const cart = getCart()
+        const adjusted = data.map((p) => {
+          const qtyInCart = cart
+            .filter((item) => item.id === p.id)
+            .reduce((sum, it) => sum + Number(it.quantity || 1), 0)
+          return { ...p, stock: Number(p.stock || 0) - qtyInCart }
+        })
+        setProducts(adjusted)
+      })
       .catch((apiError) => setError(getApiErrorMessage(apiError, 'Error al cargar productos.')))
       .finally(() => setLoading(false))
+  }, [])
+
+  useEffect(() => {
+    const handler = (e) => {
+      const cart = (e && e.detail && e.detail.cart) ? e.detail.cart : getCart()
+      setProducts((prev) =>
+        prev.map((p) => {
+          const qtyInCart = cart.filter((item) => item.id === p.id).reduce((sum, it) => sum + Number(it.quantity || 1), 0)
+          return { ...p, stock: Math.max(0, Number(p.stock || 0) - qtyInCart) }
+        })
+      )
+    }
+
+    window.addEventListener('cartUpdated', handler)
+    return () => window.removeEventListener('cartUpdated', handler)
+  }, [])
+
+  useEffect(() => {
+    const onReserveFailed = (e) => {
+      const message = e && e.detail && e.detail.message ? e.detail.message : 'No fue posible reservar el producto.'
+      setError(message)
+    }
+
+    window.addEventListener('cartReserveFailed', onReserveFailed)
+    return () => window.removeEventListener('cartReserveFailed', onReserveFailed)
   }, [])
 
   const filteredProducts = useMemo(() => {
@@ -65,7 +99,7 @@ const ProductPage = ({ user }) => {
           <h1>{admin ? 'Inventario de productos' : 'Productos disponibles'}</h1>
           <p>
             {admin
-              ? 'Administra uniformes, fotos, precios y cantidades disponibles para los aprendices.'
+              ? 'Agrega nuevos productos para que los aprendices los vean y los compren en el catalogo de usuario.'
               : 'Consulta las caracteristicas de cada producto y agrega al carrito lo que necesitas.'}
           </p>
         </div>
@@ -130,10 +164,10 @@ const ProductPage = ({ user }) => {
       {!loading && !error && filteredProducts.length === 0 && (
         <div className="empty-state">
           <h2>No hay productos para mostrar</h2>
-          <p>{admin ? 'Crea el primer uniforme o cambia el filtro de busqueda.' : 'Cambia el filtro de busqueda.'}</p>
+          <p>{admin ? 'Agrega el primer producto para que los clientes lo vean en su catalogo.' : 'Cambia el filtro de busqueda.'}</p>
           {admin && (
             <Link className="btn btn-primary" to="/products/new">
-              Crear producto
+              Agregar producto nuevo
             </Link>
           )}
         </div>

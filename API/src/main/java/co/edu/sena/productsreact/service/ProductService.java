@@ -5,6 +5,9 @@ import co.edu.sena.productsreact.dto.product.ProductResponse;
 import co.edu.sena.productsreact.entity.Product;
 import co.edu.sena.productsreact.exception.ResourceNotFoundException;
 import co.edu.sena.productsreact.repository.ProductRepository;
+import co.edu.sena.productsreact.repository.ReservationRepository;
+import co.edu.sena.productsreact.entity.Reservation;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +21,7 @@ import java.util.stream.Collectors;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ReservationRepository reservationRepository;
 
     /**
      * Obtener lista de productos activos
@@ -115,6 +119,77 @@ public class ProductService {
 
         product.setIsDeleted(true);
 
+        productRepository.save(product);
+    }
+
+    @Transactional
+    public void reserveStock(Long id, int quantity, String sessionId, String reservedBy) {
+        if (quantity <= 0) throw new IllegalArgumentException("La cantidad a reservar debe ser mayor que cero");
+
+        Product product = productRepository.findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Producto con id " + id + " no encontrado"));
+
+        int current = product.getStock() == null ? 0 : product.getStock();
+        if (current < quantity) {
+            throw new IllegalArgumentException("Stock insuficiente para reservar. Disponible: " + current);
+        }
+
+        // create reservation and decrement stock
+        Reservation r = new Reservation(product, quantity, LocalDateTime.now(), sessionId, reservedBy);
+        reservationRepository.save(r);
+
+        product.setStock(current - quantity);
+        productRepository.save(product);
+    }
+
+    @Transactional
+    public void releaseStock(Long id, int quantity, String sessionId) {
+        if (quantity <= 0) throw new IllegalArgumentException("La cantidad a liberar debe ser mayor que cero");
+
+        Product product = productRepository.findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Producto con id " + id + " no encontrado"));
+
+        int remaining = quantity;
+        if (sessionId != null && !sessionId.isBlank()) {
+            // release reservations matching the sessionId first
+            var reservations = reservationRepository.findByProductOrderByCreatedAtAsc(product);
+            for (Reservation r : reservations) {
+                if (remaining <= 0) break;
+                if (sessionId.equals(r.getSessionId())) {
+                    int removeQty = Math.min(remaining, r.getQuantity());
+                    r.setQuantity(r.getQuantity() - removeQty);
+                    remaining -= removeQty;
+                    if (r.getQuantity() <= 0) {
+                        reservationRepository.delete(r);
+                    } else {
+                        reservationRepository.save(r);
+                    }
+                }
+            }
+        }
+
+        if (remaining > 0) {
+            // remove oldest reservations for this product until we've released remaining
+            var reservations = reservationRepository.findByProductOrderByCreatedAtAsc(product);
+            for (Reservation r : reservations) {
+                if (remaining <= 0) break;
+                int removeQty = Math.min(remaining, r.getQuantity());
+                r.setQuantity(r.getQuantity() - removeQty);
+                remaining -= removeQty;
+                if (r.getQuantity() <= 0) {
+                    reservationRepository.delete(r);
+                } else {
+                    reservationRepository.save(r);
+                }
+            }
+        }
+
+        // increase product stock by how many were actually released
+        int released = quantity - remaining;
+        int current = product.getStock() == null ? 0 : product.getStock();
+        product.setStock(current + released);
         productRepository.save(product);
     }
 

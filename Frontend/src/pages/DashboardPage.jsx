@@ -47,8 +47,9 @@ export default function DashboardPage({ onLogout }) {
           <div className="stat-card">
             <h3>{stats.totalProducts}</h3>
             <p>Total de Productos</p>
-            <Link to="/products" className="btn btn-outline-primary">
-              Ver productos
+            <p className="stat-note">Los productos que agregues aqui se veran en el catalogo del cliente.</p>
+            <Link to="/products/new" className="btn btn-primary">
+              Agregar producto
             </Link>
           </div>
 
@@ -77,9 +78,14 @@ export default function DashboardPage({ onLogout }) {
                 <p>Crear un nuevo set de productos</p>
               </Link>
 
+              <Link to="/products/new" className="action-card">
+                <h3>Agregar producto</h3>
+                <p>Crear nuevo producto para el catalogo del cliente</p>
+              </Link>
+
               <Link to="/products" className="action-card">
                 <h3>Ver Productos</h3>
-                <p>Consultar y gestionar productos</p>
+                <p>Consultar y gestionar productos existentes</p>
               </Link>
 
               <Link to="/sets" className="action-card">

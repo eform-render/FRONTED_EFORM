@@ -1,3 +1,5 @@
+import { reserve, release } from './productService'
+
 const CART_KEY = 'cart'
 
 export const getCart = () => {
@@ -14,6 +16,11 @@ export const getCart = () => {
 
 export const saveCart = (cart) => {
   localStorage.setItem(CART_KEY, JSON.stringify(cart))
+  try {
+    window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart } }))
+  } catch (e) {
+    // no-op if dispatch fails (older browsers)
+  }
 }
 
 const getProductQuantityInCart = (cart, productId) => {
@@ -45,6 +52,28 @@ export const addToCart = (product) => {
         : item
     )
     saveCart(nextCart)
+
+    // try to reserve on backend; rollback if fails
+    reserve(product.id, 1).catch((err) => {
+      const current2 = getCart()
+      const target = current2.find((item) => item.id === product.id && (item.selectedSize || 'Unica') === selectedSize)
+      let reverted
+      if (target) {
+        if ((target.quantity || 0) > 1) {
+          reverted = current2.map((item) =>
+            item.id === product.id && (item.selectedSize || 'Unica') === selectedSize
+              ? { ...item, quantity: item.quantity - 1 }
+              : item
+          )
+        } else {
+          reverted = current2.filter((item) => !(item.id === product.id && (item.selectedSize || 'Unica') === selectedSize))
+        }
+        saveCart(reverted)
+        try { window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: reverted } })) } catch {}
+      }
+      try { window.dispatchEvent(new CustomEvent('cartReserveFailed', { detail: { message: err?.response?.data?.message || err.message } })) } catch {}
+    })
+
     return {
       cart: nextCart,
       added: true,
@@ -54,6 +83,16 @@ export const addToCart = (product) => {
 
   const nextCart = [...cart, { ...product, selectedSize, quantity: 1 }]
   saveCart(nextCart)
+
+  // try to reserve on backend; rollback if fails
+  reserve(product.id, 1).catch((err) => {
+    const current2 = getCart()
+    const reverted = current2.filter((item) => !(item.id === product.id && (item.selectedSize || 'Unica') === selectedSize))
+    saveCart(reverted)
+    try { window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: reverted } })) } catch {}
+    try { window.dispatchEvent(new CustomEvent('cartReserveFailed', { detail: { message: err?.response?.data?.message || err.message } })) } catch {}
+  })
+
   return {
     cart: nextCart,
     added: true,
@@ -79,11 +118,33 @@ export const updateCartQuantity = (id, quantity, selectedSize = 'Unica') => {
 }
 
 export const removeFromCart = (id, selectedSize = 'Unica') => {
-  const nextCart = getCart().filter((item) => !(item.id === id && (item.selectedSize || 'Unica') === selectedSize))
+  const current = getCart()
+  const target = current.find((item) => item.id === id && (item.selectedSize || 'Unica') === selectedSize)
+  const removedQty = target ? Number(target.quantity || 0) : 0
+  const nextCart = current.filter((item) => !(item.id === id && (item.selectedSize || 'Unica') === selectedSize))
   saveCart(nextCart)
+
+  if (removedQty > 0) {
+    release(id, removedQty).catch(() => {
+      try { window.dispatchEvent(new CustomEvent('cartReleaseFailed', { detail: { id, qty: removedQty } })) } catch {}
+    })
+  }
+
   return nextCart
 }
 
 export const clearCart = () => {
+  const prev = getCart()
   localStorage.removeItem(CART_KEY)
+  try {
+    window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: [] } }))
+  } catch (e) {
+    // ignore
+  }
+
+  // release reserved quantities in backend
+  prev.forEach((item) => {
+    const qty = Number(item.quantity || 0)
+    if (qty > 0) release(item.id, qty).catch(() => {})
+  })
 }

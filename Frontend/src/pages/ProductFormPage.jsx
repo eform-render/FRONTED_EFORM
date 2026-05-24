@@ -54,7 +54,7 @@ function ProductFormPage() {
         <div>
           <span className="home-eyebrow">{id ? 'Editar producto' : 'Nuevo producto'}</span>
           <h1>{id ? 'Actualizar uniforme' : 'Crear uniforme'}</h1>
-          <p>Completa la informacion del catalogo para mantener inventario y precios al dia.</p>
+          <p>Completa la informacion del catalogo para que los aprendices puedan ver y comprar los productos nuevos.</p>
         </div>
         <Link className="btn btn-outline-primary" to="/products">
           Volver

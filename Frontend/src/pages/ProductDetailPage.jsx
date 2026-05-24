@@ -37,6 +37,31 @@ const ProductDetailPage = ({ user }) => {
   }, [id])
 
   useEffect(() => {
+    const handler = (e) => {
+      const cart = (e && e.detail && e.detail.cart) ? e.detail.cart : getCart()
+      setProduct((prev) => {
+        if (!prev) return prev
+        const qtyInCart = cart
+          .filter((it) => it.id === prev.id)
+          .reduce((sum, it) => sum + Number(it.quantity || 1), 0)
+        return { ...prev, stock: Math.max(0, Number(prev.stock || 0) - qtyInCart) }
+      })
+    }
+
+    const onReserveFailed = (e) => {
+      const message = e && e.detail && e.detail.message ? e.detail.message : 'No fue posible reservar el producto.'
+      setCartError(message)
+    }
+
+    window.addEventListener('cartUpdated', handler)
+    window.addEventListener('cartReserveFailed', onReserveFailed)
+    return () => {
+      window.removeEventListener('cartUpdated', handler)
+      window.removeEventListener('cartReserveFailed', onReserveFailed)
+    }
+  }, [id])
+
+  useEffect(() => {
     if (!product || !selectedSize) return
 
     const item = getCart().find(

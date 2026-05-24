@@ -106,6 +106,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 
+    /** 400 - IllegalArgumentException para errores de negocio simples. */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiError> handleIllegalArg(IllegalArgumentException ex, HttpServletRequest req) {
+        ApiError error = ApiError.of(
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                req.getRequestURI()
+        );
+        return ResponseEntity.badRequest().body(error);
+    }
+
     /** 500 - Fallback para cualquier otra excepción no contemplada. */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneric(Exception ex, HttpServletRequest req) {

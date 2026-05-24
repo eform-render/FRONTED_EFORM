@@ -64,7 +64,10 @@ function App() {
             path="/products/:id/edit"
             element={canManageProducts ? <ProductFormPage /> : <Navigate to="/products" replace />}
           />
-          <Route path="/cart" element={isAuthenticated ? <CartPage /> : <Navigate to="/" replace />} />
+          <Route
+            path="/cart"
+            element={!canManageProducts && isAuthenticated ? <CartPage /> : <Navigate to="/products" replace />}
+          />
           <Route path="/sets" element={canManageProducts ? <SetsPage /> : <Navigate to="/products" replace />} />
           <Route path="*" element={<Navigate to={isAuthenticated ? '/dashboard' : '/'} replace />} />
         </Routes>
