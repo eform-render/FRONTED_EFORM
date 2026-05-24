@@ -8,6 +8,7 @@ public record ProductResponse(
         Long id,
         String nombre,
         String descripcion,
+        String tipoTela,
         String imageUrl,
         List<String> tallasDisponibles,
         BigDecimal precio,

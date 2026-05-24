@@ -53,6 +53,7 @@ public class ProductService {
         Product product = Product.builder()
                 .nombre(request.nombre())
                 .descripcion(request.descripcion())
+                .tipoTela(request.tipoTela())
                 .imageUrl(request.imageUrl())
                 .tallasDisponibles(joinTallas(request.tallasDisponibles()))
                 .precio(request.precio())
@@ -77,6 +78,7 @@ public class ProductService {
 
         product.setNombre(request.nombre());
         product.setDescripcion(request.descripcion());
+        product.setTipoTela(request.tipoTela());
         product.setImageUrl(request.imageUrl());
         product.setTallasDisponibles(joinTallas(request.tallasDisponibles()));
         product.setPrecio(request.precio());
@@ -202,6 +204,7 @@ public class ProductService {
                 p.getId(),
                 p.getNombre(),
                 p.getDescripcion(),
+                p.getTipoTela(),
                 p.getImageUrl(),
                 parseTallas(p.getTallasDisponibles()),
                 p.getPrecio(),

@@ -104,6 +104,12 @@ const ProductDetailPage = ({ user }) => {
         <div className="product-detail__summary">
           <span>Precio</span>
           <strong>{formatPrice(product.precio)}</strong>
+          {product.tipoTela && (
+            <>
+              <span>Tipo de tela</span>
+              <strong>{product.tipoTela}</strong>
+            </>
+          )}
           <span>Stock disponible</span>
           <strong>{product.stock}</strong>
         </div>

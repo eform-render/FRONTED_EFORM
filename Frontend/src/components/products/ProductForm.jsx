@@ -5,6 +5,7 @@ export default function ProductForm({ initialData = {}, loading = false, onSubmi
     nombre: initialData?.nombre || '',
     precio: initialData?.precio || '',
     descripcion: initialData?.descripcion || '',
+    tipoTela: initialData?.tipoTela || '',
     stock: initialData?.stock ?? '',
     imageUrl: initialData?.imageUrl || '',
     tallasText: initialData?.tallasDisponibles?.join(', ') || '',
@@ -68,6 +69,9 @@ export default function ProductForm({ initialData = {}, loading = false, onSubmi
     if (form.descripcion.length > 1000) {
       nextErrors.descripcion = 'La descripcion no puede superar 1000 caracteres.'
     }
+    if (form.tipoTela.trim().length > 150) {
+      nextErrors.tipoTela = 'El tipo de tela no puede superar 150 caracteres.'
+    }
     if (form.precio === '' || Number(form.precio) < 0) {
       nextErrors.precio = 'El precio debe ser cero o mayor.'
     }
@@ -94,6 +98,7 @@ export default function ProductForm({ initialData = {}, loading = false, onSubmi
     onSubmit({
       nombre: form.nombre.trim(),
       descripcion: form.descripcion.trim(),
+      tipoTela: form.tipoTela.trim(),
       precio: Number(form.precio),
       stock: Number(form.stock),
       imageUrl: form.imageUrl,
@@ -155,6 +160,18 @@ export default function ProductForm({ initialData = {}, loading = false, onSubmi
           onChange={handleChange}
         />
         {errors.descripcion && <small>{errors.descripcion}</small>}
+      </label>
+
+      <label>
+        Tipo de tela
+        <input
+          className={`form-control ${errors.tipoTela ? 'is-invalid' : ''}`}
+          name="tipoTela"
+          placeholder="Ej: Algodon, poliester, mezclilla"
+          value={form.tipoTela}
+          onChange={handleChange}
+        />
+        {errors.tipoTela && <small>{errors.tipoTela}</small>}
       </label>
 
       <label className="product-form__wide">

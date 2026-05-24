@@ -38,6 +38,9 @@ public class Product {
     @Column(length = 2000)
     private String imageUrl;
 
+    @Column(length = 150)
+    private String tipoTela;
+
     @Column(name = "tallas_disponibles", length = 512)
     private String tallasDisponibles;
 

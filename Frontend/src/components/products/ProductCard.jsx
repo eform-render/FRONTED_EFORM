@@ -34,6 +34,13 @@ const ProductCard = ({ product, isAdmin = false, onAddToCart, onDelete }) => {
       <h3>{product.nombre}</h3>
       <p>{product.descripcion || 'Producto sin descripcion registrada.'}</p>
 
+      {product.tipoTela && (
+        <div className="product-card__material">
+          <span>Tipo de tela</span>
+          <strong>{product.tipoTela}</strong>
+        </div>
+      )}
+
       <div className="product-card__stock">
         <span>{isAdmin ? 'Inventario' : 'Unidades disponibles'}</span>
         <strong>{stock}</strong>

@@ -35,7 +35,7 @@ export default function DashboardPage({ onLogout }) {
   return (
     <main className="dashboard-page">
       <div className="dashboard-header">
-        <h1>Bienvenido, {user.name || user.email}</h1>
+        <h1>Bienvenido, {user.username || user.email}</h1>
         <p>{admin ? 'Panel de control de gestion' : 'Explora el catalogo y administra tu carrito'}</p>
         <button className="btn btn-secondary" onClick={handleLogout}>
           Cerrar sesion

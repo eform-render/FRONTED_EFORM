@@ -63,7 +63,7 @@ public class AuthService {
 
         return new AuthResponse(
                 token,
-                new UserDto(saved.getUsername())
+                new UserDto(saved.getUsername(), saved.getEmail(), saved.getRole().name())
         );
     }
 
@@ -83,9 +83,13 @@ public class AuthService {
 
         String token = jwtService.generateToken(userDetails);
 
+        User loggedUser = userRepository.findByEmail(request.email())
+                .or(() -> userRepository.findByUsername(request.email()))
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado despues de autenticar."));
+
         return new AuthResponse(
                 token,
-                new UserDto(userDetails.getUsername())
+                new UserDto(loggedUser.getUsername(), loggedUser.getEmail(), loggedUser.getRole().name())
         );
     }
 

@@ -17,6 +17,9 @@ public record ProductRequest(
         @Size(max = 1000, message = "La descripción no puede superar los 1000 caracteres")
         String descripcion,
 
+        @Size(max = 150, message = "El tipo de tela no puede superar los 150 caracteres")
+        String tipoTela,
+
         @Size(max = 2000, message = "El enlace de imagen no puede superar los 2000 caracteres")
         String imageUrl,
 

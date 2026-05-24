@@ -42,7 +42,7 @@ const Navbar = ({ user, onLogout }) => {
           {user && (
             <>
               <span className="site-menu__user">
-                Bienvenido, {user.name || user.email}
+                Bienvenido, {user.username || user.email}
               </span>
               {admin && (
                 <span className="site-menu__role">
