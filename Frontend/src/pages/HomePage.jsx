@@ -77,9 +77,6 @@ export default function HomePage() {
             <Link className="btn btn-primary btn-lg" to="/products">
               Ver catalogo
             </Link>
-            <Link className="btn btn-outline-light btn-lg" to="/register">
-              Crear cuenta
-            </Link>
           </div>
         </div>
 
