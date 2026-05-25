@@ -73,9 +73,9 @@ export default function DashboardPage({ onLogout }) {
                 <p>Agregar un producto nuevo al catálogo del cliente</p>
               </Link>
 
-              <Link to="/sets/new" className="action-card">
+              <Link to="/sets" className="action-card">
                 <h3>Crear Set</h3>
-                <p>Crear un nuevo set de productos</p>
+                <p>Ir a la página de sets para crear y editar combos</p>
               </Link>
 
               <Link to="/products" className="action-card">

@@ -44,11 +44,6 @@ const Navbar = ({ user, onLogout }) => {
               <span className="site-menu__user">
                 Bienvenido, {user.username || user.email}
               </span>
-              {admin && (
-                <span className="site-menu__role">
-                  Administrador
-                </span>
-              )}
               <button className="site-menu__button" onClick={handleLogout} type="button">
                 Salir
               </button>

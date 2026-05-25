@@ -212,6 +212,30 @@ export default function ProductForm({ initialData = {}, loading = false, onSubmi
           {errors.imageUrl && <small>{errors.imageUrl}</small>}
         </label>
 
+        <label className="product-form__wide">
+          Seleccionar imagen de uniformes
+          <div className="image-picker">
+            {['WhatsApp Image 2026-05-12 at 6.55.09 PM (1).jpeg',
+              'WhatsApp Image 2026-05-12 at 6.55.09 PM.jpeg',
+              'WhatsApp Image 2026-05-12 at 6.55.10 PM (1).jpeg',
+              'WhatsApp Image 2026-05-12 at 6.55.10 PM.jpeg']
+              .map((fileName) => {
+                const url = `/images/uniformes/${encodeURI(fileName)}`
+                return (
+                  <button
+                    type="button"
+                    key={fileName}
+                    className={form.imageUrl === url ? 'image-picker__item is-selected' : 'image-picker__item'}
+                    onClick={() => setForm((currentForm) => ({ ...currentForm, imageUrl: url }))}
+                  >
+                    <img src={url} alt={fileName} />
+                  </button>
+                )
+              })}
+          </div>
+          <span className="form-help">Elige una imagen existente de uniformes para el producto.</span>
+        </label>
+
         <div className="product-form__preview">
           {form.imageUrl ? (
             <img src={form.imageUrl} alt="Vista previa del producto" />
