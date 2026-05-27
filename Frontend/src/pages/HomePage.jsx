@@ -127,6 +127,25 @@ export default function HomePage() {
         </div>
       </section>
 
+      {!isAuthenticated ? (
+        <section className="home-section home-public-note">
+          <div className="section-heading">
+            <h2>Bienvenido a EFORM</h2>
+            <p>
+              Para ver productos, agregar al carrito y pagar tu pedido, inicia sesion o crea tu cuenta.
+            </p>
+          </div>
+          <div className="hero-cta-buttons">
+            <Link className="btn btn-primary" to="/login">
+              Iniciar Sesion
+            </Link>
+            <Link className="btn btn-outline-primary" to="/register">
+              Registrarme
+            </Link>
+          </div>
+        </section>
+      ) : (
+        <>
       <section className="home-stats">
         <div className="stats-container">
           {benefits.map((benefit) => (
@@ -174,7 +193,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {isAuthenticated ? (
       <section className="home-section home-featured-catalog">
         <div className="section-heading-featured">
           <div>
@@ -210,23 +228,7 @@ export default function HomePage() {
           </div>
         )}
       </section>
-      ) : (
-        <section className="home-section home-public-note">
-          <div className="section-heading">
-            <h2>Acceso seguro a productos</h2>
-            <p>
-              Para ver productos, agregar al carrito y pagar tu pedido, inicia sesion o crea tu cuenta.
-            </p>
-          </div>
-          <div className="hero-cta-buttons">
-            <Link className="btn btn-primary" to="/login">
-              Iniciar Sesion
-            </Link>
-            <Link className="btn btn-outline-primary" to="/register">
-              Crear Cuenta
-            </Link>
-          </div>
-        </section>
+        </>
       )}
     </main>
   )

@@ -2609,6 +2609,25 @@ body {
   background: rgba(255, 255, 255, 0.18);
 }
 
+.theme-toggle-button {
+  display: inline-grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 1.25rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.theme-toggle-button:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
 .home-page {
   padding-top: 28px;
 }
@@ -2723,6 +2742,68 @@ body {
 
 .checkout-success {
   width: min(1180px, 100%);
+}
+
+html[data-theme='dark'] body {
+  color: #e8eef8;
+  background: #0f172a;
+}
+
+html[data-theme='dark'] .app-content {
+  background: #0f172a;
+}
+
+html[data-theme='dark'] .home-stats,
+html[data-theme='dark'] .feature-card-enhanced,
+html[data-theme='dark'] .home-how-to-buy,
+html[data-theme='dark'] .home-public-note,
+html[data-theme='dark'] .page-header,
+html[data-theme='dark'] .toolbar-panel,
+html[data-theme='dark'] .product-card,
+html[data-theme='dark'] .cart-item,
+html[data-theme='dark'] .cart-summary,
+html[data-theme='dark'] .dashboard-header,
+html[data-theme='dark'] .stat-card,
+html[data-theme='dark'] .action-card,
+html[data-theme='dark'] .dashboard-activity,
+html[data-theme='dark'] .empty-state {
+  border-color: #334155;
+  background: #172033;
+  color: #e8eef8;
+}
+
+html[data-theme='dark'] h1,
+html[data-theme='dark'] h2,
+html[data-theme='dark'] h3,
+html[data-theme='dark'] h4,
+html[data-theme='dark'] .section-heading h2,
+html[data-theme='dark'] .section-heading-featured h2,
+html[data-theme='dark'] .product-card h3 {
+  color: #f8fafc;
+}
+
+html[data-theme='dark'] p,
+html[data-theme='dark'] .section-heading p,
+html[data-theme='dark'] .section-heading-featured p,
+html[data-theme='dark'] .product-card p,
+html[data-theme='dark'] .stat-description {
+  color: #cbd5e1;
+}
+
+html[data-theme='dark'] .form-control,
+html[data-theme='dark'] .product-card__size select,
+html[data-theme='dark'] .newsletter-input {
+  border-color: #475569;
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+html[data-theme='dark'] .product-card__actions,
+html[data-theme='dark'] .product-card__stock,
+html[data-theme='dark'] .product-card__note {
+  border-color: #334155;
+  background: #111827;
+  color: #e8eef8;
 }
 
 @media (max-width: 1024px) {

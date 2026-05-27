@@ -7,6 +7,7 @@ const Navbar = ({ user, onLogout }) => {
   const navigate = useNavigate()
   const admin = isAdmin(user)
   const [hidden, setHidden] = useState(false)
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light')
   const [cartQuantity, setCartQuantity] = useState(() =>
     getCart().reduce((sum, item) => sum + Number(item.quantity || 1), 0)
   )
@@ -16,6 +17,11 @@ const Navbar = ({ user, onLogout }) => {
     ...(!admin ? [{ label: 'Carrito', to: '/cart' }] : []),
     { label: 'Panel', to: '/dashboard' },
   ]
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    localStorage.setItem('theme', theme)
+  }, [theme])
 
   useEffect(() => {
     let lastScrollY = window.scrollY
@@ -43,6 +49,10 @@ const Navbar = ({ user, onLogout }) => {
   const handleLogout = () => {
     onLogout()
     navigate('/login')
+  }
+
+  const toggleTheme = () => {
+    setTheme((currentTheme) => (currentTheme === 'dark' ? 'light' : 'dark'))
   }
 
   return (
@@ -74,6 +84,15 @@ const Navbar = ({ user, onLogout }) => {
               )}
             </NavLink>
           ))}
+          <button
+            aria-label={theme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
+            className="theme-toggle-button"
+            onClick={toggleTheme}
+            title={theme === 'dark' ? 'Tema claro' : 'Tema oscuro'}
+            type="button"
+          >
+            {theme === 'dark' ? '☀' : '☾'}
+          </button>
           {user && (
             <button className="site-menu__button" onClick={handleLogout} type="button">
               Salir
