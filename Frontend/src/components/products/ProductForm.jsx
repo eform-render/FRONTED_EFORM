@@ -188,32 +188,52 @@ export default function ProductForm({ initialData = {}, loading = false, onSubmi
       </label>
 
       <section className="product-form__photo product-form__wide">
-        <div>
+        <div className="product-form__photo-intro">
           <span className="home-eyebrow">Foto del producto</span>
           <h2>Imagen para el catalogo</h2>
-          <p>Sube una foto desde tu equipo o pega el enlace de una imagen.</p>
+          <p>Elige una imagen existente, sube una foto desde tu equipo o pega un enlace.</p>
         </div>
 
-        <label>
-          Subir foto
-          <input className="form-control" name="photoFile" type="file" accept="image/*" onChange={handlePhotoChange} />
-        </label>
+        <div className="product-form__preview">
+          {form.imageUrl ? (
+            <img src={form.imageUrl} alt="Vista previa del producto" />
+          ) : (
+            <span>Vista previa</span>
+          )}
+        </div>
 
-        <label>
-          Link de la foto o imagen cargada
-          <input
-            className={`form-control ${errors.imageUrl ? 'is-invalid' : ''}`}
-            name="imageUrl"
-            placeholder="https://ejemplo.com/foto-producto.jpg"
-            value={form.imageUrl.startsWith('data:image') ? 'Imagen cargada desde tu equipo' : form.imageUrl}
-            onChange={handleChange}
-            readOnly={form.imageUrl.startsWith('data:image')}
-          />
-          {errors.imageUrl && <small>{errors.imageUrl}</small>}
-        </label>
+        <div className="product-form__image-controls">
+          <label>
+            Subir foto
+            <input className="form-control" name="photoFile" type="file" accept="image/*" onChange={handlePhotoChange} />
+          </label>
 
-        <label className="product-form__wide">
-          Seleccionar imagen de uniformes
+          <label>
+            Link de la foto o imagen cargada
+            <input
+              className={`form-control ${errors.imageUrl ? 'is-invalid' : ''}`}
+              name="imageUrl"
+              placeholder="https://ejemplo.com/foto-producto.jpg"
+              value={form.imageUrl.startsWith('data:image') ? 'Imagen cargada desde tu equipo' : form.imageUrl}
+              onChange={handleChange}
+              readOnly={form.imageUrl.startsWith('data:image')}
+            />
+            {errors.imageUrl && <small>{errors.imageUrl}</small>}
+          </label>
+
+          {form.imageUrl && (
+            <button
+              className="btn btn-outline-danger"
+              type="button"
+              onClick={() => setForm((currentForm) => ({ ...currentForm, imageUrl: '' }))}
+            >
+              Quitar imagen
+            </button>
+          )}
+        </div>
+
+        <div className="product-form__gallery">
+          <strong>Seleccionar imagen de uniformes</strong>
           <div className="image-picker">
             {['WhatsApp Image 2026-05-12 at 6.55.09 PM (1).jpeg',
               'WhatsApp Image 2026-05-12 at 6.55.09 PM.jpeg',
@@ -229,19 +249,12 @@ export default function ProductForm({ initialData = {}, loading = false, onSubmi
                     onClick={() => setForm((currentForm) => ({ ...currentForm, imageUrl: url }))}
                   >
                     <img src={url} alt={fileName} />
+                    <span>{fileName.includes('(1)') ? 'Uniforme alterno' : 'Uniforme SENA'}</span>
                   </button>
                 )
               })}
           </div>
           <span className="form-help">Elige una imagen existente de uniformes para el producto.</span>
-        </label>
-
-        <div className="product-form__preview">
-          {form.imageUrl ? (
-            <img src={form.imageUrl} alt="Vista previa del producto" />
-          ) : (
-            <span>Vista previa</span>
-          )}
         </div>
       </section>
 

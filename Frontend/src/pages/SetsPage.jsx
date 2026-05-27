@@ -1,6 +1,59 @@
-import { useState, useEffect, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { getCurrentUser } from '../services/authServices'
+
+const initialSets = [
+  {
+    id: 1,
+    name: 'Set Basico',
+    description: 'Conjunto inicial de uniformes y accesorios.',
+    tipoTela: 'Algodon mezclilla',
+    tallas: ['S', 'M', 'L'],
+    price: 320000,
+    stock: 12,
+    productsText: 'Camisa, Pantalon, Correa, Calcetas, Gorra',
+    createdAt: '2024-01-15',
+  },
+  {
+    id: 2,
+    name: 'Set Premium',
+    description: 'Set con material de mayor durabilidad y acabado premium.',
+    tipoTela: 'Poliester reforzado',
+    tallas: ['M', 'L', 'XL'],
+    price: 520000,
+    stock: 8,
+    productsText: 'Chaqueta, Pantalon, Camiseta, Zapatillas, Mochila',
+    createdAt: '2024-01-20',
+  },
+  {
+    id: 3,
+    name: 'Set Economico',
+    description: 'Opcion economica para pedidos de produccion en volumen.',
+    tipoTela: 'Lino industrial',
+    tallas: ['S', 'M', 'L', 'XL'],
+    price: 210000,
+    stock: 20,
+    productsText: 'Camiseta, Pantalon, Gorro, Paquete de etiquetas',
+    createdAt: '2024-01-25',
+  },
+]
+
+const emptyForm = {
+  name: '',
+  description: '',
+  tipoTela: '',
+  tallasText: '',
+  price: '',
+  stock: '',
+  productsText: '',
+}
+
+const formatPrice = (value) =>
+  new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    maximumFractionDigits: 0,
+  }).format(Number(value || 0))
 
 export default function SetsPage() {
   const navigate = useNavigate()
@@ -9,15 +62,7 @@ export default function SetsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [editingSet, setEditingSet] = useState(null)
-  const [form, setForm] = useState({
-    name: '',
-    description: '',
-    tipoTela: '',
-    tallasText: '',
-    price: '',
-    stock: '',
-    productsText: '',
-  })
+  const [form, setForm] = useState(emptyForm)
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -27,56 +72,20 @@ export default function SetsPage() {
       return
     }
 
-    setTimeout(() => {
-      setSets([
-        {
-          id: 1,
-          name: 'Set Básico',
-          description: 'Conjunto inicial de uniformes y accesorios',
-          tipoTela: 'Algodón mezclilla',
-          tallas: ['S', 'M', 'L'],
-          price: 320000,
-          stock: 12,
-          productCount: 5,
-          productsText: 'Camisa, Pantalón, Correa, Calcetas, Gorra',
-          createdAt: '2024-01-15',
-        },
-        {
-          id: 2,
-          name: 'Set Premium',
-          description: 'Set con material de mayor durabilidad y acabado premium',
-          tipoTela: 'Poliéster reforzado',
-          tallas: ['M', 'L', 'XL'],
-          price: 520000,
-          stock: 8,
-          productCount: 8,
-          productsText: 'Chaqueta, Pantalón, Camiseta, Zapatillas, Mochila',
-          createdAt: '2024-01-20',
-        },
-        {
-          id: 3,
-          name: 'Set Económico',
-          description: 'Opción económica para pedidos de producción en volumen',
-          tipoTela: 'Lino industrial',
-          tallas: ['S', 'M', 'L', 'XL'],
-          price: 210000,
-          stock: 20,
-          productCount: 4,
-          productsText: 'Camiseta, Pantalón, Gorro, Paquete de etiquetas',
-          createdAt: '2024-01-25',
-        },
-      ])
-      setLoading(false)
-    }, 400)
+    setSets(initialSets.map((item) => ({
+      ...item,
+      productCount: item.productsText.split(',').map((product) => product.trim()).filter(Boolean).length,
+    })))
+    setLoading(false)
   }, [navigate])
 
   const filteredSets = useMemo(
     () =>
       sets.filter((set) =>
-        set.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        set.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        set.tipoTela.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        set.productsText.toLowerCase().includes(searchTerm.toLowerCase())
+        [set.name, set.description, set.tipoTela, set.productsText]
+          .join(' ')
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
       ),
     [searchTerm, sets]
   )
@@ -87,7 +96,7 @@ export default function SetsPage() {
   )
 
   const totalStock = useMemo(
-    () => sets.reduce((sum, set) => sum + (set.stock || 0), 0),
+    () => sets.reduce((sum, set) => sum + Number(set.stock || 0), 0),
     [sets]
   )
 
@@ -98,15 +107,7 @@ export default function SetsPage() {
 
   const openCreateForm = () => {
     setEditingSet(null)
-    setForm({
-      name: '',
-      description: '',
-      tipoTela: '',
-      tallasText: '',
-      price: '',
-      stock: '',
-      productsText: '',
-    })
+    setForm(emptyForm)
     setError('')
     setShowForm(true)
   }
@@ -126,20 +127,6 @@ export default function SetsPage() {
     setShowForm(true)
   }
 
-  const resetForm = () => {
-    setForm({
-      name: '',
-      description: '',
-      tipoTela: '',
-      tallasText: '',
-      price: '',
-      stock: '',
-      productsText: '',
-    })
-    setEditingSet(null)
-    setError('')
-  }
-
   const handleSubmit = (event) => {
     event.preventDefault()
 
@@ -151,37 +138,35 @@ export default function SetsPage() {
       setError('El precio total debe ser un valor valido.')
       return
     }
-    if (!form.stock || Number(form.stock) < 0) {
-      setError('La cantidad en producción debe ser un numero entero igual o mayor a cero.')
+    if (form.stock === '' || Number(form.stock) < 0) {
+      setError('El stock debe ser un numero entero igual o mayor a cero.')
       return
     }
 
-    const newSet = {
+    const products = form.productsText.split(',').map((item) => item.trim()).filter(Boolean)
+    const nextSet = {
       id: editingSet ? editingSet.id : Math.max(0, ...sets.map((item) => item.id)) + 1,
       name: form.name.trim(),
       description: form.description.trim(),
       tipoTela: form.tipoTela.trim(),
-      tallas: form.tallasText.split(',').map((t) => t.trim()).filter(Boolean),
+      tallas: form.tallasText.split(',').map((item) => item.trim()).filter(Boolean),
       price: Number(form.price),
       stock: Number(form.stock),
-      productCount: form.productsText.split(',').map((item) => item.trim()).filter(Boolean).length,
-      productsText: form.productsText.trim(),
+      productCount: products.length,
+      productsText: products.join(', '),
       createdAt: editingSet ? editingSet.createdAt : new Date().toISOString().split('T')[0],
     }
 
-    setSets((prevSets) => {
-      if (editingSet) {
-        return prevSets.map((item) => (item.id === editingSet.id ? newSet : item))
-      }
-      return [newSet, ...prevSets]
-    })
-
+    setSets((prevSets) =>
+      editingSet ? prevSets.map((item) => (item.id === editingSet.id ? nextSet : item)) : [nextSet, ...prevSets]
+    )
     setShowForm(false)
-    resetForm()
+    setEditingSet(null)
+    setForm(emptyForm)
   }
 
   const handleDeleteSet = (setId) => {
-    if (window.confirm('¿Estás seguro de que quieres eliminar este set?')) {
+    if (window.confirm('Quieres eliminar este set?')) {
       setSets(sets.filter((set) => set.id !== setId))
     }
   }
@@ -191,19 +176,24 @@ export default function SetsPage() {
   }
 
   return (
-    <main className="sets-page">
+    <main className="sets-page products-page">
       <section className="page-header">
         <div>
-          <span className="home-eyebrow">Sets de producto</span>
-          <h1>Administración de Sets</h1>
-          <p>
-            Crea y edita conjuntos de productos con precio, tallas, tipo de tela y
-            stock en producción. Los clientes verán estos sets en su catálogo.
-          </p>
+          <span className="home-eyebrow">Sets EFORM</span>
+          <h1>Administracion de sets</h1>
+          <p>Crea combos de uniformes con productos incluidos, tallas, precio total y stock disponible.</p>
         </div>
-        <button className="btn btn-primary btn-lg" onClick={openCreateForm}>
-          Crear nuevo set
-        </button>
+        <div className="page-header__actions">
+          <Link className="btn btn-outline-primary" to="/dashboard">
+            Volver al panel
+          </Link>
+          <Link className="btn btn-outline-primary" to="/products">
+            Ver inventario
+          </Link>
+          <button className="btn btn-primary btn-lg" onClick={openCreateForm} type="button">
+            Crear nuevo set
+          </button>
+        </div>
       </section>
 
       <section className="sets-summary">
@@ -212,22 +202,22 @@ export default function SetsPage() {
           <strong>{sets.length}</strong>
         </article>
         <article>
-          <span>Productos totales</span>
+          <span>Productos incluidos</span>
           <strong>{totalProducts}</strong>
         </article>
         <article>
-          <span>En producción</span>
+          <span>Unidades disponibles</span>
           <strong>{totalStock}</strong>
         </article>
       </section>
 
       <section className="search-bar">
         <input
-          type="text"
-          placeholder="Buscar sets, telas, tallas o productos..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
           className="form-control"
+          onChange={(event) => setSearchTerm(event.target.value)}
+          placeholder="Buscar sets, telas, tallas o productos..."
+          type="text"
+          value={searchTerm}
         />
       </section>
 
@@ -240,11 +230,17 @@ export default function SetsPage() {
                 <span className="set-date">Creado: {setItem.createdAt}</span>
               </div>
               <span className={setItem.stock > 0 ? 'badge badge--success' : 'badge badge--warning'}>
-                {setItem.stock > 0 ? 'En producción' : 'Agotado'}
+                {setItem.stock > 0 ? 'Disponible' : 'Agotado'}
               </span>
             </div>
 
             <p>{setItem.description}</p>
+
+            <div className="set-card__products">
+              {(setItem.productsText || '').split(',').map((product) => product.trim()).filter(Boolean).map((product) => (
+                <span key={product}>{product}</span>
+              ))}
+            </div>
 
             <div className="set-card__details">
               <div>
@@ -253,17 +249,17 @@ export default function SetsPage() {
               </div>
               <div>
                 <span>Tallas</span>
-                <strong>{setItem.tallas?.join(', ') || 'N/A'}</strong>
+                <strong>{setItem.tallas?.join(', ') || 'Unica'}</strong>
               </div>
               <div>
                 <span>Precio total</span>
-                <strong>{new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(setItem.price)}</strong>
+                <strong>{formatPrice(setItem.price)}</strong>
               </div>
             </div>
 
             <div className="set-card__footer">
               <div>
-                <span>Productos en el set</span>
+                <span>Productos</span>
                 <strong>{setItem.productCount}</strong>
               </div>
               <div>
@@ -273,10 +269,10 @@ export default function SetsPage() {
             </div>
 
             <div className="set-card__actions">
-              <button className="btn btn-outline" type="button" onClick={() => openEditForm(setItem)}>
+              <button className="btn btn-outline-primary" type="button" onClick={() => openEditForm(setItem)}>
                 Editar
               </button>
-              <button className="btn btn-danger" type="button" onClick={() => handleDeleteSet(setItem.id)}>
+              <button className="btn btn-outline-danger" type="button" onClick={() => handleDeleteSet(setItem.id)}>
                 Eliminar
               </button>
             </div>
@@ -286,8 +282,8 @@ export default function SetsPage() {
 
       {filteredSets.length === 0 && (
         <div className="empty-state">
-          <p>No se encontraron sets que coincidan con la búsqueda.</p>
-          <button className="btn btn-primary" onClick={openCreateForm}>
+          <p>No se encontraron sets que coincidan con la busqueda.</p>
+          <button className="btn btn-primary" onClick={openCreateForm} type="button">
             Crear primer set
           </button>
         </div>
@@ -302,7 +298,7 @@ export default function SetsPage() {
                 <h2>{editingSet ? 'Actualizar conjunto' : 'Crear conjunto de productos'}</h2>
               </div>
               <button className="modal-close" type="button" onClick={() => setShowForm(false)}>
-                ×
+                X
               </button>
             </header>
 
@@ -311,87 +307,39 @@ export default function SetsPage() {
             <form className="set-form" onSubmit={handleSubmit}>
               <label>
                 Nombre del set
-                <input
-                  name="name"
-                  value={form.name}
-                  onChange={handleChange}
-                  className="form-control"
-                  required
-                />
+                <input name="name" value={form.name} onChange={handleChange} className="form-control" required />
               </label>
 
               <label>
-                Descripción
-                <textarea
-                  name="description"
-                  value={form.description}
-                  onChange={handleChange}
-                  className="form-control"
-                  rows="3"
-                />
+                Descripcion
+                <textarea name="description" value={form.description} onChange={handleChange} className="form-control" rows="3" />
               </label>
 
-              <label>
-                Tipo de tela
-                <input
-                  name="tipoTela"
-                  value={form.tipoTela}
-                  onChange={handleChange}
-                  className="form-control"
-                  placeholder="Ej: Algodón, poliéster, lona"
-                />
-              </label>
-
-              <label>
-                Tallas disponibles
-                <input
-                  name="tallasText"
-                  value={form.tallasText}
-                  onChange={handleChange}
-                  className="form-control"
-                  placeholder="Ej: S, M, L, XL"
-                />
-              </label>
+              <div className="form-grid">
+                <label>
+                  Tipo de tela
+                  <input name="tipoTela" value={form.tipoTela} onChange={handleChange} className="form-control" placeholder="Ej: Algodon, poliester, lona" />
+                </label>
+                <label>
+                  Tallas disponibles
+                  <input name="tallasText" value={form.tallasText} onChange={handleChange} className="form-control" placeholder="Ej: S, M, L, XL" />
+                </label>
+              </div>
 
               <label>
                 Productos incluidos
-                <textarea
-                  name="productsText"
-                  value={form.productsText}
-                  onChange={handleChange}
-                  className="form-control"
-                  rows="2"
-                  placeholder="Ej: Camisa, Pantalón, Gorro"
-                />
+                <textarea name="productsText" value={form.productsText} onChange={handleChange} className="form-control" rows="2" placeholder="Ej: Camisa, Pantalon, Gorro" />
               </label>
 
               <div className="form-grid">
                 <label>
                   Precio total
-                  <input
-                    name="price"
-                    type="number"
-                    min="0"
-                    step="1000"
-                    value={form.price}
-                    onChange={handleChange}
-                    className="form-control"
-                    required
-                  />
+                  <input name="price" type="number" min="0" step="1000" value={form.price} onChange={handleChange} className="form-control" required />
                 </label>
 
                 <label>
-                  Stock en producción
-                  <input
-                    name="stock"
-                    type="number"
-                    min="0"
-                    step="1"
-                    value={form.stock}
-                    onChange={handleChange}
-                    className="form-control"
-                    required
-                  />
+                  Stock disponible
+                  <input name="stock" type="number" min="0" step="1" value={form.stock} onChange={handleChange} className="form-control" required />
                 </label>
               </div>
 

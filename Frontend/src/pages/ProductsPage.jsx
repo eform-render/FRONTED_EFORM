@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { getAll, remove } from '../services/productService'
 import { addToCart, getCart } from '../services/cartService'
 import ProductCard from '../components/products/ProductCard'
@@ -12,10 +12,17 @@ const ProductPage = ({ user }) => {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [filter, setFilter] = useState('')
+  const [stockFilter, setStockFilter] = useState('all')
   const [cartQuantity, setCartQuantity] = useState(() =>
     getCart().reduce((sum, item) => sum + Number(item.quantity || 1), 0)
   )
   const admin = isAdmin(user)
+  const [searchParams] = useSearchParams()
+
+  useEffect(() => {
+    const typeFilter = searchParams.get('tipo')
+    if (typeFilter) setFilter(typeFilter)
+  }, [searchParams])
 
   useEffect(() => {
     getAll()
@@ -45,10 +52,21 @@ const ProductPage = ({ user }) => {
   }, [])
 
   const filteredProducts = useMemo(() => {
-    return products.filter((product) =>
-      product.nombre?.toLowerCase().includes(filter.trim().toLowerCase())
-    )
-  }, [filter, products])
+    return products.filter((product) => {
+      const matchesText = [product.nombre, product.descripcion, product.tipoTela]
+        .join(' ')
+        .toLowerCase()
+        .includes(filter.trim().toLowerCase())
+      const stock = Number(product.stock || 0)
+      const matchesStock =
+        stockFilter === 'all' ||
+        (stockFilter === 'available' && stock > 5) ||
+        (stockFilter === 'low' && stock > 0 && stock <= 5) ||
+        (stockFilter === 'empty' && stock === 0)
+
+      return matchesText && matchesStock
+    })
+  }, [filter, products, stockFilter])
 
   const totalStock = useMemo(() => {
     return products.reduce((sum, product) => sum + Number(product.stock || 0), 0)
@@ -56,6 +74,18 @@ const ProductPage = ({ user }) => {
 
   const lowStockCount = useMemo(() => {
     return products.filter((product) => Number(product.stock || 0) > 0 && Number(product.stock || 0) <= 5).length
+  }, [products])
+
+  const emptyStockCount = useMemo(() => {
+    return products.filter((product) => Number(product.stock || 0) === 0).length
+  }, [products])
+
+  const productTypeGroups = useMemo(() => {
+    return products.reduce((groups, product) => {
+      const type = product.tipoTela?.trim() || 'Sin tipo registrado'
+      groups[type] = (groups[type] || 0) + Number(product.stock || 0)
+      return groups
+    }, {})
   }, [products])
 
   const handleDelete = async (id) => {
@@ -89,10 +119,10 @@ const ProductPage = ({ user }) => {
       <section className="page-header">
         <div>
           <span className="home-eyebrow">Productos EFORM</span>
-          <h1>{admin ? 'Inventario de productos' : 'Productos disponibles'}</h1>
+          <h1>{admin ? 'Inventario administrativo' : 'Productos disponibles'}</h1>
           <p>
             {admin
-              ? 'Agrega nuevos productos para que los aprendices los vean y los compren en el catalogo de usuario.'
+              ? 'Revisa existencias, tipos de producto, stock bajo y acciones de gestion para cada uniforme.'
               : 'Consulta las caracteristicas de cada producto y agrega al carrito lo que necesitas.'}
           </p>
         </div>
@@ -111,7 +141,7 @@ const ProductPage = ({ user }) => {
         <input
           className="form-control"
           onChange={(e) => setFilter(e.target.value)}
-          placeholder="Buscar producto por nombre"
+          placeholder={admin ? 'Buscar por nombre, descripcion o tipo de tela' : 'Buscar producto por nombre'}
           value={filter}
         />
         <span>{filteredProducts.length} producto(s)</span>
@@ -120,17 +150,21 @@ const ProductPage = ({ user }) => {
       <section className="role-summary" aria-label={admin ? 'Resumen de inventario' : 'Resumen del catalogo'}>
         {admin ? (
           <>
-            <article>
+            <article className={stockFilter === 'all' ? 'role-summary__item is-selected' : 'role-summary__item'} onClick={() => setStockFilter('all')}>
               <span>Productos activos</span>
               <strong>{products.length}</strong>
             </article>
-            <article>
+            <article className={stockFilter === 'available' ? 'role-summary__item is-selected' : 'role-summary__item'} onClick={() => setStockFilter('available')}>
               <span>Unidades en stock</span>
               <strong>{totalStock}</strong>
             </article>
-            <article>
+            <article className={stockFilter === 'low' ? 'role-summary__item is-selected' : 'role-summary__item'} onClick={() => setStockFilter('low')}>
               <span>Stock bajo</span>
               <strong>{lowStockCount}</strong>
+            </article>
+            <article className={stockFilter === 'empty' ? 'role-summary__item is-selected' : 'role-summary__item'} onClick={() => setStockFilter('empty')}>
+              <span>Sin stock</span>
+              <strong>{emptyStockCount}</strong>
             </article>
           </>
         ) : (
@@ -151,6 +185,34 @@ const ProductPage = ({ user }) => {
         )}
       </section>
 
+      {admin && (
+        <section className="admin-inventory-panel">
+          <div className="admin-inventory-panel__header">
+            <div>
+              <h2>Stock por tipo de producto</h2>
+              <p>Valida que tipo de producto o tela tiene unidades disponibles.</p>
+            </div>
+            <Link className="btn btn-outline-primary" to="/dashboard">
+              Volver al panel
+            </Link>
+          </div>
+          <div className="inventory-type-grid">
+            {Object.entries(productTypeGroups).map(([type, stock]) => (
+              <button
+                className="inventory-type-card"
+                key={type}
+                onClick={() => setFilter(type === 'Sin tipo registrado' ? '' : type)}
+                type="button"
+              >
+                <span>{type}</span>
+                <strong>{stock}</strong>
+                <small>unidades</small>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
       {error && <div className="alert alert-danger">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
       {loading && <div className="catalog-message">Cargando productos...</div>}
@@ -167,17 +229,52 @@ const ProductPage = ({ user }) => {
       )}
 
       {!loading && filteredProducts.length > 0 && (
-        <div className="product-grid">
-          {filteredProducts.map((product) => (
-            <ProductCard
-              isAdmin={admin}
-              key={product.id}
-              onAddToCart={handleAddToCart}
-              onDelete={admin ? handleDelete : undefined}
-              product={product}
-            />
-          ))}
-        </div>
+        admin ? (
+          <section className="admin-product-table">
+            {filteredProducts.map((product) => (
+              <article className="admin-product-row" key={product.id}>
+                <div className="admin-product-row__image">
+                  {product.imageUrl ? <img src={product.imageUrl} alt={product.nombre} /> : <span>Sin imagen</span>}
+                </div>
+                <div>
+                  <h3>{product.nombre}</h3>
+                  <p>{product.descripcion || 'Producto sin descripcion registrada.'}</p>
+                  <div className="admin-product-row__meta">
+                    <span>Tipo: {product.tipoTela || 'Sin tipo registrado'}</span>
+                    <span>Tallas: {product.tallasDisponibles?.join(', ') || 'Unica'}</span>
+                  </div>
+                </div>
+                <div className="admin-product-row__stock">
+                  <span>Stock</span>
+                  <strong>{Number(product.stock || 0)}</strong>
+                </div>
+                <div className="admin-product-row__actions">
+                  <Link className="btn btn-outline-primary" to={`/products/${product.id}`}>
+                    Ver
+                  </Link>
+                  <Link className="btn btn-primary" to={`/products/${product.id}/edit`}>
+                    Editar
+                  </Link>
+                  <button className="btn btn-outline-danger" onClick={() => handleDelete(product.id)} type="button">
+                    Eliminar
+                  </button>
+                </div>
+              </article>
+            ))}
+          </section>
+        ) : (
+          <div className="product-grid">
+            {filteredProducts.map((product) => (
+              <ProductCard
+                isAdmin={admin}
+                key={product.id}
+                onAddToCart={handleAddToCart}
+                onDelete={admin ? handleDelete : undefined}
+                product={product}
+              />
+            ))}
+          </div>
+        )
       )}
     </main>
   )

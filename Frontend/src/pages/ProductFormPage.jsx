@@ -56,9 +56,14 @@ function ProductFormPage() {
           <h1>{id ? 'Actualizar uniforme' : 'Crear uniforme'}</h1>
           <p>Completa la informacion del catalogo para que los aprendices puedan ver y comprar los productos nuevos.</p>
         </div>
-        <Link className="btn btn-outline-primary" to="/products">
-          Volver
-        </Link>
+        <div className="page-header__actions">
+          <Link className="btn btn-outline-primary" to="/dashboard">
+            Volver al panel
+          </Link>
+          <Link className="btn btn-outline-primary" to="/products">
+            Ver inventario
+          </Link>
+        </div>
       </section>
 
       {error && <div className="alert alert-danger">{error}</div>}

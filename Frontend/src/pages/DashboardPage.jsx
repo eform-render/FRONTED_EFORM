@@ -40,6 +40,13 @@ export default function DashboardPage({ onLogout }) {
     (product) => Number(product.stock || 0) > 0 && Number(product.stock || 0) <= 5
   )
   const unavailableProducts = products.filter((product) => Number(product.stock || 0) === 0)
+  const productTypes = products.reduce((groups, product) => {
+    const type = product.tipoTela?.trim() || 'Sin tipo registrado'
+    if (!groups[type]) groups[type] = { count: 0, stock: 0 }
+    groups[type].count += 1
+    groups[type].stock += Number(product.stock || 0)
+    return groups
+  }, {})
 
   return (
     <main className="dashboard-page">
@@ -52,6 +59,20 @@ export default function DashboardPage({ onLogout }) {
           Cerrar sesion
         </button>
       </div>
+
+      {admin && (
+        <nav className="dashboard-back-nav" aria-label="Opciones de revision del panel">
+          <Link className="btn btn-outline-primary" to="/products">
+            Revisar inventario completo
+          </Link>
+          <Link className="btn btn-outline-primary" to="/products/new">
+            Crear producto
+          </Link>
+          <Link className="btn btn-outline-primary" to="/sets">
+            Revisar sets
+          </Link>
+        </nav>
+      )}
 
       {admin && (
         <div className="dashboard-stats">
@@ -80,6 +101,27 @@ export default function DashboardPage({ onLogout }) {
             </Link>
           </div>
         </div>
+      )}
+
+      {admin && (
+        <section className="dashboard-stock-review">
+          <div className="dashboard-stock-review__header">
+            <h2>Unidades en stock por tipo</h2>
+            <p>Resumen para validar que productos existen y cuantas unidades hay registradas.</p>
+          </div>
+          <div className="inventory-type-grid">
+            {Object.entries(productTypes).map(([type, summary]) => (
+              <Link className="inventory-type-card" key={type} to={`/products?tipo=${encodeURIComponent(type)}`}>
+                <span>{type}</span>
+                <strong>{summary.stock}</strong>
+                <small>{summary.count} producto(s)</small>
+              </Link>
+            ))}
+            {!loadingProducts && products.length === 0 && (
+              <p className="catalog-message">Todavia no hay productos registrados.</p>
+            )}
+          </div>
+        </section>
       )}
 
       <div className="dashboard-actions">
