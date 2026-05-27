@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { clearCart, getCart, removeFromCart, updateCartQuantity } from '../services/cartService'
+import { checkoutCart, clearCart, getCart, removeFromCart, updateCartQuantity } from '../services/cartService'
 
 const formatPrice = (value) =>
   new Intl.NumberFormat('es-CO', {
@@ -11,6 +11,20 @@ const formatPrice = (value) =>
 
 const CartPage = () => {
   const [items, setItems] = useState(() => getCart())
+  const [paymentMethod, setPaymentMethod] = useState('PSE')
+  const [customerName, setCustomerName] = useState('')
+  const [customerEmail, setCustomerEmail] = useState('')
+  const [order, setOrder] = useState(null)
+  const [paymentError, setPaymentError] = useState('')
+
+  useEffect(() => {
+    const handleCartUpdate = (event) => {
+      setItems(event?.detail?.cart || getCart())
+    }
+
+    window.addEventListener('cartUpdated', handleCartUpdate)
+    return () => window.removeEventListener('cartUpdated', handleCartUpdate)
+  }, [])
 
   const total = useMemo(() => {
     return items.reduce((sum, item) => sum + Number(item.precio || 0) * Number(item.quantity || 1), 0)
@@ -35,6 +49,20 @@ const CartPage = () => {
     setItems([])
   }
 
+  const handleCheckout = (event) => {
+    event.preventDefault()
+    setPaymentError('')
+
+    if (!customerName.trim() || !customerEmail.trim()) {
+      setPaymentError('Completa tu nombre y correo para confirmar el pago.')
+      return
+    }
+
+    const confirmedOrder = checkoutCart()
+    setOrder({ ...confirmedOrder, customerName, customerEmail, paymentMethod })
+    setItems([])
+  }
+
   return (
     <main className="products-page">
       <section className="page-header">
@@ -48,12 +76,18 @@ const CartPage = () => {
         </Link>
       </section>
 
+      {order && (
+        <div className="alert alert-success checkout-success">
+          <strong>Pago confirmado.</strong> Pedido {order.id} registrado por {formatPrice(order.total)}.
+        </div>
+      )}
+
       {items.length === 0 ? (
         <div className="empty-state">
           <h2>Tu carrito esta vacio</h2>
-          <p>Agrega productos desde el catalogo para verlos aqui.</p>
+          <p>{order ? 'Tu pedido quedo registrado correctamente.' : 'Agrega productos desde productos para verlos aqui.'}</p>
           <Link className="btn btn-primary" to="/products">
-            Ver catalogo
+            Ver productos
           </Link>
         </div>
       ) : (
@@ -87,7 +121,7 @@ const CartPage = () => {
                     aria-label="Cantidad"
                     max={Number(item.stock || 0)}
                     min="1"
-                    onChange={(event) => handleQuantity(item, event.target.value)}
+                    readOnly
                     type="number"
                     value={item.quantity}
                   />
@@ -116,6 +150,44 @@ const CartPage = () => {
               <span>Total estimado</span>
               <strong>{formatPrice(total)}</strong>
             </div>
+            <form className="checkout-form" onSubmit={handleCheckout}>
+              <label>
+                Nombre completo
+                <input
+                  className="form-control"
+                  onChange={(event) => setCustomerName(event.target.value)}
+                  placeholder="Tu nombre"
+                  value={customerName}
+                />
+              </label>
+              <label>
+                Correo
+                <input
+                  className="form-control"
+                  onChange={(event) => setCustomerEmail(event.target.value)}
+                  placeholder="correo@ejemplo.com"
+                  type="email"
+                  value={customerEmail}
+                />
+              </label>
+              <label>
+                Metodo de pago
+                <select
+                  className="form-control"
+                  onChange={(event) => setPaymentMethod(event.target.value)}
+                  value={paymentMethod}
+                >
+                  <option value="PSE">PSE</option>
+                  <option value="Tarjeta debito">Tarjeta debito</option>
+                  <option value="Tarjeta credito">Tarjeta credito</option>
+                  <option value="Pago en sede">Pago en sede</option>
+                </select>
+              </label>
+              {paymentError && <p className="checkout-error">{paymentError}</p>}
+              <button className="btn btn-success" type="submit">
+                Pagar pedido
+              </button>
+            </form>
             <div className="cart-summary__actions">
               <Link className="btn btn-primary" to="/products">
                 Agregar mas productos

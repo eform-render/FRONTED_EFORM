@@ -19,16 +19,7 @@ const ProductPage = ({ user }) => {
 
   useEffect(() => {
     getAll()
-      .then((data) => {
-        const cart = getCart()
-        const adjusted = data.map((p) => {
-          const qtyInCart = cart
-            .filter((item) => item.id === p.id)
-            .reduce((sum, it) => sum + Number(it.quantity || 1), 0)
-          return { ...p, stock: Number(p.stock || 0) - qtyInCart }
-        })
-        setProducts(adjusted)
-      })
+      .then(setProducts)
       .catch((apiError) => setError(getApiErrorMessage(apiError, 'Error al cargar productos.')))
       .finally(() => setLoading(false))
   }, [])
@@ -36,12 +27,7 @@ const ProductPage = ({ user }) => {
   useEffect(() => {
     const handler = (e) => {
       const cart = (e && e.detail && e.detail.cart) ? e.detail.cart : getCart()
-      setProducts((prev) =>
-        prev.map((p) => {
-          const qtyInCart = cart.filter((item) => item.id === p.id).reduce((sum, it) => sum + Number(it.quantity || 1), 0)
-          return { ...p, stock: Math.max(0, Number(p.stock || 0) - qtyInCart) }
-        })
-      )
+      setCartQuantity(cart.reduce((sum, item) => sum + Number(item.quantity || 1), 0))
     }
 
     window.addEventListener('cartUpdated', handler)
@@ -89,13 +75,20 @@ const ProductPage = ({ user }) => {
     setCartQuantity(result.cart.reduce((sum, item) => sum + Number(item.quantity || 1), 0))
     setSuccess(result.added ? result.message : '')
     setError(result.added ? '' : result.message)
+    if (result.added) {
+      setProducts((prev) =>
+        prev.map((item) =>
+          item.id === product.id ? { ...item, stock: Math.max(0, Number(item.stock || 0) - 1) } : item
+        )
+      )
+    }
   }
 
   return (
     <main className="products-page">
       <section className="page-header">
         <div>
-          <span className="home-eyebrow">Catalogo EFORM</span>
+          <span className="home-eyebrow">Productos EFORM</span>
           <h1>{admin ? 'Inventario de productos' : 'Productos disponibles'}</h1>
           <p>
             {admin

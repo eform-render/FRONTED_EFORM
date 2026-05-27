@@ -1,20 +1,28 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { getCurrentUser } from '../services/authServices'
 import { getAll } from '../services/productService'
 import ProductCard from '../components/products/ProductCard'
 
 export default function HomePage() {
+  const user = getCurrentUser()
+  const isAuthenticated = Boolean(user)
   const [products, setProducts] = useState([])
   const [filter, setFilter] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      setLoading(false)
+      return
+    }
+
     getAll()
       .then(setProducts)
       .catch(() => setError('No fue posible cargar los productos en este momento.'))
       .finally(() => setLoading(false))
-  }, [])
+  }, [isAuthenticated])
 
   const filteredProducts = products.filter((product) =>
     product.nombre?.toLowerCase().includes(filter.toLowerCase())
@@ -59,6 +67,39 @@ export default function HomePage() {
     'Confirma tu pedido',
   ]
 
+  const dailyVerses = [
+    {
+      text: 'Todo lo puedo en Cristo que me fortalece.',
+      reference: 'Filipenses 4:13',
+    },
+    {
+      text: 'El Senor es mi pastor; nada me faltara.',
+      reference: 'Salmo 23:1',
+    },
+    {
+      text: 'Encomienda al Senor tus obras, y tus pensamientos seran afirmados.',
+      reference: 'Proverbios 16:3',
+    },
+    {
+      text: 'Esfuerzate y se valiente; no temas ni desmayes.',
+      reference: 'Josue 1:9',
+    },
+    {
+      text: 'Por la manana hazme saber de tu gran amor, porque en ti he puesto mi confianza.',
+      reference: 'Salmo 143:8',
+    },
+    {
+      text: 'La paz os dejo, mi paz os doy.',
+      reference: 'Juan 14:27',
+    },
+    {
+      text: 'Mas buscad primeramente el reino de Dios y su justicia.',
+      reference: 'Mateo 6:33',
+    },
+  ]
+  const verseIndex = Math.floor(Date.now() / 86400000) % dailyVerses.length
+  const dailyVerse = dailyVerses[verseIndex]
+
   return (
     <main className="home-page">
       <section className="home-hero-banner">
@@ -69,31 +110,19 @@ export default function HomePage() {
             Compra tus uniformes institucionales en una plataforma clara, segura y pensada para aprendices SENA.
           </p>
           <div className="hero-cta-buttons">
-            <Link className="btn btn-primary btn-lg" to="/products">
-              Ver Productos
+            <Link className="btn btn-primary btn-lg" to={isAuthenticated ? '/products' : '/login'}>
+              {isAuthenticated ? 'Ver Productos' : 'Iniciar Sesion'}
             </Link>
-            <Link className="btn btn-outline-light btn-lg" to="/products">
-              Ver Disponibles
+            <Link className="btn btn-outline-light btn-lg" to={isAuthenticated ? '/cart' : '/register'}>
+              {isAuthenticated ? 'Ver Carrito' : 'Registrarme'}
             </Link>
           </div>
         </div>
         <div className="home-hero-banner__visual">
-          <div className="hero-uniform-showcase" aria-label="Uniformes destacados EFORM">
-            <img
-              className="hero-uniform-shot hero-uniform-shot--main"
-              src="/images/uniformes/WhatsApp%20Image%202026-05-12%20at%206.55.10%20PM.jpeg"
-              alt="Uniforme SENA destacado"
-            />
-            <img
-              className="hero-uniform-shot"
-              src="/images/uniformes/WhatsApp%20Image%202026-05-12%20at%206.55.09%20PM.jpeg"
-              alt="Detalle de uniforme SENA"
-            />
-            <img
-              className="hero-uniform-shot"
-              src="/images/uniformes/WhatsApp%20Image%202026-05-12%20at%206.55.09%20PM%20(1).jpeg"
-              alt="Producto institucional SENA"
-            />
+          <div className="daily-verse-card">
+            <span>Frase biblica del dia</span>
+            <blockquote>{dailyVerse.text}</blockquote>
+            <strong>{dailyVerse.reference}</strong>
           </div>
         </div>
       </section>
@@ -145,6 +174,7 @@ export default function HomePage() {
         </div>
       </section>
 
+      {isAuthenticated ? (
       <section className="home-section home-featured-catalog">
         <div className="section-heading-featured">
           <div>
@@ -180,6 +210,24 @@ export default function HomePage() {
           </div>
         )}
       </section>
+      ) : (
+        <section className="home-section home-public-note">
+          <div className="section-heading">
+            <h2>Acceso seguro a productos</h2>
+            <p>
+              Para ver productos, agregar al carrito y pagar tu pedido, inicia sesion o crea tu cuenta.
+            </p>
+          </div>
+          <div className="hero-cta-buttons">
+            <Link className="btn btn-primary" to="/login">
+              Iniciar Sesion
+            </Link>
+            <Link className="btn btn-outline-primary" to="/register">
+              Crear Cuenta
+            </Link>
+          </div>
+        </section>
+      )}
     </main>
   )
 }

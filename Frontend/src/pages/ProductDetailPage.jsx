@@ -39,13 +39,10 @@ const ProductDetailPage = ({ user }) => {
   useEffect(() => {
     const handler = (e) => {
       const cart = (e && e.detail && e.detail.cart) ? e.detail.cart : getCart()
-      setProduct((prev) => {
-        if (!prev) return prev
-        const qtyInCart = cart
-          .filter((it) => it.id === prev.id)
-          .reduce((sum, it) => sum + Number(it.quantity || 1), 0)
-        return { ...prev, stock: Math.max(0, Number(prev.stock || 0) - qtyInCart) }
-      })
+      const item = cart.find(
+        (cartItem) => String(cartItem.id) === String(id) && (cartItem.selectedSize || 'Unica') === selectedSize
+      )
+      setAddedCount(item?.quantity || 0)
     }
 
     const onReserveFailed = (e) => {
@@ -59,7 +56,7 @@ const ProductDetailPage = ({ user }) => {
       window.removeEventListener('cartUpdated', handler)
       window.removeEventListener('cartReserveFailed', onReserveFailed)
     }
-  }, [id])
+  }, [id, selectedSize])
 
   useEffect(() => {
     if (!product || !selectedSize) return
@@ -150,6 +147,9 @@ const ProductDetailPage = ({ user }) => {
                 setSuccess(result.added ? result.message : '')
                 setCartError(result.added ? '' : result.message)
                 if (result.added) {
+                  setProduct((prev) =>
+                    prev ? { ...prev, stock: Math.max(0, Number(prev.stock || 0) - 1) } : prev
+                  )
                   const item = result.cart.find(
                     (cartItem) => cartItem.id === product.id && (cartItem.selectedSize || 'Unica') === selectedSize
                   )

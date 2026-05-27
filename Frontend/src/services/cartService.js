@@ -104,6 +104,7 @@ export const updateCartQuantity = (id, quantity, selectedSize = 'Unica') => {
   const cart = getCart()
   const productItems = cart.filter((item) => item.id === id)
   const targetItem = productItems.find((item) => (item.selectedSize || 'Unica') === selectedSize)
+  const previousQuantity = Number(targetItem?.quantity || 1)
   const stock = Number(targetItem?.stock || 0)
   const quantityInOtherSizes = productItems
     .filter((item) => (item.selectedSize || 'Unica') !== selectedSize)
@@ -114,6 +115,25 @@ export const updateCartQuantity = (id, quantity, selectedSize = 'Unica') => {
     item.id === id && (item.selectedSize || 'Unica') === selectedSize ? { ...item, quantity: safeQuantity } : item
   )
   saveCart(nextCart)
+
+  const delta = safeQuantity - previousQuantity
+  if (targetItem && delta > 0) {
+    reserve(id, delta).catch((err) => {
+      const reverted = getCart().map((item) =>
+        item.id === id && (item.selectedSize || 'Unica') === selectedSize
+          ? { ...item, quantity: previousQuantity }
+          : item
+      )
+      saveCart(reverted)
+      try { window.dispatchEvent(new CustomEvent('cartReserveFailed', { detail: { message: err?.response?.data?.message || err.message } })) } catch {}
+    })
+  }
+  if (targetItem && delta < 0) {
+    release(id, Math.abs(delta)).catch(() => {
+      try { window.dispatchEvent(new CustomEvent('cartReleaseFailed', { detail: { id, qty: Math.abs(delta) } })) } catch {}
+    })
+  }
+
   return nextCart
 }
 
@@ -147,4 +167,22 @@ export const clearCart = () => {
     const qty = Number(item.quantity || 0)
     if (qty > 0) release(item.id, qty).catch(() => {})
   })
+}
+
+export const checkoutCart = () => {
+  const prev = getCart()
+  const order = {
+    id: `EFORM-${Date.now()}`,
+    createdAt: new Date().toISOString(),
+    items: prev,
+    total: prev.reduce((sum, item) => sum + Number(item.precio || 0) * Number(item.quantity || 1), 0),
+  }
+  localStorage.setItem('lastOrder', JSON.stringify(order))
+  localStorage.removeItem(CART_KEY)
+  try {
+    window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: [] } }))
+  } catch (e) {
+    // ignore
+  }
+  return order
 }

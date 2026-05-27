@@ -37,7 +37,7 @@ function App() {
         <Routes>
           <Route
             path="/"
-            element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage onLogin={handleLogin} />}
+            element={<HomePage />}
           />
           <Route
             path="/login"
@@ -46,7 +46,7 @@ function App() {
           <Route path="/register" element={isAuthenticated ? <Navigate to="/products" replace /> : <RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/home" element={isAuthenticated ? <HomePage /> : <Navigate to="/" replace />} />
+          <Route path="/home" element={<HomePage />} />
           <Route
             path="/dashboard"
             element={isAuthenticated ? <DashboardPage onLogout={handleLogout} /> : <Navigate to="/" replace />}
