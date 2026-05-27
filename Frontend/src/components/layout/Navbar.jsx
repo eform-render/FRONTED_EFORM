@@ -1,19 +1,12 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { isAdmin } from '../../utils/roles'
 
 const Navbar = ({ user, onLogout }) => {
   const navigate = useNavigate()
-  const admin = isAdmin(user)
-  const navItems = admin
-    ? [
-        { label: 'Panel', to: '/dashboard' },
-        { label: 'Inventario', to: '/products' },
-        { label: 'Sets', to: '/sets' },
-      ]
-    : [
-        { label: 'Catalogo', to: '/products' },
-        { label: 'Carrito', to: '/cart' },
-      ]
+  const navItems = [
+    { label: 'Inicio', to: '/home' },
+    { label: 'Productos', to: '/products' },
+    { label: 'Panel', to: '/dashboard' },
+  ]
 
   const handleLogout = () => {
     onLogout()
@@ -23,16 +16,23 @@ const Navbar = ({ user, onLogout }) => {
   return (
     <nav className="site-navbar">
       <div className="site-navbar__inner">
-        <NavLink className="site-brand" to="/">
-          <img className="site-brand__logo" src="/logo.jpeg" alt="Logo EFORM" />
-          <span>EFORM</span>
-        </NavLink>
+        <div className="navbar-brand-section">
+          <NavLink className="site-brand" to="/home">
+            <img className="site-brand__logo" src="/logo.jpeg" alt="Logo EFORM" />
+            <div className="brand-info">
+              <span className="brand-name">EFORM</span>
+              <span className="brand-subtitle">
+                Plataforma para la compra y gestion de uniformes institucionales SENA.
+              </span>
+            </div>
+          </NavLink>
+        </div>
 
         <div className="site-menu" aria-label="Menu principal">
           {navItems.map((item) => (
             <NavLink
               className={({ isActive }) => (isActive ? 'site-menu__link is-active' : 'site-menu__link')}
-              end={item.to === '/'}
+              end={item.to === '/home'}
               key={item.to}
               to={item.to}
             >
@@ -40,14 +40,9 @@ const Navbar = ({ user, onLogout }) => {
             </NavLink>
           ))}
           {user && (
-            <>
-              <span className="site-menu__user">
-                Bienvenido, {user.username || user.email}
-              </span>
-              <button className="site-menu__button" onClick={handleLogout} type="button">
-                Salir
-              </button>
-            </>
+            <button className="site-menu__button" onClick={handleLogout} type="button">
+              Salir
+            </button>
           )}
         </div>
       </div>

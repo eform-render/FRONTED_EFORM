@@ -12,108 +12,116 @@ export default function HomePage() {
   useEffect(() => {
     getAll()
       .then(setProducts)
-      .catch(() => setError('No fue posible cargar el catalogo en este momento.'))
+      .catch(() => setError('No fue posible cargar los productos en este momento.'))
       .finally(() => setLoading(false))
   }, [])
 
-  const filteredProducts = products.filter((p) =>
-    p.nombre?.toLowerCase().includes(filter.toLowerCase())
+  const filteredProducts = products.filter((product) =>
+    product.nombre?.toLowerCase().includes(filter.toLowerCase())
   )
 
   const highlights = [
     {
-      title: 'Compra mas agil',
-      text: 'Centraliza la adquisicion de uniformes SENA y reduce procesos manuales, demoras y errores.',
+      icon: '01',
+      title: 'Compra Rapida y Segura',
+      text: 'Selecciona tus uniformes, revisa disponibilidad y continua tu compra en pocos pasos.',
     },
     {
-      title: 'Catalogo actualizado',
-      text: 'Permite consultar dotaciones disponibles, precios, descripcion y stock desde cualquier dispositivo.',
+      icon: '02',
+      title: 'Productos Completos',
+      text: 'Consulta prendas institucionales SENA con descripcion, tallas, precios y stock actualizado.',
     },
     {
-      title: 'Trazabilidad de pedidos',
-      text: 'Facilita el seguimiento de solicitudes desde el registro hasta la entrega del uniforme.',
+      icon: '03',
+      title: 'Trazabilidad Total',
+      text: 'Ten claridad sobre tu pedido desde la seleccion hasta la entrega.',
     },
+    {
+      icon: '04',
+      title: 'Soporte Dedicado',
+      text: 'Recibe orientacion sobre tallas, disponibilidad y detalles de cada uniforme.',
+    },
+  ]
+
+  const benefits = [
+    { number: '500+', label: 'Uniformes Disponibles', description: 'Variedad de productos SENA' },
+    { number: '24/7', label: 'Plataforma Disponible', description: 'Compra en cualquier momento' },
+    { number: '2-5', label: 'Dias de Entrega', description: 'Envio para pedidos confirmados' },
+    { number: '100%', label: 'Compra Confiable', description: 'Informacion clara de cada producto' },
   ]
 
   const workflow = [
-    'Registro e inicio de sesion',
-    'Consulta del catalogo',
-    'Seleccion de producto',
-    'Confirmacion del pedido',
-    'Gestion de inventario',
+    'Explora los productos',
+    'Elige tu uniforme',
+    'Selecciona la talla',
+    'Revisa disponibilidad',
+    'Agrega al carrito',
+    'Confirma tu pedido',
   ]
-
-  const previewProducts = filteredProducts.slice(0, 3)
-  const hasProducts = previewProducts.length > 0
-
-  const renderCatalogContent = () => {
-    if (loading) return <p className="catalog-message">Cargando catalogo...</p>
-    if (error) return <p className="catalog-message catalog-message--error">{error}</p>
-    if (!hasProducts) {
-      return <p className="catalog-message">No hay productos que coincidan con la busqueda.</p>
-    }
-
-    return (
-      <div className="home-product-grid">
-        {previewProducts.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
-    )
-  }
 
   return (
     <main className="home-page">
-      <section className="home-hero">
-        <div className="home-hero__content">
-          <span className="home-eyebrow">Proyecto EFORM | SENA ADSO 3067454</span>
-          <h1>Uniformes SENA con compra digital, control y seguimiento.</h1>
-          <p>
-            EFORM es una plataforma de comercio electronico creada para modernizar la venta de
-            dotaciones institucionales, mejorar la experiencia de los aprendices y dar mas control
-            al proceso administrativo.
+      <section className="home-hero-banner">
+        <div className="home-hero-banner__content">
+          <div className="hero-badge">UNIFORMES SENA | TIENDA OFICIAL ONLINE</div>
+          <h1 className="hero-title">Uniformes SENA con Confianza y Calidad</h1>
+          <p className="hero-subtitle">
+            Compra tus uniformes institucionales en una plataforma clara, segura y pensada para aprendices SENA.
           </p>
-          <div className="home-actions">
+          <div className="hero-cta-buttons">
             <Link className="btn btn-primary btn-lg" to="/products">
-              Ver catalogo
+              Ver Productos
+            </Link>
+            <Link className="btn btn-outline-light btn-lg" to="/products">
+              Ver Disponibles
             </Link>
           </div>
         </div>
-
-        <div className="home-hero__panel" aria-label="Resumen del proyecto EFORM">
-          <div>
-            <span className="panel-label">Objetivo</span>
-            <strong>Optimizar la adquisicion de uniformes institucionales.</strong>
-          </div>
-          <div className="panel-metrics">
-            <span>Pedidos</span>
-            <strong>en linea</strong>
-          </div>
-          <div className="panel-metrics">
-            <span>Inventario</span>
-            <strong>controlado</strong>
-          </div>
-          <div className="panel-metrics">
-            <span>Acceso</span>
-            <strong>multidispositivo</strong>
+        <div className="home-hero-banner__visual">
+          <div className="hero-uniform-showcase" aria-label="Uniformes destacados EFORM">
+            <img
+              className="hero-uniform-shot hero-uniform-shot--main"
+              src="/images/uniformes/WhatsApp%20Image%202026-05-12%20at%206.55.10%20PM.jpeg"
+              alt="Uniforme SENA destacado"
+            />
+            <img
+              className="hero-uniform-shot"
+              src="/images/uniformes/WhatsApp%20Image%202026-05-12%20at%206.55.09%20PM.jpeg"
+              alt="Detalle de uniforme SENA"
+            />
+            <img
+              className="hero-uniform-shot"
+              src="/images/uniformes/WhatsApp%20Image%202026-05-12%20at%206.55.09%20PM%20(1).jpeg"
+              alt="Producto institucional SENA"
+            />
           </div>
         </div>
       </section>
 
-      <section className="home-section">
+      <section className="home-stats">
+        <div className="stats-container">
+          {benefits.map((benefit) => (
+            <div key={benefit.label} className="stat-card">
+              <div className="stat-number">{benefit.number}</div>
+              <h3 className="stat-label">{benefit.label}</h3>
+              <p className="stat-description">{benefit.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="home-section home-why-eform">
         <div className="section-heading">
-          <span className="home-eyebrow">Por que EFORM</span>
-          <h2>Una solucion para reemplazar el proceso manual.</h2>
+          <h2>Por que Comprar en EFORM</h2>
           <p>
-            El documento del proyecto identifica retrasos, inconsistencias y baja trazabilidad en la
-            compra de uniformes. Esta interfaz presenta la solucion de forma mas clara para usuarios
-            y administradores.
+            EFORM concentra la compra de uniformes institucionales en una experiencia sencilla,
+            organizada y facil de consultar.
           </p>
         </div>
-
-        <div className="home-feature-grid">
+        <div className="features-grid-enhanced">
           {highlights.map((item) => (
-            <article className="home-feature" key={item.title}>
+            <article className="feature-card-enhanced" key={item.title}>
+              <div className="feature-icon">{item.icon}</div>
               <h3>{item.title}</h3>
               <p>{item.text}</p>
             </article>
@@ -121,42 +129,56 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="home-section home-section--split">
+      <section className="home-section home-how-to-buy">
         <div className="section-heading">
-          <span className="home-eyebrow">Flujo principal</span>
-          <h2>Del catalogo al pedido sin perder control.</h2>
-          <p>
-            La plataforma contempla registro de usuarios, catalogo, seleccion de productos,
-            confirmacion de pedidos y gestion inicial de inventario.
-          </p>
+          <h2>Como Comprar tus Uniformes</h2>
+          <p>Un flujo corto para encontrar, revisar y pedir el uniforme que necesitas.</p>
         </div>
-
-        <ol className="workflow-list">
-          {workflow.map((step) => (
-            <li key={step}>{step}</li>
+        <div className="steps-container">
+          {workflow.map((step, index) => (
+            <div key={step} className="step-item">
+              <div className="step-number">{index + 1}</div>
+              <p className="step-text">{step}</p>
+              {index < workflow.length - 1 && <div className="step-arrow">-</div>}
+            </div>
           ))}
-        </ol>
+        </div>
       </section>
 
-      <section className="home-section home-catalog">
-        <div className="section-heading section-heading--inline">
+      <section className="home-section home-featured-catalog">
+        <div className="section-heading-featured">
           <div>
-            <span className="home-eyebrow">Catalogo</span>
-            <h2>Explora uniformes disponibles.</h2>
+            <h2>Uniformes Destacados</h2>
+            <p>Productos recomendados para revisar rapidamente disponibilidad, tallas y precio.</p>
           </div>
-          <Link className="btn btn-outline-primary" to="/products">
-            Ver todos
+          <Link className="btn btn-primary" to="/products">
+            Ver Todos los Productos
           </Link>
         </div>
 
-        <input
-          className="form-control home-search"
-          placeholder="Buscar por nombre del producto"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-        />
+        <div className="search-filter-box">
+          <input
+            className="form-control home-search-enhanced"
+            placeholder="Busca tu uniforme SENA por nombre o descripcion..."
+            value={filter}
+            onChange={(event) => setFilter(event.target.value)}
+          />
+        </div>
 
-        {renderCatalogContent()}
+        {loading && <p className="catalog-message">Cargando uniformes disponibles...</p>}
+        {error && <p className="catalog-message catalog-message--error">{error}</p>}
+        {!loading && !error && filteredProducts.length === 0 && (
+          <p className="catalog-message">
+            No encontramos uniformes con ese nombre. Intenta con otro termino de busqueda.
+          </p>
+        )}
+        {!loading && !error && filteredProducts.length > 0 && (
+          <div className="home-product-grid-enhanced">
+            {filteredProducts.slice(0, 6).map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
       </section>
     </main>
   )
