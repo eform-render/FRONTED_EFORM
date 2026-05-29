@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import styles from './ProductCard.module.css'
 
 const formatPrice = (value) =>
   new Intl.NumberFormat('es-CO', {
@@ -15,17 +16,17 @@ const ProductCard = ({ product, isAdmin = false, onAddToCart, onDelete }) => {
   const [selectedSize, setSelectedSize] = useState(sizes[0])
 
   return (
-    <article className={isAdmin ? 'product-card product-card--admin' : 'product-card product-card--client'}>
+    <article className={`${styles['product-card']} ${isAdmin ? styles['product-card--admin'] : styles['product-card--client']}`}>
       <button
-        className="product-card__image"
+        className={styles['product-card__image']}
         onClick={() => navigate(`/products/${product.id}`)}
         type="button"
       >
         {product.imageUrl ? <img src={product.imageUrl} alt={product.nombre} /> : <span>Sin imagen</span>}
       </button>
 
-      <div className="product-card__header">
-        <span className={stock > 0 ? 'product-status' : 'product-status product-status--empty'}>
+      <div className={styles['product-card__header']}>
+        <span className={`${stock > 0 ? styles['product-status'] : `${styles['product-status']} ${styles['product-status--empty']}`}`}>
           {stock > 0 ? 'Disponible' : 'Sin stock'}
         </span>
         <strong>{formatPrice(product.precio)}</strong>
@@ -35,19 +36,19 @@ const ProductCard = ({ product, isAdmin = false, onAddToCart, onDelete }) => {
       <p>{product.descripcion || 'Producto sin descripcion registrada.'}</p>
 
       {product.tipoTela && (
-        <div className="product-card__material">
+        <div className={styles['product-card__material']}>
           <span>Tipo de tela</span>
           <strong>{product.tipoTela}</strong>
         </div>
       )}
 
-      <div className="product-card__stock">
+      <div className={styles['product-card__stock']}>
         <span>{isAdmin ? 'Inventario' : 'Unidades disponibles'}</span>
         <strong>{stock}</strong>
       </div>
 
       {sizes.length > 0 && (
-        <div className="product-card__sizes" aria-label="Tallas disponibles">
+        <div className={styles['product-card__sizes']} aria-label="Tallas disponibles">
           {sizes.slice(0, 5).map((size) => (
             <span key={size}>{size}</span>
           ))}
@@ -56,7 +57,7 @@ const ProductCard = ({ product, isAdmin = false, onAddToCart, onDelete }) => {
       )}
 
       {!isAdmin && (
-        <label className="product-card__size">
+        <label className={styles['product-card__size']}>
           Talla a comprar
           <select value={selectedSize} onChange={(event) => setSelectedSize(event.target.value)}>
             {sizes.map((size) => (
@@ -68,7 +69,7 @@ const ProductCard = ({ product, isAdmin = false, onAddToCart, onDelete }) => {
         </label>
       )}
 
-      <div className="product-card__note">
+      <div className={styles['product-card__note']}>
         {isAdmin
           ? stock <= 5
             ? 'Revisar stock'
@@ -78,24 +79,24 @@ const ProductCard = ({ product, isAdmin = false, onAddToCart, onDelete }) => {
             : 'No disponible por ahora'}
       </div>
 
-      <div className="product-card__actions">
-        <button className="btn btn-outline-primary" onClick={() => navigate(`/products/${product.id}`)}>
+      <div className={styles['product-card__actions']}>
+        <button className={`${styles.btn} ${styles['btn-outline-primary']}`} onClick={() => navigate(`/products/${product.id}`)}>
           Ver
         </button>
         {isAdmin ? (
           <>
-            <button className="btn btn-primary" onClick={() => navigate(`/products/${product.id}/edit`)}>
+            <button className={`${styles.btn} ${styles['btn-primary']}`} onClick={() => navigate(`/products/${product.id}/edit`)}>
               Editar
             </button>
             {onDelete && (
-              <button className="btn btn-outline-danger" onClick={() => onDelete(product.id)}>
+              <button className={`${styles.btn} ${styles['btn-outline-danger']}`} onClick={() => onDelete(product.id)}>
                 Eliminar
               </button>
             )}
           </>
         ) : (
           <button
-            className="btn btn-primary"
+            className={`${styles.btn} ${styles['btn-primary']}`}
             disabled={stock === 0}
             onClick={() => onAddToCart?.({ ...product, selectedSize })}
           >
