@@ -169,6 +169,11 @@ export const clearCart = () => {
   })
 }
 
+export const checkoutPayment = async (payment) => {
+  const response = await axiosClient.post('/payments', payment)
+  return response.data
+}
+
 export const checkoutCart = () => {
   const prev = getCart()
   const order = {

@@ -12,10 +12,10 @@ const Navbar = ({ user, onLogout }) => {
     getCart().reduce((sum, item) => sum + Number(item.quantity || 1), 0)
   )
   const navItems = [
-    { label: 'Inicio', to: admin ? '/dashboard' : '/products' },
+    { label: 'Inicio', to: admin ? '/dashboard' : '/home' },
     { label: 'Productos', to: '/products' },
     ...(!admin ? [{ label: 'Carrito', to: '/cart' }] : []),
-    { label: 'Panel', to: '/dashboard' },
+    ...(admin ? [{ label: 'Panel', to: '/dashboard' }] : []),
   ]
 
   useEffect(() => {
@@ -59,7 +59,7 @@ const Navbar = ({ user, onLogout }) => {
     <nav className={hidden ? 'site-navbar site-navbar--hidden' : 'site-navbar'}>
       <div className="site-navbar__inner">
         <div className="navbar-brand-section">
-          <NavLink className="site-brand" to={admin ? '/dashboard' : '/products'}>
+          <NavLink className="site-brand" to={admin ? '/dashboard' : '/home'}>
             <img className="site-brand__logo" src="/logo.jpeg" alt="Logo EFORM" />
             <div className="brand-info">
               <span className="brand-name">EFORM</span>

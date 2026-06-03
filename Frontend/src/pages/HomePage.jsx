@@ -129,25 +129,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {!isAuthenticated ? (
-        <section className="home-section home-public-note">
-          <div className="section-heading">
-            <h2>Bienvenido a EFORM</h2>
-            <p>
-              Para ver productos, agregar al carrito y pagar tu pedido, inicia sesion o crea tu cuenta.
-            </p>
-          </div>
-          <div className="hero-cta-buttons">
-            <Link className="btn btn-primary" to="/login">
-              Iniciar Sesion
-            </Link>
-            <Link className="btn btn-outline-primary" to="/register">
-              Registrarme
-            </Link>
-          </div>
-        </section>
-      ) : (
-        <>
       <section className="home-stats">
         <div className="stats-container">
           {benefits.map((benefit) => (
@@ -195,42 +176,60 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="home-section home-featured-catalog">
-        <div className="section-heading-featured">
-          <div>
-            <h2>Uniformes Destacados</h2>
-            <p>Productos recomendados para revisar rapidamente disponibilidad, tallas y precio.</p>
+      {isAuthenticated ? (
+        <section className="home-section home-featured-catalog">
+          <div className="section-heading-featured">
+            <div>
+              <h2>Uniformes Destacados</h2>
+              <p>Productos recomendados para revisar rapidamente disponibilidad, tallas y precio.</p>
+            </div>
+            <Link className="btn btn-primary" to="/products">
+              Ver Todos los Productos
+            </Link>
           </div>
-          <Link className="btn btn-primary" to="/products">
-            Ver Todos los Productos
-          </Link>
-        </div>
 
-        <div className="search-filter-box">
-          <input
-            className="form-control home-search-enhanced"
-            placeholder="Busca tu uniforme SENA por nombre o descripcion..."
-            value={filter}
-            onChange={(event) => setFilter(event.target.value)}
-          />
-        </div>
-
-        {loading && <p className="catalog-message">Cargando uniformes disponibles...</p>}
-        {error && <p className="catalog-message catalog-message--error">{error}</p>}
-        {!loading && !error && filteredProducts.length === 0 && (
-          <p className="catalog-message">
-            No encontramos uniformes con ese nombre. Intenta con otro termino de busqueda.
-          </p>
-        )}
-        {!loading && !error && filteredProducts.length > 0 && (
-          <div className="home-product-grid-enhanced">
-            {filteredProducts.slice(0, 6).map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+          <div className="search-filter-box">
+            <input
+              className="form-control home-search-enhanced"
+              placeholder="Busca tu uniforme SENA por nombre o descripcion..."
+              value={filter}
+              onChange={(event) => setFilter(event.target.value)}
+            />
           </div>
-        )}
-      </section>
-        </>
+
+          {loading && <p className="catalog-message">Cargando uniformes disponibles...</p>}
+          {error && <p className="catalog-message catalog-message--error">{error}</p>}
+          {!loading && !error && filteredProducts.length === 0 && (
+            <p className="catalog-message">
+              No encontramos uniformes con ese nombre. Intenta con otro termino de busqueda.
+            </p>
+          )}
+          {!loading && !error && filteredProducts.length > 0 && (
+            <div className="home-product-grid-enhanced">
+              {filteredProducts.slice(0, 6).map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
+        </section>
+      ) : (
+        <section className="home-section home-guest-cta">
+          <div className="guest-cta-card">
+            <h2>Empieza hoy mismo</h2>
+            <p>
+              Crea tu cuenta para acceder al catálogo completo de uniformes SENA, gestionar tu carrito y
+              completar tu compra de forma segura.
+            </p>
+            <div className="hero-cta-buttons guest-buttons">
+              <Link className="btn btn-primary btn-lg" to="/register">
+                Registrarme
+              </Link>
+              <Link className="btn btn-outline-light btn-lg" to="/login">
+                Ya tengo cuenta
+              </Link>
+            </div>
+          </div>
+        </section>
       )}
     </main>
   )

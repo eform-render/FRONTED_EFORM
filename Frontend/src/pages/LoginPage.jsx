@@ -50,7 +50,8 @@ export default function LoginPage({ onLogin }) {
       })
       saveSession(res)
       onLogin?.(res.user)
-      navigate(isAdmin(res.user) ? '/dashboard' : '/home')
+      const nextPath = location.state?.from || (isAdmin(res.user) ? '/dashboard' : '/home')
+      navigate(nextPath)
     } catch (apiError) {
       setError(getApiErrorMessage(apiError, 'Credenciales invalidas.'))
     } finally {

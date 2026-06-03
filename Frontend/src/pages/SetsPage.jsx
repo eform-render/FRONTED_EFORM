@@ -396,9 +396,9 @@ export default function SetsPage() {
               <strong>{formatPrice(avgPrice)}</strong>
             </article>
             {lowStockCount > 0 && (
-              <article style={{ backgroundColor: '#fff3cd' }}>
+              <article className="sets-summary__alert">
                 <span>Stock bajo (&le; 5 unidades)</span>
-                <strong style={{ color: '#856404' }}>{lowStockCount}</strong>
+                <strong>{lowStockCount}</strong>
               </article>
             )}
           </>
@@ -532,7 +532,7 @@ export default function SetsPage() {
               </div>
               <div>
                 <span>Stock</span>
-                <strong className={setItem.stock <= 5 ? 'text-warning' : ''}>
+                <strong>
                   {setItem.stock}
                 </strong>
               </div>

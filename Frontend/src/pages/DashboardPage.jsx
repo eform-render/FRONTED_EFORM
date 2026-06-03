@@ -83,6 +83,23 @@ export default function DashboardPage({ onLogout }) {
       )}
 
       {admin && (
+        <section className="dashboard-summary">
+          <article>
+            <span>Productos totales</span>
+            <strong>{loadingProducts ? '...' : products.length}</strong>
+          </article>
+          <article>
+            <span>Unidades en stock</span>
+            <strong>{loadingProducts ? '...' : totalStock}</strong>
+          </article>
+          <article>
+            <span>Stock bajo</span>
+            <strong>{loadingProducts ? '...' : lowStockProducts.length}</strong>
+          </article>
+        </section>
+      )}
+
+      {admin && (
         <div className="dashboard-stats">
           <div className="stat-card">
             <h3>{loadingProducts ? '...' : products.length}</h3>

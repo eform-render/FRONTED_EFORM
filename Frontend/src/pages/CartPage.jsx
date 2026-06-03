@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { checkoutCart, clearCart, getCart, removeFromCart, updateCartQuantity } from '../services/cartService'
+import { checkoutCart, checkoutPayment, clearCart, getCart, removeFromCart, updateCartQuantity } from '../services/cartService'
 
 const formatPrice = (value) =>
   new Intl.NumberFormat('es-CO', {
@@ -49,7 +49,7 @@ const CartPage = () => {
     setItems([])
   }
 
-  const handleCheckout = (event) => {
+  const handleCheckout = async (event) => {
     event.preventDefault()
     setPaymentError('')
 
@@ -58,9 +58,19 @@ const CartPage = () => {
       return
     }
 
-    const confirmedOrder = checkoutCart()
-    setOrder({ ...confirmedOrder, customerName, customerEmail, paymentMethod })
-    setItems([])
+    try {
+      await checkoutPayment({
+        customerName,
+        customerEmail,
+        paymentMethod,
+      })
+
+      const confirmedOrder = checkoutCart()
+      setOrder({ ...confirmedOrder, customerName, customerEmail, paymentMethod })
+      setItems([])
+    } catch (error) {
+      setPaymentError('No se pudo procesar el pago. Revisa tu conexión e intenta nuevamente.')
+    }
   }
 
   return (

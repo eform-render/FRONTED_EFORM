@@ -36,6 +36,7 @@ function App() {
       <div className="app-content">
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/home" element={<HomePage />} />
           <Route
             path="/login"
             element={isAuthenticated ? <Navigate to={canManageProducts ? "/dashboard" : "/home"} replace /> : <LoginPage onLogin={handleLogin} />}
@@ -48,7 +49,7 @@ function App() {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route
             path="/dashboard"
-            element={isAuthenticated ? <DashboardPage onLogout={handleLogout} /> : <Navigate to="/" replace />}
+            element={canManageProducts ? <DashboardPage onLogout={handleLogout} /> : <Navigate to="/home" replace />}
           />
           <Route path="/products" element={isAuthenticated ? <ProductsPage user={user} /> : <Navigate to="/" replace />} />
           <Route
