@@ -35,18 +35,17 @@ function App() {
       {isAuthenticated && <Navbar user={user} onLogout={handleLogout} />}
       <div className="app-content">
         <Routes>
-          <Route
-            path="/"
-            element={isAuthenticated ? <Navigate to="/home" replace /> : <LoginPage onLogin={handleLogin} />}
-          />
+          <Route path="/" element={<HomePage />} />
           <Route
             path="/login"
-            element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage onLogin={handleLogin} />}
+            element={isAuthenticated ? <Navigate to={canManageProducts ? "/dashboard" : "/home"} replace /> : <LoginPage onLogin={handleLogin} />}
           />
-          <Route path="/register" element={isAuthenticated ? <Navigate to="/products" replace /> : <RegisterPage />} />
+          <Route
+            path="/register"
+            element={isAuthenticated ? <Navigate to={canManageProducts ? "/dashboard" : "/home"} replace /> : <RegisterPage />}
+          />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/home" element={<HomePage />} />
           <Route
             path="/dashboard"
             element={isAuthenticated ? <DashboardPage onLogout={handleLogout} /> : <Navigate to="/" replace />}
@@ -69,7 +68,7 @@ function App() {
             element={!canManageProducts && isAuthenticated ? <CartPage /> : <Navigate to="/products" replace />}
           />
           <Route path="/sets" element={canManageProducts ? <SetsPage /> : <Navigate to="/products" replace />} />
-          <Route path="*" element={<Navigate to={isAuthenticated ? '/dashboard' : '/'} replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
       {isAuthenticated && <Footer />}

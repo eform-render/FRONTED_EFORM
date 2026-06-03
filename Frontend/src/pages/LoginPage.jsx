@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { login, saveSession } from '../services/authServices'
 import { getApiErrorMessage } from '../utils/apiError'
+import { isAdmin } from '../utils/roles'
 
 export default function LoginPage({ onLogin }) {
   const navigate = useNavigate()
@@ -49,7 +50,7 @@ export default function LoginPage({ onLogin }) {
       })
       saveSession(res)
       onLogin?.(res.user)
-      navigate('/products')
+      navigate(isAdmin(res.user) ? '/dashboard' : '/home')
     } catch (apiError) {
       setError(getApiErrorMessage(apiError, 'Credenciales invalidas.'))
     } finally {

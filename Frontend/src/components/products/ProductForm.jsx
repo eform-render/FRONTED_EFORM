@@ -1,5 +1,15 @@
 import { useState } from 'react'
 
+const uniformImageFiles = [
+  'WhatsApp Image 2026-05-12 at 6.55.09 PM (1).jpeg',
+  'WhatsApp Image 2026-05-12 at 6.55.09 PM.jpeg',
+  'WhatsApp Image 2026-05-12 at 6.55.10 PM (1).jpeg',
+  'WhatsApp Image 2026-05-12 at 6.55.10 PM.jpeg',
+  'blanco y azul.jpeg',
+  'gris.jpeg',
+  'pantalon_azul.jpeg',
+]
+
 export default function ProductForm({ initialData = {}, loading = false, onSubmit, submitLabel = 'Guardar' }) {
   const [form, setForm] = useState({
     nombre: initialData?.nombre || '',
@@ -235,24 +245,20 @@ export default function ProductForm({ initialData = {}, loading = false, onSubmi
         <div className="product-form__gallery">
           <strong>Seleccionar imagen de uniformes</strong>
           <div className="image-picker">
-            {['WhatsApp Image 2026-05-12 at 6.55.09 PM (1).jpeg',
-              'WhatsApp Image 2026-05-12 at 6.55.09 PM.jpeg',
-              'WhatsApp Image 2026-05-12 at 6.55.10 PM (1).jpeg',
-              'WhatsApp Image 2026-05-12 at 6.55.10 PM.jpeg']
-              .map((fileName) => {
-                const url = `/images/uniformes/${encodeURI(fileName)}`
-                return (
-                  <button
-                    type="button"
-                    key={fileName}
-                    className={form.imageUrl === url ? 'image-picker__item is-selected' : 'image-picker__item'}
-                    onClick={() => setForm((currentForm) => ({ ...currentForm, imageUrl: url }))}
-                  >
-                    <img src={url} alt={fileName} />
-                    <span>{fileName.includes('(1)') ? 'Uniforme alterno' : 'Uniforme SENA'}</span>
-                  </button>
-                )
-              })}
+            {uniformImageFiles.map((fileName) => {
+              const url = `/images/uniformes/${encodeURI(fileName)}`
+              return (
+                <button
+                  type="button"
+                  key={fileName}
+                  className={form.imageUrl === url ? 'image-picker__item is-selected' : 'image-picker__item'}
+                  onClick={() => setForm((currentForm) => ({ ...currentForm, imageUrl: url }))}
+                >
+                  <img src={url} alt={fileName} />
+                  <span>{fileName.includes('(1)') ? 'Uniforme alterno' : 'Uniforme SENA'}</span>
+                </button>
+              )
+            })}
           </div>
           <span className="form-help">Elige una imagen existente de uniformes para el producto.</span>
         </div>

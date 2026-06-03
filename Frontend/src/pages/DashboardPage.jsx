@@ -51,9 +51,17 @@ export default function DashboardPage({ onLogout }) {
   return (
     <main className="dashboard-page">
       <div className="dashboard-header">
-        <div>
-          <h1>Bienvenido, {user.username || user.email}</h1>
-          <p>{admin ? 'Panel de control de gestion' : 'Explora productos y administra tu carrito'}</p>
+        <div className="dashboard-header__content">
+          <div>
+            <span className="dashboard-badge">Panel administrativo</span>
+            <h1>Bienvenido, {user.username || user.email}</h1>
+            <p>{admin ? 'Panel de control de gestion' : 'Explora productos y administra tu carrito'}</p>
+          </div>
+          {admin && (
+            <div className="dashboard-header__visual" aria-hidden="true">
+              <div className="dashboard-header__shape" />
+            </div>
+          )}
         </div>
         <button className="btn btn-secondary" onClick={handleLogout}>
           Cerrar sesion

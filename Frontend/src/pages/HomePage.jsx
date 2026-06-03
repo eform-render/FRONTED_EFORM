@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getCurrentUser } from '../services/authServices'
 import { getAll } from '../services/productService'
+import { isAdmin } from '../utils/roles'
 import ProductCard from '../components/products/ProductCard'
 
 export default function HomePage() {
   const user = getCurrentUser()
   const isAuthenticated = Boolean(user)
+  const canManageProducts = isAdmin(user)
   const [products, setProducts] = useState([])
   const [filter, setFilter] = useState('')
   const [loading, setLoading] = useState(true)
@@ -110,11 +112,11 @@ export default function HomePage() {
             Compra tus uniformes institucionales en una plataforma clara, segura y pensada para aprendices SENA.
           </p>
           <div className="hero-cta-buttons">
-            <Link className="btn btn-primary btn-lg" to={isAuthenticated ? '/products' : '/login'}>
-              {isAuthenticated ? 'Ver Productos' : 'Iniciar Sesion'}
+            <Link className="btn btn-primary btn-lg" to={isAuthenticated ? (canManageProducts ? '/dashboard' : '/products') : '/login'}>
+              {isAuthenticated ? (canManageProducts ? 'Ver Dashboard' : 'Ver Productos') : 'Iniciar Sesion'}
             </Link>
-            <Link className="btn btn-outline-light btn-lg" to={isAuthenticated ? '/cart' : '/register'}>
-              {isAuthenticated ? 'Ver Carrito' : 'Registrarme'}
+            <Link className="btn btn-outline-light btn-lg" to={isAuthenticated && !canManageProducts ? '/cart' : '/register'}>
+              {isAuthenticated && !canManageProducts ? 'Ver Carrito' : 'Registrarme'}
             </Link>
           </div>
         </div>

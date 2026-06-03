@@ -12,7 +12,7 @@ const Navbar = ({ user, onLogout }) => {
     getCart().reduce((sum, item) => sum + Number(item.quantity || 1), 0)
   )
   const navItems = [
-    { label: 'Inicio', to: '/home' },
+    { label: 'Inicio', to: admin ? '/dashboard' : '/products' },
     { label: 'Productos', to: '/products' },
     ...(!admin ? [{ label: 'Carrito', to: '/cart' }] : []),
     { label: 'Panel', to: '/dashboard' },
@@ -48,7 +48,7 @@ const Navbar = ({ user, onLogout }) => {
 
   const handleLogout = () => {
     onLogout()
-    navigate('/login')
+    navigate('/')
   }
 
   const toggleTheme = () => {
@@ -59,7 +59,7 @@ const Navbar = ({ user, onLogout }) => {
     <nav className={hidden ? 'site-navbar site-navbar--hidden' : 'site-navbar'}>
       <div className="site-navbar__inner">
         <div className="navbar-brand-section">
-          <NavLink className="site-brand" to="/home">
+          <NavLink className="site-brand" to={admin ? '/dashboard' : '/products'}>
             <img className="site-brand__logo" src="/logo.jpeg" alt="Logo EFORM" />
             <div className="brand-info">
               <span className="brand-name">EFORM</span>
