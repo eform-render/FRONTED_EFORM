@@ -164,6 +164,11 @@ export default function DashboardPage({ onLogout }) {
                 <p>Consultar, editar o eliminar productos existentes.</p>
               </Link>
 
+              <Link to="/payments" className="action-card">
+                <h3>Ver pagos</h3>
+                <p>Revisar los pagos registrados y el historial de pedidos.</p>
+              </Link>
+
               <Link to="/sets" className="action-card">
                 <h3>Gestionar sets</h3>
                 <p>Administrar combinaciones y combos de uniformes.</p>

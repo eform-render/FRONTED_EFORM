@@ -13,6 +13,7 @@ import ProductDetailPage from './pages/ProductDetailPage'
 import ProductFormPage from './pages/ProductFormPage'
 import SetsPage from './pages/SetsPage'
 import CartPage from './pages/CartPage'
+import AdminPaymentsPage from './pages/AdminPaymentsPage'
 import { clearSession, getCurrentUser } from './services/authServices'
 import { isAdmin } from './utils/roles'
 
@@ -50,6 +51,10 @@ function App() {
           <Route
             path="/dashboard"
             element={canManageProducts ? <DashboardPage onLogout={handleLogout} /> : <Navigate to="/home" replace />}
+          />
+          <Route
+            path="/payments"
+            element={canManageProducts ? <AdminPaymentsPage /> : <Navigate to="/home" replace />}
           />
           <Route path="/products" element={isAuthenticated ? <ProductsPage user={user} /> : <Navigate to="/" replace />} />
           <Route

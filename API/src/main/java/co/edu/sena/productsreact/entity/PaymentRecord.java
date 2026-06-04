@@ -20,16 +20,20 @@ public class PaymentRecord {
     @Column(name = "payment_method", nullable = false)
     private String paymentMethod;
 
+    @Column(name = "amount", nullable = false)
+    private Double amount;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     public PaymentRecord() {
     }
 
-    public PaymentRecord(String customerName, String customerEmail, String paymentMethod, LocalDateTime createdAt) {
+    public PaymentRecord(String customerName, String customerEmail, String paymentMethod, Double amount, LocalDateTime createdAt) {
         this.customerName = customerName;
         this.customerEmail = customerEmail;
         this.paymentMethod = paymentMethod;
+        this.amount = amount;
         this.createdAt = createdAt;
     }
 
@@ -59,6 +63,14 @@ public class PaymentRecord {
 
     public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
+    }
+
+    public Double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Double amount) {
+        this.amount = amount;
     }
 
     public LocalDateTime getCreatedAt() {

@@ -21,9 +21,15 @@ public class PaymentService {
                 request.customerName(),
                 request.customerEmail(),
                 request.paymentMethod(),
+                request.amount(),
                 LocalDateTime.now()
         );
 
         return paymentRecordRepository.save(record);
+    }
+
+    @Transactional(readOnly = true)
+    public java.util.List<PaymentRecord> listAll() {
+        return paymentRecordRepository.findAll();
     }
 }

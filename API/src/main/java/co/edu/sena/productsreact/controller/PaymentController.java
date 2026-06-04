@@ -20,4 +20,11 @@ public class PaymentController {
         paymentService.save(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+    @GetMapping
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<java.util.List<co.edu.sena.productsreact.entity.PaymentRecord>> listPayments() {
+        var list = paymentService.listAll();
+        return ResponseEntity.ok(list);
+    }
 }

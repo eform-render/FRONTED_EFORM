@@ -15,7 +15,7 @@ const Navbar = ({ user, onLogout }) => {
     { label: 'Inicio', to: admin ? '/dashboard' : '/home' },
     { label: 'Productos', to: '/products' },
     ...(!admin ? [{ label: 'Carrito', to: '/cart' }] : []),
-    ...(admin ? [{ label: 'Panel', to: '/dashboard' }] : []),
+    ...(admin ? [{ label: 'Pagos', to: '/payments' }, { label: 'Panel', to: '/dashboard' }] : []),
   ]
 
   useEffect(() => {

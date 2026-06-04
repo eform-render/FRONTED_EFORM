@@ -63,6 +63,7 @@ const CartPage = () => {
         customerName,
         customerEmail,
         paymentMethod,
+        amount: total,
       })
 
       const confirmedOrder = checkoutCart()
