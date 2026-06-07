@@ -14,8 +14,16 @@ const CartPage = () => {
   const [paymentMethod, setPaymentMethod] = useState('PSE')
   const [customerName, setCustomerName] = useState('')
   const [customerEmail, setCustomerEmail] = useState('')
+  const [customerPhone, setCustomerPhone] = useState('')
+  const [customerDocument, setCustomerDocument] = useState('')
+  const [bank, setBank] = useState('')
+  const [cardName, setCardName] = useState('')
+  const [cardNumber, setCardNumber] = useState('')
+  const [cardExpiry, setCardExpiry] = useState('')
+  const [cardCvv, setCardCvv] = useState('')
   const [order, setOrder] = useState(null)
   const [paymentError, setPaymentError] = useState('')
+  const [processingPayment, setProcessingPayment] = useState(false)
 
   useEffect(() => {
     const handleCartUpdate = (event) => {
@@ -58,11 +66,35 @@ const CartPage = () => {
       return
     }
 
+    if (!/^\S+@\S+\.\S+$/.test(customerEmail.trim())) {
+      setPaymentError('Ingresa un correo valido para recibir la confirmacion.')
+      return
+    }
+
+    if (!customerDocument.trim() || !customerPhone.trim()) {
+      setPaymentError('Completa tu documento y telefono de contacto.')
+      return
+    }
+
+    if (paymentMethod === 'PSE' && !bank) {
+      setPaymentError('Selecciona el banco para continuar con PSE.')
+      return
+    }
+
+    if (paymentMethod.includes('Tarjeta')) {
+      const cardDigits = cardNumber.replace(/\D/g, '')
+      if (!cardName.trim() || cardDigits.length < 13 || !/^\d{2}\/\d{2}$/.test(cardExpiry) || !/^\d{3,4}$/.test(cardCvv)) {
+        setPaymentError('Completa correctamente los datos de la tarjeta.')
+        return
+      }
+    }
+
     try {
+      setProcessingPayment(true)
       await checkoutPayment({
         customerName,
         customerEmail,
-        paymentMethod,
+        paymentMethod: paymentMethod === 'PSE' ? `${paymentMethod} - ${bank}` : paymentMethod,
         amount: total,
       })
 
@@ -71,6 +103,8 @@ const CartPage = () => {
       setItems([])
     } catch (error) {
       setPaymentError('No se pudo procesar el pago. Revisa tu conexión e intenta nuevamente.')
+    } finally {
+      setProcessingPayment(false)
     }
   }
 
@@ -156,49 +190,148 @@ const CartPage = () => {
             ))}
           </div>
 
-          <div className="cart-summary">
-            <div>
-              <span>Total estimado</span>
-              <strong>{formatPrice(total)}</strong>
+          <aside className="payment-gateway">
+            <div className="payment-gateway__header">
+              <span>Pasarela de pago</span>
+              <h2>Finalizar compra</h2>
+              <p>Confirma tus datos y el metodo de pago para registrar el pedido.</p>
             </div>
-            <form className="checkout-form" onSubmit={handleCheckout}>
-              <label>
-                Nombre completo
-                <input
-                  className="form-control"
-                  onChange={(event) => setCustomerName(event.target.value)}
-                  placeholder="Tu nombre"
-                  value={customerName}
-                />
-              </label>
-              <label>
-                Correo
-                <input
-                  className="form-control"
-                  onChange={(event) => setCustomerEmail(event.target.value)}
-                  placeholder="correo@ejemplo.com"
-                  type="email"
-                  value={customerEmail}
-                />
-              </label>
-              <label>
-                Metodo de pago
-                <select
-                  className="form-control"
-                  onChange={(event) => setPaymentMethod(event.target.value)}
-                  value={paymentMethod}
-                >
-                  <option value="PSE">PSE</option>
-                  <option value="Tarjeta debito">Tarjeta debito</option>
-                  <option value="Tarjeta credito">Tarjeta credito</option>
-                  <option value="Pago en sede">Pago en sede</option>
-                </select>
-              </label>
+
+            <div className="payment-total">
+              <span>Total a pagar</span>
+              <strong>{formatPrice(total)}</strong>
+              <small>{items.length} producto(s) en el carrito</small>
+            </div>
+
+            <form className="checkout-form payment-form" onSubmit={handleCheckout}>
+              <section className="payment-form__section">
+                <h3>Datos del comprador</h3>
+                <label>
+                  Nombre completo
+                  <input
+                    className="form-control"
+                    onChange={(event) => setCustomerName(event.target.value)}
+                    placeholder="Tu nombre"
+                    value={customerName}
+                  />
+                </label>
+                <label>
+                  Correo
+                  <input
+                    className="form-control"
+                    onChange={(event) => setCustomerEmail(event.target.value)}
+                    placeholder="correo@ejemplo.com"
+                    type="email"
+                    value={customerEmail}
+                  />
+                </label>
+                <div className="payment-form__grid">
+                  <label>
+                    Documento
+                    <input
+                      className="form-control"
+                      onChange={(event) => setCustomerDocument(event.target.value)}
+                      placeholder="CC o TI"
+                      value={customerDocument}
+                    />
+                  </label>
+                  <label>
+                    Telefono
+                    <input
+                      className="form-control"
+                      onChange={(event) => setCustomerPhone(event.target.value)}
+                      placeholder="300 000 0000"
+                      value={customerPhone}
+                    />
+                  </label>
+                </div>
+              </section>
+
+              <section className="payment-form__section">
+                <h3>Metodo de pago</h3>
+                <div className="payment-methods" role="group" aria-label="Metodos de pago">
+                  {['PSE', 'Tarjeta debito', 'Tarjeta credito', 'Pago en sede'].map((method) => (
+                    <button
+                      className={paymentMethod === method ? 'payment-method is-selected' : 'payment-method'}
+                      key={method}
+                      onClick={() => setPaymentMethod(method)}
+                      type="button"
+                    >
+                      <strong>{method}</strong>
+                      <span>{method === 'PSE' ? 'Banco en linea' : method.includes('Tarjeta') ? 'Pago inmediato' : 'Confirmacion presencial'}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {paymentMethod === 'PSE' && (
+                  <label>
+                    Banco
+                    <select className="form-control" onChange={(event) => setBank(event.target.value)} value={bank}>
+                      <option value="">Selecciona tu banco</option>
+                      <option value="Bancolombia">Bancolombia</option>
+                      <option value="Davivienda">Davivienda</option>
+                      <option value="Banco de Bogota">Banco de Bogota</option>
+                      <option value="Nequi">Nequi</option>
+                    </select>
+                  </label>
+                )}
+
+                {paymentMethod.includes('Tarjeta') && (
+                  <div className="card-fields">
+                    <label>
+                      Nombre en la tarjeta
+                      <input
+                        className="form-control"
+                        onChange={(event) => setCardName(event.target.value)}
+                        placeholder="Como aparece en la tarjeta"
+                        value={cardName}
+                      />
+                    </label>
+                    <label>
+                      Numero de tarjeta
+                      <input
+                        className="form-control"
+                        inputMode="numeric"
+                        maxLength="19"
+                        onChange={(event) => setCardNumber(event.target.value)}
+                        placeholder="0000 0000 0000 0000"
+                        value={cardNumber}
+                      />
+                    </label>
+                    <div className="payment-form__grid">
+                      <label>
+                        Vence
+                        <input
+                          className="form-control"
+                          maxLength="5"
+                          onChange={(event) => setCardExpiry(event.target.value)}
+                          placeholder="MM/AA"
+                          value={cardExpiry}
+                        />
+                      </label>
+                      <label>
+                        CVV
+                        <input
+                          className="form-control"
+                          inputMode="numeric"
+                          maxLength="4"
+                          onChange={(event) => setCardCvv(event.target.value)}
+                          placeholder="123"
+                          type="password"
+                          value={cardCvv}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                )}
+              </section>
+
               {paymentError && <p className="checkout-error">{paymentError}</p>}
-              <button className="btn btn-success" type="submit">
-                Pagar pedido
+              <button className="btn btn-success btn-lg" disabled={processingPayment || total <= 0} type="submit">
+                {processingPayment ? 'Procesando pago...' : `Pagar ${formatPrice(total)}`}
               </button>
             </form>
+
             <div className="cart-summary__actions">
               <Link className="btn btn-primary" to="/products">
                 Agregar mas productos
@@ -207,7 +340,7 @@ const CartPage = () => {
                 Vaciar carrito
               </button>
             </div>
-          </div>
+          </aside>
         </section>
       )}
     </main>

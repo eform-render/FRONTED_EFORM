@@ -1,34 +1,11 @@
-import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getCurrentUser } from '../services/authServices'
-import { getAll } from '../services/productService'
 import { isAdmin } from '../utils/roles'
-import ProductCard from '../components/products/ProductCard'
 
 export default function HomePage() {
   const user = getCurrentUser()
   const isAuthenticated = Boolean(user)
   const canManageProducts = isAdmin(user)
-  const [products, setProducts] = useState([])
-  const [filter, setFilter] = useState('')
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setLoading(false)
-      return
-    }
-
-    getAll()
-      .then(setProducts)
-      .catch(() => setError('No fue posible cargar los productos en este momento.'))
-      .finally(() => setLoading(false))
-  }, [isAuthenticated])
-
-  const filteredProducts = products.filter((product) =>
-    product.nombre?.toLowerCase().includes(filter.toLowerCase())
-  )
 
   const highlights = [
     {
@@ -177,40 +154,20 @@ export default function HomePage() {
       </section>
 
       {isAuthenticated ? (
-        <section className="home-section home-featured-catalog">
+        <section className="home-section home-guest-cta">
           <div className="section-heading-featured">
             <div>
-              <h2>Uniformes Destacados</h2>
-              <p>Productos recomendados para revisar rapidamente disponibilidad, tallas y precio.</p>
+              <h2>{canManageProducts ? 'Gestiona tu inventario' : 'Explora el catalogo completo'}</h2>
+              <p>
+                {canManageProducts
+                  ? 'Entra al panel administrativo para revisar productos, stock y ventas.'
+                  : 'Los productos disponibles se consultan desde la seccion Productos.'}
+              </p>
             </div>
-            <Link className="btn btn-primary" to="/products">
-              Ver Todos los Productos
+            <Link className="btn btn-primary btn-lg" to={canManageProducts ? '/dashboard' : '/products'}>
+              {canManageProducts ? 'Ir al Dashboard' : 'Ir a Productos'}
             </Link>
           </div>
-
-          <div className="search-filter-box">
-            <input
-              className="form-control home-search-enhanced"
-              placeholder="Busca tu uniforme SENA por nombre o descripcion..."
-              value={filter}
-              onChange={(event) => setFilter(event.target.value)}
-            />
-          </div>
-
-          {loading && <p className="catalog-message">Cargando uniformes disponibles...</p>}
-          {error && <p className="catalog-message catalog-message--error">{error}</p>}
-          {!loading && !error && filteredProducts.length === 0 && (
-            <p className="catalog-message">
-              No encontramos uniformes con ese nombre. Intenta con otro termino de busqueda.
-            </p>
-          )}
-          {!loading && !error && filteredProducts.length > 0 && (
-            <div className="home-product-grid-enhanced">
-              {filteredProducts.slice(0, 6).map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          )}
         </section>
       ) : (
         <section className="home-section home-guest-cta">
