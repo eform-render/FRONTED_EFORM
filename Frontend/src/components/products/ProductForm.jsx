@@ -2,49 +2,55 @@ import { useState } from 'react'
 
 const uniformImageFiles = [
   // Uniformes de Salud y Farmacia
-  'uniforme-salud-azul-blanco-manga-corta.jpeg',
-  'uniforme-salud-azul-blanco-mujer.jpeg',
-  'blusa-enfermeria-azul-sena.jpeg',
-  'chaqueta-blanca-salud-manga-larga.jpeg',
-  'bata-medica-blanca-hombre.jpeg',
-  'bata-medica-blanca-mujer.jpeg',
+  'Camisa Salud y Farmacia Hombre.png',
+  'Camisa Salud y Farmacia Mujer.png',
+  'Pantalon Salud y Farmacia.png',
   
-  // Camisas Administrativas
-  'camisa-blanca-administrativa-mujer.jpeg',
-  'camisa-verde-claro-mujer.jpeg',
-  'camisa-azul-claro-rayas-hombre.jpeg',
-  'camisa-azul-claro-rayas-manga-larga.jpeg',
-  'camisa-azul-claro-manga-corta-hombre.jpeg',
-  'camisa-azul-claro-manga-corta-mujer.jpeg',
+  // Uniformes de Enfermeria
+  'Camisa Enfermeria Hombre.png',
+  'Camisa Enfermeria Mujer.png',
+  'Pantalon Enfermeria Hombre.png',
+  'Pantalon Enfermeria Mujer.png',
   
-  // Pantalones Formales
-  'pantalon-negro-formal.jpeg',
-  'pantalon-gris-formal.jpeg',
-  'pantalon-gris-mujer.jpeg',
-  'pantalon-blanco-formal.jpeg',
-  'pantalon-azul-rey-formal.jpeg',
-  'pantalon-azul-oscuro-formal.jpeg',
+  // Uniformes de Cosmetología
+  'Camisa Cosmetologia.png',
+  'Pantalon Cosmetologia.png',
   
-  // Jeans SENA
-  'jean-azul-oscuro-sena-mujer.jpeg',
-  'jean-azul-oscuro-sena-hombre.jpeg',
+  // Uniformes de Limpieza
+  'Camisa Limpieza.png',
+  'Pantalon Limpieza.png',
   
-  // Ropa Deportiva
-  'polo-azul-petroleo-mujer.jpeg',
-  'polo-celeste-sena-mujer.jpeg',
-  'polo-negro-sena-mujer.jpeg',
-  'polo-verde-sena-mujer.jpeg',
-  'pantalon-deportivo-azul-liso.jpeg',
-  'pantalon-deportivo-azul-petroleo.jpeg',
-  'sudadera-azul-sena-franja-blanca.jpeg',
-  'jogger-azul-sena-mujer.jpeg',
-  'camiseta-deportiva-sena-hombre.jpeg',
-  'camiseta-deportiva-sena-mujer.jpeg',
-
-  // Cocina
-  'filipina-blanca-cocina-manga-corta.jpeg',
-  'delantal-azul-cocina.jpeg',
-  'gorro-chef-blanco.jpeg',
+  // Uniformes de Cocina
+  'Camisa Cocina.png',
+  'Pantalon Cocina.png',
+  'Delantal Mesa y Bar.jfif',
+  'Gorro Cocina.jfif',
+  
+  // Uniformes de Actividad Física
+  'Sudadera Actividad Fisica Hombre.png',
+  'Sudadera Actividad Fisica Mujer.png',
+  'Camisa Actividad Fisica Hombre.png',
+  'Camisa Actividad Fisica Mujer.png',
+  
+  // Uniformes de Apoyo Administrativo
+  'Camisa Apoyo Administrativo Mujer.png',
+  'Pantalon Apoyo Administrativo Mujer.png',
+  
+  // Uniformes de Gestión Administrativa
+  'Camisa Gestion Administratica Mujer.png',
+  
+  // Uniformes Institucionales
+  'Camisa Institucional Hombre.png',
+  'Camisa Institucional NAUTICO Hombre.png',
+  'Camisa Institucional NAUTICO Mujer.png',
+  'Camisa Institucional PETROQUIMICO Hombre.png.jpg',
+  'Pantalon Institucional.png',
+  'Pantalon Institucional PETROQUIMICO.png',
+  
+  // Camisas Polo
+  'Camisa Polo Blanca.jpeg',
+  'Camisa Polo Negra.jpeg',
+  'Camisa Polo Verde.jpeg',
 ]
 
 export default function ProductForm({ initialData = {}, loading = false, onSubmit, submitLabel = 'Guardar' }) {
