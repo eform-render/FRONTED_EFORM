@@ -1,13 +1,50 @@
 import { useState } from 'react'
 
 const uniformImageFiles = [
-  'WhatsApp Image 2026-05-12 at 6.55.09 PM (1).jpeg',
-  'WhatsApp Image 2026-05-12 at 6.55.09 PM.jpeg',
-  'WhatsApp Image 2026-05-12 at 6.55.10 PM (1).jpeg',
-  'WhatsApp Image 2026-05-12 at 6.55.10 PM.jpeg',
-  'blanco y azul.jpeg',
-  'gris.jpeg',
-  'pantalon_azul.jpeg',
+  // Uniformes de Salud y Farmacia
+  'uniforme-salud-azul-blanco-manga-corta.jpeg',
+  'uniforme-salud-azul-blanco-mujer.jpeg',
+  'blusa-enfermeria-azul-sena.jpeg',
+  'chaqueta-blanca-salud-manga-larga.jpeg',
+  'bata-medica-blanca-hombre.jpeg',
+  'bata-medica-blanca-mujer.jpeg',
+  
+  // Camisas Administrativas
+  'camisa-blanca-administrativa-mujer.jpeg',
+  'camisa-verde-claro-mujer.jpeg',
+  'camisa-azul-claro-rayas-hombre.jpeg',
+  'camisa-azul-claro-rayas-manga-larga.jpeg',
+  'camisa-azul-claro-manga-corta-hombre.jpeg',
+  'camisa-azul-claro-manga-corta-mujer.jpeg',
+  
+  // Pantalones Formales
+  'pantalon-negro-formal.jpeg',
+  'pantalon-gris-formal.jpeg',
+  'pantalon-gris-mujer.jpeg',
+  'pantalon-blanco-formal.jpeg',
+  'pantalon-azul-rey-formal.jpeg',
+  'pantalon-azul-oscuro-formal.jpeg',
+  
+  // Jeans SENA
+  'jean-azul-oscuro-sena-mujer.jpeg',
+  'jean-azul-oscuro-sena-hombre.jpeg',
+  
+  // Ropa Deportiva
+  'polo-azul-petroleo-mujer.jpeg',
+  'polo-celeste-sena-mujer.jpeg',
+  'polo-negro-sena-mujer.jpeg',
+  'polo-verde-sena-mujer.jpeg',
+  'pantalon-deportivo-azul-liso.jpeg',
+  'pantalon-deportivo-azul-petroleo.jpeg',
+  'sudadera-azul-sena-franja-blanca.jpeg',
+  'jogger-azul-sena-mujer.jpeg',
+  'camiseta-deportiva-sena-hombre.jpeg',
+  'camiseta-deportiva-sena-mujer.jpeg',
+
+  // Cocina
+  'filipina-blanca-cocina-manga-corta.jpeg',
+  'delantal-azul-cocina.jpeg',
+  'gorro-chef-blanco.jpeg',
 ]
 
 export default function ProductForm({ initialData = {}, loading = false, onSubmit, submitLabel = 'Guardar' }) {
@@ -255,7 +292,7 @@ export default function ProductForm({ initialData = {}, loading = false, onSubmi
                   onClick={() => setForm((currentForm) => ({ ...currentForm, imageUrl: url }))}
                 >
                   <img src={url} alt={fileName} />
-                  <span>{fileName.includes('(1)') ? 'Uniforme alterno' : 'Uniforme SENA'}</span>
+                  <span>{fileName.replace(/\.[^/.]+$/, '').replace(/-/g, ' ')}</span>
                 </button>
               )
             })}
