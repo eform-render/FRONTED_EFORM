@@ -12,7 +12,7 @@ const Navbar = ({ user, onLogout }) => {
     getCart().reduce((sum, item) => sum + Number(item.quantity || 1), 0)
   )
   const navItems = [
-    { label: 'Inicio', to: admin ? '/dashboard' : '/home' },
+    ...(!admin ? [{ label: 'Inicio', to: '/home' }] : []),
     { label: 'Productos', to: '/products' },
     ...(!admin ? [{ label: 'Carrito', to: '/cart' }] : []),
     ...(admin ? [{ label: 'Pagos', to: '/payments' }, { label: 'Panel', to: '/dashboard' }] : []),
