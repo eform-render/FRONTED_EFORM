@@ -1,0 +1,10 @@
+node_modules
+**/node_modules
+target
+**/target
+.DS_Store
+.git
+.idea
+.vscode
+npm-debug.log
+yarn-error.log

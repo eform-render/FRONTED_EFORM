@@ -73,40 +73,44 @@ export default function SetsPage() {
   const [formLoading, setFormLoading] = useState(false)
   const [filterStock, setFilterStock] = useState('all')
 
+  
+
   useEffect(() => {
     const user = getCurrentUser()
     if (!user) {
       navigate('/login')
       return
     }
-
-    loadSets()
+    ;(async () => {
+      try {
+        setLoading(true)
+        // Try to load from API, fallback to initial data
+        try {
+          const data = await setService.getAll()
+          setSets(
+            data.map((item) => ({
+              ...item,
+              productCount: item.productsText.split(',').map((product) => product.trim()).filter(Boolean).length,
+            }))
+          )
+        } catch {
+          setSets(
+            initialSets.map((item) => ({
+              ...item,
+              productCount: item.productsText.split(',').map((product) => product.trim()).filter(Boolean).length,
+            }))
+          )
+        }
+      } finally {
+        setLoading(false)
+      }
+    })()
   }, [navigate])
 
   const currentUser = getCurrentUser()
   const isAdmin = currentUser?.role === 'admin' || currentUser?.type === 'admin'
 
-  const loadSets = async () => {
-    try {
-      setLoading(true)
-      // Try to load from API, fallback to initial data
-      try {
-        const data = await setService.getAll()
-        setSets(data.map((item) => ({
-          ...item,
-          productCount: item.productsText.split(',').map((product) => product.trim()).filter(Boolean).length,
-        })))
-      } catch {
-        // Fallback to initial data if API fails
-        setSets(initialSets.map((item) => ({
-          ...item,
-          productCount: item.productsText.split(',').map((product) => product.trim()).filter(Boolean).length,
-        })))
-      }
-    } finally {
-      setLoading(false)
-    }
-  }
+  
 
   const filteredAndSortedSets = useMemo(() => {
     let result = sets.filter((set) => {

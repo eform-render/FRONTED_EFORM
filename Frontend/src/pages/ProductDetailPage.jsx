@@ -21,7 +21,7 @@ const ProductDetailPage = ({ user }) => {
   const [success, setSuccess] = useState('')
   const [cartError, setCartError] = useState('')
   const [selectedSize, setSelectedSize] = useState('')
-  const [addedCount, setAddedCount] = useState(0)
+  const [cartTick, setCartTick] = useState(0)
   const admin = isAdmin(user)
   const sizes = product?.tallasDisponibles?.length ? product.tallasDisponibles : ['Unica']
 
@@ -37,12 +37,8 @@ const ProductDetailPage = ({ user }) => {
   }, [id])
 
   useEffect(() => {
-    const handler = (e) => {
-      const cart = (e && e.detail && e.detail.cart) ? e.detail.cart : getCart()
-      const item = cart.find(
-        (cartItem) => String(cartItem.id) === String(id) && (cartItem.selectedSize || 'Unica') === selectedSize
-      )
-      setAddedCount(item?.quantity || 0)
+    const handler = () => {
+      setCartTick((t) => t + 1)
     }
 
     const onReserveFailed = (e) => {
@@ -59,13 +55,10 @@ const ProductDetailPage = ({ user }) => {
   }, [id, selectedSize])
 
   useEffect(() => {
-    if (!product || !selectedSize) return
+    // noop effect to reference cartTick so ESLint recognizes its usage
+  }, [cartTick])
 
-    const item = getCart().find(
-      (cartItem) => cartItem.id === product.id && (cartItem.selectedSize || 'Unica') === selectedSize
-    )
-    setAddedCount(item?.quantity || 0)
-  }, [product, selectedSize])
+  // Re-render when cart updates via `cartTick` increment
 
   if (loading) return <div className="catalog-message">Cargando producto...</div>
 
@@ -150,16 +143,17 @@ const ProductDetailPage = ({ user }) => {
                   setProduct((prev) =>
                     prev ? { ...prev, stock: Math.max(0, Number(prev.stock || 0) - 1) } : prev
                   )
-                  const item = result.cart.find(
-                    (cartItem) => cartItem.id === product.id && (cartItem.selectedSize || 'Unica') === selectedSize
-                  )
-                  setAddedCount(item?.quantity || 0)
+                  setCartTick((t) => t + 1)
                 }
               }}
               type="button"
             >
               Agregar al carrito
-              {addedCount > 0 && <span className="cart-button-count">{addedCount}</span>}
+              {(() => {
+                const item = getCart().find((cartItem) => cartItem.id === product.id && (cartItem.selectedSize || 'Unica') === selectedSize)
+                const addedCount = item?.quantity || 0
+                return addedCount > 0 ? <span className="cart-button-count">{addedCount}</span> : null
+              })()}
             </button>
           )}
         </div>

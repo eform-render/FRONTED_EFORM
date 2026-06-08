@@ -1,6 +1,3 @@
-@import 'bootstrap/dist/css/bootstrap.min.css';
-
-
 body {
   margin: 0;
   font-family:
@@ -282,6 +279,96 @@ body {
   padding: 54px 0 0;
 }
 
+.home-hero-banner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+  gap: 32px;
+  align-items: center;
+  background: linear-gradient(135deg, #eff4ff 0%, #ffffff 100%);
+  border-radius: 28px;
+  padding: 40px;
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.08);
+  margin-bottom: 38px;
+}
+
+.home-hero-banner__content {
+  max-width: 680px;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: rgba(13, 110, 253, 0.12);
+  color: #0d6efd;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  margin-bottom: 24px;
+}
+
+.hero-title {
+  margin: 0;
+  font-size: clamp(2.75rem, 4vw, 4.25rem);
+  line-height: 1.02;
+  color: #10243f;
+}
+
+.hero-subtitle {
+  margin: 24px 0 0;
+  max-width: 640px;
+  color: #475569;
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
+
+.hero-cta-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 32px;
+}
+
+.home-hero-banner__visual {
+  display: flex;
+  justify-content: center;
+}
+
+.daily-verse-card {
+  width: 100%;
+  max-width: 380px;
+  padding: 28px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #ffffff 0%, #eff6ff 100%);
+  border: 1px solid rgba(13, 110, 253, 0.14);
+  box-shadow: 0 20px 45px rgba(13, 110, 253, 0.08);
+}
+
+.daily-verse-card span {
+  display: block;
+  color: #0d6efd;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+.daily-verse-card blockquote {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.75;
+  color: #10243f;
+}
+
+.daily-verse-card strong {
+  display: block;
+  margin-top: 22px;
+  color: #475569;
+  font-size: 0.95rem;
+}
+
 .section-heading {
   max-width: 760px;
 }
@@ -292,6 +379,265 @@ body {
   align-items: end;
   justify-content: space-between;
   gap: 18px;
+}
+
+.home-stats {
+  margin-top: 20px;
+}
+
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.stat-card {
+  padding: 24px;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.04);
+}
+
+.stat-number {
+  font-size: 2rem;
+  color: #0d6efd;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+.stat-label {
+  margin: 0 0 8px;
+  color: #1f2937;
+  font-size: 1rem;
+}
+
+.stat-description {
+  margin: 0;
+  color: #475569;
+  line-height: 1.7;
+}
+
+.home-vision-mission .section-heading {
+  max-width: 760px;
+  margin-bottom: 24px;
+}
+
+.vision-mission-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.mission-card {
+  min-height: 260px;
+  padding: 26px;
+  border-radius: 22px;
+  background: #ffffff;
+  border: 1px solid #d7e5ff;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+}
+
+.mission-badge {
+  display: inline-flex;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(13, 110, 253, 0.12);
+  color: #0d6efd;
+  font-size: 0.8rem;
+  font-weight: 800;
+  margin-bottom: 18px;
+}
+
+.mission-card h3 {
+  margin-bottom: 16px;
+  color: #10243f;
+  font-size: 1.4rem;
+}
+
+.mission-card p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.8;
+  font-size: 1rem;
+}
+
+.mission-card--values {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.value-list {
+  display: grid;
+  gap: 16px;
+}
+
+.value-item strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #10243f;
+  font-size: 1rem;
+}
+
+.value-item p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.7;
+}
+
+.home-why-eform .section-heading {
+  margin-bottom: 24px;
+}
+
+.features-grid-enhanced {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.feature-card-enhanced {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  box-shadow: 0 16px 35px rgba(15, 23, 42, 0.05);
+  padding: 26px;
+}
+
+.feature-icon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 18px;
+  background: rgba(13, 110, 253, 0.12);
+  color: #0d6efd;
+  font-weight: 900;
+  border-radius: 14px;
+}
+
+.feature-card-enhanced h3 {
+  margin: 0 0 12px;
+  color: #10243f;
+  font-size: 1.15rem;
+}
+
+.feature-card-enhanced p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.75;
+}
+
+.home-how-to-buy .steps-container {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 28px;
+}
+
+.step-item {
+  padding: 24px;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 16px 35px rgba(15, 23, 42, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #0d6efd;
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.step-text {
+  margin: 0;
+  color: #475569;
+  line-height: 1.8;
+}
+
+.home-guest-cta .guest-cta-card {
+  padding: 38px;
+  border-radius: 24px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 22px 55px rgba(15, 23, 42, 0.08);
+}
+
+.home-guest-cta .guest-cta-card h2 {
+  margin-bottom: 16px;
+}
+
+.hero-cta-buttons.guest-buttons {
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1440px) {
+  .home-how-to-buy .steps-container {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1024px) {
+  .home-hero-banner {
+    grid-template-columns: 1fr;
+    padding: 32px;
+  }
+
+  .stats-container {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .vision-mission-grid,
+  .features-grid-enhanced,
+  .home-how-to-buy .steps-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .home-hero-banner {
+    padding: 24px;
+  }
+
+  .home-page {
+    padding: 0 16px;
+  }
+
+  .hero-title {
+    font-size: 2.6rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .hero-cta-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 480px) {
+  .daily-verse-card,
+  .mission-card,
+  .feature-card-enhanced,
+  .step-item,
+  .guest-cta-card {
+    padding: 22px;
+  }
+
+  .hero-title {
+    font-size: 2.1rem;
+  }
 }
 
 .section-heading h2 {
@@ -339,6 +685,47 @@ body {
   grid-template-columns: minmax(0, 0.9fr) minmax(280px, 0.7fr);
   gap: 42px;
   align-items: start;
+}
+
+.home-vision-mission .section-heading {
+  max-width: 760px;
+  margin-bottom: 24px;
+}
+
+.vision-mission-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.mission-card {
+  min-height: 240px;
+  padding: 28px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #d7e5ff;
+  box-shadow: 0 14px 30px rgba(30, 64, 175, 0.07);
+}
+
+.mission-card h3 {
+  margin-bottom: 16px;
+  color: #0d6efd;
+  font-size: 1.35rem;
+}
+
+.mission-card p {
+  margin: 0;
+  color: #34455f;
+  line-height: 1.8;
+  font-size: 1rem;
+}
+
+.mission-card--vision {
+  background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+}
+
+.mission-card--mission {
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
 }
 
 .workflow-list {
@@ -4178,6 +4565,10 @@ html[data-theme='dark'] .card-fields {
 }
 
 @media (max-width: 768px) {
+  .vision-mission-grid {
+    grid-template-columns: 1fr;
+  }
+
   .admin-payments-page {
     padding: 20px;
   }

@@ -2,6 +2,40 @@ import { Link } from 'react-router-dom'
 import { getCurrentUser } from '../services/authServices'
 import { isAdmin } from '../utils/roles'
 
+const dailyVerses = [
+  {
+    text: 'Todo lo puedo en Cristo que me fortalece.',
+    reference: 'Filipenses 4:13',
+  },
+  {
+    text: 'El Senor es mi pastor; nada me faltara.',
+    reference: 'Salmo 23:1',
+  },
+  {
+    text: 'Encomienda al Senor tus obras, y tus pensamientos seran afirmados.',
+    reference: 'Proverbios 16:3',
+  },
+  {
+    text: 'Esfuerzate y se valiente; no temas ni desmayes.',
+    reference: 'Josue 1:9',
+  },
+  {
+    text: 'Por la manana hazme saber de tu gran amor, porque en ti he puesto mi confianza.',
+    reference: 'Salmo 143:8',
+  },
+  {
+    text: 'La paz os dejo, mi paz os doy.',
+    reference: 'Juan 14:27',
+  },
+  {
+    text: 'Mas buscad primeramente el reino de Dios y su justicia.',
+    reference: 'Mateo 6:33',
+  },
+]
+
+const initialVerseIndex = Math.floor(Date.now() / 86400000) % dailyVerses.length
+const initialDailyVerse = dailyVerses[initialVerseIndex]
+
 export default function HomePage() {
   const user = getCurrentUser()
   const isAuthenticated = Boolean(user)
@@ -46,38 +80,22 @@ export default function HomePage() {
     'Confirma tu pedido',
   ]
 
-  const dailyVerses = [
+  const values = [
     {
-      text: 'Todo lo puedo en Cristo que me fortalece.',
-      reference: 'Filipenses 4:13',
+      title: 'Compromiso',
+      description: 'Siempre con transparencia, calidad y atención cercana para cada aprendiz.',
     },
     {
-      text: 'El Senor es mi pastor; nada me faltara.',
-      reference: 'Salmo 23:1',
+      title: 'Rapidez',
+      description: 'Proceso optimizado que reduce el tiempo de búsqueda y validación.',
     },
     {
-      text: 'Encomienda al Senor tus obras, y tus pensamientos seran afirmados.',
-      reference: 'Proverbios 16:3',
-    },
-    {
-      text: 'Esfuerzate y se valiente; no temas ni desmayes.',
-      reference: 'Josue 1:9',
-    },
-    {
-      text: 'Por la manana hazme saber de tu gran amor, porque en ti he puesto mi confianza.',
-      reference: 'Salmo 143:8',
-    },
-    {
-      text: 'La paz os dejo, mi paz os doy.',
-      reference: 'Juan 14:27',
-    },
-    {
-      text: 'Mas buscad primeramente el reino de Dios y su justicia.',
-      reference: 'Mateo 6:33',
+      title: 'Seguridad',
+      description: 'Pagos protegidos y datos resguardados en todo momento.',
     },
   ]
-  const verseIndex = Math.floor(Date.now() / 86400000) % dailyVerses.length
-  const dailyVerse = dailyVerses[verseIndex]
+
+  const dailyVerse = initialDailyVerse
 
   return (
     <main className="home-page">
@@ -118,12 +136,51 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section className="home-section home-vision-mission">
+        <div className="section-heading">
+          <h2>Nuestra Visión y Misión</h2>
+          <p>
+            Brindamos una experiencia profesional para que el proceso de adquirir uniformes
+            institucionales sea claro, práctico y formalmente respaldado.
+          </p>
+        </div>
+        <div className="vision-mission-grid">
+          <article className="mission-card mission-card--vision">
+            <span className="mission-badge">Visión</span>
+            <h3>Ser el referente oficial</h3>
+            <p>
+              Convertirnos en la plataforma de confianza para estudiantes SENA que buscan
+              uniformes oficiales, con un servicio ágil y una experiencia digital moderna.
+            </p>
+          </article>
+          <article className="mission-card mission-card--mission">
+            <span className="mission-badge">Misión</span>
+            <h3>Entregar uniformes con confianza</h3>
+            <p>
+              Simplificar la compra de uniformes institucionales al ofrecer productos claros,
+              disponibilidad visible y soporte dedicado en cada paso de la transacción.
+            </p>
+          </article>
+          <article className="mission-card mission-card--values">
+            <span className="mission-badge">Valores</span>
+            <div className="value-list">
+              {values.map((item) => (
+                <div key={item.title} className="value-item">
+                  <strong>{item.title}</strong>
+                  <p>{item.description}</p>
+                </div>
+              ))}
+            </div>
+          </article>
+        </div>
+      </section>
+
       <section className="home-section home-why-eform">
         <div className="section-heading">
-          <h2>Por que Comprar en EFORM</h2>
+          <h2>Por qué Elegir EFORM</h2>
           <p>
-            EFORM concentra la compra de uniformes institucionales en una experiencia sencilla,
-            organizada y facil de consultar.
+            Una experiencia centrada en uniformes oficiales SENA, diseñada para brindar confianza,
+            claridad y un proceso rápido en cada compra.
           </p>
         </div>
         <div className="features-grid-enhanced">

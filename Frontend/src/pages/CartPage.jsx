@@ -101,7 +101,7 @@ const CartPage = () => {
       const confirmedOrder = checkoutCart()
       setOrder({ ...confirmedOrder, customerName, customerEmail, paymentMethod })
       setItems([])
-    } catch (error) {
+    } catch {
       setPaymentError('No se pudo procesar el pago. Revisa tu conexión e intenta nuevamente.')
     } finally {
       setProcessingPayment(false)

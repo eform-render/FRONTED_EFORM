@@ -11,18 +11,14 @@ const ProductPage = ({ user }) => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
-  const [filter, setFilter] = useState('')
+  const [searchParams] = useSearchParams()
+  const [filter, setFilter] = useState(() => searchParams.get('tipo') || '')
   const [stockFilter, setStockFilter] = useState('all')
   const [cartQuantity, setCartQuantity] = useState(() =>
     getCart().reduce((sum, item) => sum + Number(item.quantity || 1), 0)
   )
   const admin = isAdmin(user)
-  const [searchParams] = useSearchParams()
-
-  useEffect(() => {
-    const typeFilter = searchParams.get('tipo')
-    if (typeFilter) setFilter(typeFilter)
-  }, [searchParams])
+  
 
   useEffect(() => {
     getAll()

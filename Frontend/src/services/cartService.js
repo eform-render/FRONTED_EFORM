@@ -19,8 +19,8 @@ export const saveCart = (cart) => {
   localStorage.setItem(CART_KEY, JSON.stringify(cart))
   try {
     window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart } }))
-  } catch (e) {
-    // no-op if dispatch fails (older browsers)
+  } catch {
+    // ignore dispatch errors on older browsers
   }
 }
 
@@ -70,9 +70,13 @@ export const addToCart = (product) => {
           reverted = current2.filter((item) => !(item.id === product.id && (item.selectedSize || 'Unica') === selectedSize))
         }
         saveCart(reverted)
-        try { window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: reverted } })) } catch {}
+        try { window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: reverted } })) } catch {
+          // ignore
+        }
       }
-      try { window.dispatchEvent(new CustomEvent('cartReserveFailed', { detail: { message: err?.response?.data?.message || err.message } })) } catch {}
+      try { window.dispatchEvent(new CustomEvent('cartReserveFailed', { detail: { message: err?.response?.data?.message || err.message } })) } catch {
+        // ignore
+      }
     })
 
     return {
@@ -90,8 +94,12 @@ export const addToCart = (product) => {
     const current2 = getCart()
     const reverted = current2.filter((item) => !(item.id === product.id && (item.selectedSize || 'Unica') === selectedSize))
     saveCart(reverted)
-    try { window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: reverted } })) } catch {}
-    try { window.dispatchEvent(new CustomEvent('cartReserveFailed', { detail: { message: err?.response?.data?.message || err.message } })) } catch {}
+    try { window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: reverted } })) } catch {
+      // ignore
+    }
+    try { window.dispatchEvent(new CustomEvent('cartReserveFailed', { detail: { message: err?.response?.data?.message || err.message } })) } catch {
+      // ignore
+    }
   })
 
   return {
@@ -126,12 +134,16 @@ export const updateCartQuantity = (id, quantity, selectedSize = 'Unica') => {
           : item
       )
       saveCart(reverted)
-      try { window.dispatchEvent(new CustomEvent('cartReserveFailed', { detail: { message: err?.response?.data?.message || err.message } })) } catch {}
+      try { window.dispatchEvent(new CustomEvent('cartReserveFailed', { detail: { message: err?.response?.data?.message || err.message } })) } catch {
+        // ignore
+      }
     })
   }
   if (targetItem && delta < 0) {
     release(id, Math.abs(delta)).catch(() => {
-      try { window.dispatchEvent(new CustomEvent('cartReleaseFailed', { detail: { id, qty: Math.abs(delta) } })) } catch {}
+      try { window.dispatchEvent(new CustomEvent('cartReleaseFailed', { detail: { id, qty: Math.abs(delta) } })) } catch {
+        // ignore
+      }
     })
   }
 
@@ -147,7 +159,9 @@ export const removeFromCart = (id, selectedSize = 'Unica') => {
 
   if (removedQty > 0) {
     release(id, removedQty).catch(() => {
-      try { window.dispatchEvent(new CustomEvent('cartReleaseFailed', { detail: { id, qty: removedQty } })) } catch {}
+      try { window.dispatchEvent(new CustomEvent('cartReleaseFailed', { detail: { id, qty: removedQty } })) } catch {
+        // ignore
+      }
     })
   }
 
@@ -159,14 +173,16 @@ export const clearCart = () => {
   localStorage.removeItem(CART_KEY)
   try {
     window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: [] } }))
-  } catch (e) {
+  } catch {
     // ignore
   }
 
   // release reserved quantities in backend
   prev.forEach((item) => {
     const qty = Number(item.quantity || 0)
-    if (qty > 0) release(item.id, qty).catch(() => {})
+    if (qty > 0) release(item.id, qty).catch(() => {
+      // ignore
+    })
   })
 }
 
@@ -187,7 +203,7 @@ export const checkoutCart = () => {
   localStorage.removeItem(CART_KEY)
   try {
     window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: [] } }))
-  } catch (e) {
+  } catch {
     // ignore
   }
   return order

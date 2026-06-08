@@ -1,0 +1,34 @@
+services:
+  - type: web_service
+    name: products-react-api
+    env: docker
+    branch: main
+    dockerfilePath: API/Dockerfile
+    # Si prefieres, Render puede usar un puerto distinto estableciendo SERVER_PORT.
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: mysql-dev
+      - key: SERVER_PORT
+        value: "8080"
+      # Las credenciales y el secreto JWT se deben configurar en el panel de Render como valores seguros.
+      - key: MYSQL_DEV_URL
+        value: "mysql://<user>:<password>@<host>:3306/<database>"
+      - key: MYSQL_DEV_USERNAME
+        value: "<user>"
+      - key: MYSQL_DEV_PASSWORD
+        value: "<password>"
+      - key: JWT_SECRET
+        value: "<replace-with-secret>"
+      - key: JWT_EXPIRATION_MS
+        value: "86400000"
+
+  - type: static_site
+    name: productos-frontend
+    env: node
+    branch: main
+    path: Frontend
+    buildCommand: npm install && npm run build
+    publishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        value: "https://products-react-api.onrender.com"
