@@ -12,6 +12,9 @@ const AdminPaymentsPage = () => {
   const [payments, setPayments] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [sortField, setSortField] = useState('createdAt')
+  const [sortDirection, setSortDirection] = useState('desc')
+  const [selectedPayments, setSelectedPayments] = useState(new Set())
 
   useEffect(() => {
     getPayments()
@@ -20,10 +23,79 @@ const AdminPaymentsPage = () => {
       .finally(() => setLoading(false))
   }, [])
 
+  const handleSelectPayment = (id) => {
+    const newSelected = new Set(selectedPayments)
+    if (newSelected.has(id)) {
+      newSelected.delete(id)
+    } else {
+      newSelected.add(id)
+    }
+    setSelectedPayments(newSelected)
+  }
+
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedPayments(new Set(sortedPayments.map((p) => p.id)))
+    } else {
+      setSelectedPayments(new Set())
+    }
+  }
+
+  const handleDeleteSelected = () => {
+    if (selectedPayments.size === 0) return
+    if (!window.confirm(`¿Está seguro de que desea eliminar ${selectedPayments.size} pago(s)?`)) {
+      return
+    }
+    const updatedPayments = payments.filter((p) => !selectedPayments.has(p.id))
+    setPayments(updatedPayments)
+    setSelectedPayments(new Set())
+  }
+
   const totalRevenue = useMemo(
     () => payments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0),
     [payments]
   )
+
+  const sortedPayments = useMemo(() => {
+    const sorted = [...payments].sort((a, b) => {
+      let aVal = a[sortField]
+      let bVal = b[sortField]
+
+      if (sortField === 'amount') {
+        aVal = Number(aVal || 0)
+        bVal = Number(bVal || 0)
+      } else if (sortField === 'createdAt') {
+        aVal = new Date(aVal).getTime()
+        bVal = new Date(bVal).getTime()
+      }
+
+      if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1
+      if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1
+      return 0
+    })
+    return sorted
+  }, [payments, sortField, sortDirection])
+
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortField(field)
+      setSortDirection('desc')
+    }
+  }
+
+  const getStatusBadgeClass = (status) => {
+    const normalizedStatus = (status || 'Confirmado').toLowerCase()
+    if (normalizedStatus.includes('completado') || normalizedStatus.includes('confirmado')) {
+      return 'status-badge status-completed'
+    } else if (normalizedStatus.includes('pendiente')) {
+      return 'status-badge status-pending'
+    } else if (normalizedStatus.includes('fallido') || normalizedStatus.includes('cancelado')) {
+      return 'status-badge status-failed'
+    }
+    return 'status-badge status-completed'
+  }
 
   return (
     <main className="admin-payments-page">
@@ -62,23 +134,101 @@ const AdminPaymentsPage = () => {
       )}
 
       {!loading && !error && payments.length > 0 && (
-        <section className="payments-table">
-          <div className="payments-table__header">
-            <span>Fecha</span>
-            <span>Cliente</span>
-            <span>Método</span>
-            <span>Monto</span>
-            <span>Estado</span>
+        <section className="payments-container">
+          <div className="payments-stats">
+            <div className="stat-box">
+              <h3>Total de transacciones</h3>
+              <p className="stat-number">{payments.length}</p>
+            </div>
+            <div className="stat-box">
+              <h3>Ingresos totales</h3>
+              <p className="stat-number highlight">{currencyFormat.format(totalRevenue)}</p>
+            </div>
+            <div className="stat-box">
+              <h3>Promedio por transacción</h3>
+              <p className="stat-number">{currencyFormat.format(totalRevenue / payments.length)}</p>
+            </div>
           </div>
-          {payments.map((payment) => (
-            <article className="payments-row" key={payment.id}>
-              <span>{new Date(payment.createdAt).toLocaleString('es-CO')}</span>
-              <span>{payment.customerName || payment.customerEmail}</span>
-              <span>{payment.paymentMethod}</span>
-              <span>{currencyFormat.format(Number(payment.amount || 0))}</span>
-              <span>{payment.status || 'Confirmado'}</span>
-            </article>
-          ))}
+
+          <div className="table-wrapper">
+            <div className="table-actions">
+              {selectedPayments.size > 0 && (
+                <div className="delete-actions">
+                  <span className="selected-count">
+                    {selectedPayments.size} pago{selectedPayments.size !== 1 ? 's' : ''} seleccionado{selectedPayments.size !== 1 ? 's' : ''}
+                  </span>
+                  <button 
+                    className="btn btn-danger-sm"
+                    onClick={handleDeleteSelected}
+                  >
+                    🗑️ Eliminar seleccionados
+                  </button>
+                </div>
+              )}
+            </div>
+            <table className="payments-table">
+              <thead>
+                <tr>
+                  <th className="checkbox-col">
+                    <input 
+                      type="checkbox"
+                      checked={selectedPayments.size > 0 && selectedPayments.size === sortedPayments.length}
+                      onChange={handleSelectAll}
+                      title="Seleccionar todos"
+                    />
+                  </th>
+                  <th onClick={() => handleSort('createdAt')} className="sortable">
+                    Fecha {sortField === 'createdAt' && <span className={`sort-icon ${sortDirection}`}>⇅</span>}
+                  </th>
+                  <th onClick={() => handleSort('customerName')} className="sortable">
+                    Cliente {sortField === 'customerName' && <span className={`sort-icon ${sortDirection}`}>⇅</span>}
+                  </th>
+                  <th>Email</th>
+                  <th onClick={() => handleSort('paymentMethod')} className="sortable">
+                    Método {sortField === 'paymentMethod' && <span className={`sort-icon ${sortDirection}`}>⇅</span>}
+                  </th>
+                  <th onClick={() => handleSort('amount')} className="sortable text-right">
+                    Monto {sortField === 'amount' && <span className={`sort-icon ${sortDirection}`}>⇅</span>}
+                  </th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedPayments.map((payment) => (
+                  <tr key={payment.id} className={`payment-row ${selectedPayments.has(payment.id) ? 'selected' : ''}`}>
+                    <td className="checkbox-col">
+                      <input 
+                        type="checkbox"
+                        checked={selectedPayments.has(payment.id)}
+                        onChange={() => handleSelectPayment(payment.id)}
+                      />
+                    </td>
+                    <td className="date-cell">
+                      <div className="date-badge">{new Date(payment.createdAt).toLocaleDateString('es-CO')}</div>
+                      <small>{new Date(payment.createdAt).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</small>
+                    </td>
+                    <td className="customer-cell">
+                      <strong>{payment.customerName || 'Cliente sin nombre'}</strong>
+                    </td>
+                    <td className="email-cell">
+                      <small>{payment.customerEmail}</small>
+                    </td>
+                    <td className="method-cell">
+                      <span className="method-badge">{payment.paymentMethod}</span>
+                    </td>
+                    <td className="amount-cell">
+                      <strong>{currencyFormat.format(Number(payment.amount || 0))}</strong>
+                    </td>
+                    <td>
+                      <span className={getStatusBadgeClass(payment.status)}>
+                        {payment.status || 'Confirmado'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </section>
       )}
     </main>

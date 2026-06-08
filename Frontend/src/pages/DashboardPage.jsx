@@ -4,7 +4,7 @@ import { getCurrentUser } from '../services/authServices'
 import { getAll } from '../services/productService'
 import { isAdmin } from '../utils/roles'
 
-export default function DashboardPage({ onLogout }) {
+export default function DashboardPage() {
   const navigate = useNavigate()
   const user = getCurrentUser()
   const admin = isAdmin(user)
@@ -25,11 +25,6 @@ export default function DashboardPage({ onLogout }) {
       .catch(() => setProducts([]))
       .finally(() => setLoadingProducts(false))
   }, [admin])
-
-  const handleLogout = () => {
-    onLogout()
-    navigate('/login')
-  }
 
   if (!user) {
     return <div className="loading">Cargando...</div>
@@ -63,9 +58,6 @@ export default function DashboardPage({ onLogout }) {
             </div>
           )}
         </div>
-        <button className="btn btn-secondary" onClick={handleLogout}>
-          Cerrar sesion
-        </button>
       </div>
 
       {admin && (
@@ -75,9 +67,6 @@ export default function DashboardPage({ onLogout }) {
           </Link>
           <Link className="btn btn-outline-primary" to="/products/new">
             Crear producto
-          </Link>
-          <Link className="btn btn-outline-primary" to="/sets">
-            Revisar sets
           </Link>
         </nav>
       )}
@@ -167,11 +156,6 @@ export default function DashboardPage({ onLogout }) {
               <Link to="/payments" className="action-card">
                 <h3>Ver pagos</h3>
                 <p>Revisar los pagos registrados y el historial de pedidos.</p>
-              </Link>
-
-              <Link to="/sets" className="action-card">
-                <h3>Gestionar sets</h3>
-                <p>Administrar combinaciones y combos de uniformes.</p>
               </Link>
             </>
           ) : (
