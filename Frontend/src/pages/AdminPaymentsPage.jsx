@@ -14,7 +14,7 @@ const AdminPaymentsPage = () => {
   const [error, setError] = useState('')
   const [sortField, setSortField] = useState('createdAt')
   const [sortDirection, setSortDirection] = useState('desc')
-  const [selectedPayments, setSelectedPayments] = useState(new Set())
+  // deletion is disabled from frontend by design
 
   useEffect(() => {
     getPayments()
@@ -23,33 +23,7 @@ const AdminPaymentsPage = () => {
       .finally(() => setLoading(false))
   }, [])
 
-  const handleSelectPayment = (id) => {
-    const newSelected = new Set(selectedPayments)
-    if (newSelected.has(id)) {
-      newSelected.delete(id)
-    } else {
-      newSelected.add(id)
-    }
-    setSelectedPayments(newSelected)
-  }
-
-  const handleSelectAll = (e) => {
-    if (e.target.checked) {
-      setSelectedPayments(new Set(sortedPayments.map((p) => p.id)))
-    } else {
-      setSelectedPayments(new Set())
-    }
-  }
-
-  const handleDeleteSelected = () => {
-    if (selectedPayments.size === 0) return
-    if (!window.confirm(`¿Está seguro de que desea eliminar ${selectedPayments.size} pago(s)?`)) {
-      return
-    }
-    const updatedPayments = payments.filter((p) => !selectedPayments.has(p.id))
-    setPayments(updatedPayments)
-    setSelectedPayments(new Set())
-  }
+  // deletion handled directly in database; frontend does not provide delete controls
 
   const totalRevenue = useMemo(
     () => payments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0),
@@ -113,18 +87,7 @@ const AdminPaymentsPage = () => {
       {loading && <div className="catalog-message">Cargando pagos...</div>}
       {error && <div className="alert alert-danger">{error}</div>}
 
-      {!loading && !error && (
-        <section className="payments-summary">
-          <article>
-            <span>Total de pagos</span>
-            <strong>{payments.length}</strong>
-          </article>
-          <article>
-            <span>Ingreso acumulado</span>
-            <strong>{currencyFormat.format(totalRevenue)}</strong>
-          </article>
-        </section>
-      )}
+      {/* Resumen superior eliminado: ya se muestra en el panel de estadísticas */}
 
       {!loading && !error && payments.length === 0 && (
         <div className="empty-state">
@@ -151,32 +114,11 @@ const AdminPaymentsPage = () => {
           </div>
 
           <div className="table-wrapper">
-            <div className="table-actions">
-              {selectedPayments.size > 0 && (
-                <div className="delete-actions">
-                  <span className="selected-count">
-                    {selectedPayments.size} pago{selectedPayments.size !== 1 ? 's' : ''} seleccionado{selectedPayments.size !== 1 ? 's' : ''}
-                  </span>
-                  <button 
-                    className="btn btn-danger-sm"
-                    onClick={handleDeleteSelected}
-                  >
-                    🗑️ Eliminar seleccionados
-                  </button>
-                </div>
-              )}
-            </div>
+            <div className="table-actions">{/* Eliminación deshabilitada en el frontend */}</div>
             <table className="payments-table">
               <thead>
                 <tr>
-                  <th className="checkbox-col">
-                    <input 
-                      type="checkbox"
-                      checked={selectedPayments.size > 0 && selectedPayments.size === sortedPayments.length}
-                      onChange={handleSelectAll}
-                      title="Seleccionar todos"
-                    />
-                  </th>
+                  {/* checkbox column removed - deletion disabled in UI */}
                   <th onClick={() => handleSort('createdAt')} className="sortable">
                     Fecha {sortField === 'createdAt' && <span className={`sort-icon ${sortDirection}`}>⇅</span>}
                   </th>
@@ -195,14 +137,7 @@ const AdminPaymentsPage = () => {
               </thead>
               <tbody>
                 {sortedPayments.map((payment) => (
-                  <tr key={payment.id} className={`payment-row ${selectedPayments.has(payment.id) ? 'selected' : ''}`}>
-                    <td className="checkbox-col">
-                      <input 
-                        type="checkbox"
-                        checked={selectedPayments.has(payment.id)}
-                        onChange={() => handleSelectPayment(payment.id)}
-                      />
-                    </td>
+                  <tr key={payment.id} className={`payment-row`}>
                     <td className="date-cell">
                       <div className="date-badge">{new Date(payment.createdAt).toLocaleDateString('es-CO')}</div>
                       <small>{new Date(payment.createdAt).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</small>

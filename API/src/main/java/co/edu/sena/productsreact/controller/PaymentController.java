@@ -27,4 +27,18 @@ public class PaymentController {
         var list = paymentService.listAll();
         return ResponseEntity.ok(list);
     }
+
+    @DeleteMapping("/{id}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<Void> deletePayment(@PathVariable Long id) {
+        paymentService.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<Void> deletePayments(@RequestBody java.util.List<Long> ids) {
+        paymentService.deleteByIds(ids);
+        return ResponseEntity.noContent().build();
+    }
 }

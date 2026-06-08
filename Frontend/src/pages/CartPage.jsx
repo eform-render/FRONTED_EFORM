@@ -198,9 +198,9 @@ const CartPage = () => {
             </div>
 
             <div className="payment-total">
-              <span>Total a pagar</span>
+              <span>💰 Total a pagar</span>
               <strong>{formatPrice(total)}</strong>
-              <small>{items.length} producto(s) en el carrito</small>
+              <small>📦 {items.length} producto{items.length !== 1 ? 's' : ''} en el carrito</small>
             </div>
 
             <form className="checkout-form payment-form" onSubmit={handleCheckout}>
@@ -257,8 +257,14 @@ const CartPage = () => {
                       onClick={() => setPaymentMethod(method)}
                       type="button"
                     >
+                      <span className="payment-method__icon">
+                        {method === 'PSE' && '🏦'}
+                        {method === 'Tarjeta debito' && '💳'}
+                        {method === 'Tarjeta credito' && '💰'}
+                        {method === 'Pago en sede' && '🏢'}
+                      </span>
                       <strong>{method}</strong>
-                      <span>{method === 'PSE' ? 'Banco en linea' : method.includes('Tarjeta') ? 'Pago inmediato' : 'Confirmacion presencial'}</span>
+                      <span>{method === 'PSE' ? 'Banco en línea' : method.includes('Tarjeta') ? 'Pago inmediato' : 'Confirmación presencial'}</span>
                     </button>
                   ))}
                 </div>
@@ -326,9 +332,9 @@ const CartPage = () => {
                 )}
               </section>
 
-              {paymentError && <p className="checkout-error">{paymentError}</p>}
-              <button className="btn btn-success btn-lg" disabled={processingPayment || total <= 0} type="submit">
-                {processingPayment ? 'Procesando pago...' : `Pagar ${formatPrice(total)}`}
+              {paymentError && <p className="checkout-error">⚠️ {paymentError}</p>}
+              <button className="btn btn-success btn-lg btn-pay" disabled={processingPayment || total <= 0} type="submit">
+                {processingPayment ? '⏳ Procesando pago...' : `✓ Pagar ${formatPrice(total)}`}
               </button>
             </form>
 

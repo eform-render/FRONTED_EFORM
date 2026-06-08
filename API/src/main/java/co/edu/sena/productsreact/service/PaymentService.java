@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class PaymentService {
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(PaymentService.class);
+
     private final PaymentRecordRepository paymentRecordRepository;
 
     @Transactional
@@ -32,4 +34,29 @@ public class PaymentService {
     public java.util.List<PaymentRecord> listAll() {
         return paymentRecordRepository.findAll();
     }
+
+    @Transactional
+    public void deleteById(Long id) {
+        try {
+            paymentRecordRepository.deleteById(id);
+        } catch (org.springframework.dao.EmptyResultDataAccessException ex) {
+            log.info("Intento de eliminar pago no existente id={}", id);
+            throw new co.edu.sena.productsreact.exception.ResourceNotFoundException("Pago no encontrado: " + id);
+        } catch (org.springframework.dao.DataIntegrityViolationException ex) {
+            log.error("Fallo al eliminar pago id={}: DataIntegrityViolation", id, ex);
+            throw new IllegalArgumentException("No se puede eliminar el pago por restricciones de integridad de la base de datos.");
+        }
+    }
+
+    @Transactional
+    public void deleteByIds(java.util.List<Long> ids) {
+        if (ids == null || ids.isEmpty()) return;
+        try {
+            paymentRecordRepository.deleteAllById(ids);
+        } catch (org.springframework.dao.DataIntegrityViolationException ex) {
+            log.error("Fallo al eliminar pagos ids={}: DataIntegrityViolation", ids, ex);
+            throw new IllegalArgumentException("No se pueden eliminar algunos pagos por restricciones de integridad de la base de datos.");
+        }
+    }
+
 }

@@ -28,7 +28,9 @@ const Navbar = ({ user, onLogout }) => {
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY
-      setHidden(currentScrollY > lastScrollY && currentScrollY > 120)
+      // Only show navbar completely when at top (scrollY === 0)
+      // Hide when scrolling down from any position below 60px
+      setHidden(currentScrollY > lastScrollY && currentScrollY > 60 && lastScrollY > 60)
       lastScrollY = currentScrollY
     }
 
