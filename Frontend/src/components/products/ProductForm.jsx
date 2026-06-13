@@ -2,55 +2,55 @@ import { useState } from 'react'
 
 const uniformImageFiles = [
   // Uniformes de Salud y Farmacia
-  'Camisa Salud y Farmacia Hombre.png',
-  'Camisa Salud y Farmacia Mujer.png',
-  'Pantalon Salud y Farmacia.png',
+  'Camisa Salud y Farmacia Hombre.webp',
+  'Camisa Salud y Farmacia Mujer.webp',
+  'Pantalon Salud y Farmacia.webp',
   
   // Uniformes de Enfermeria
-  'Camisa Enfermeria Hombre.png',
-  'Camisa Enfermeria Mujer.png',
-  'Pantalon Enfermeria Hombre.png',
-  'Pantalon Enfermeria Mujer.png',
+  'Camisa Enfermeria Hombre.webp',
+  'Camisa Enfermeria Mujer.webp',
+  'Pantalon Enfermeria Hombre.webp',
+  'Pantalon Enfermeria Mujer.webp',
   
   // Uniformes de Cosmetología
-  'Camisa Cosmetologia.png',
-  'Pantalon Cosmetologia.png',
+  'Camisa Cosmetologia.webp',
+  'Pantalon Cosmetologia.webp',
   
   // Uniformes de Limpieza
-  'Camisa Limpieza.png',
-  'Pantalon Limpieza.png',
+  'Camisa Limpieza.webp',
+  'Pantalon Limpieza.webp',
   
   // Uniformes de Cocina
-  'Camisa Cocina.png',
-  'Pantalon Cocina.png',
-  'Delantal Mesa y Bar.jfif',
-  'Gorro Cocina.jfif',
+  'Camisa Cocina.webp',
+  'Pantalon Cocina.webp',
+  'Delantal Mesa y Bar.webp',
+  'Gorro Cocina.webp',
   
   // Uniformes de Actividad Física
-  'Sudadera Actividad Fisica Hombre.png',
-  'Sudadera Actividad Fisica Mujer.png',
-  'Camisa Actividad Fisica Hombre.png',
-  'Camisa Actividad Fisica Mujer.png',
+  'Sudadera Actividad Fisica Hombre.webp',
+  'Sudadera Actividad Fisica Mujer.webp',
+  'Camisa Actividad Fisica Hombre.webp',
+  'Camisa Actividad Fisica Mujer.webp',
   
   // Uniformes de Apoyo Administrativo
-  'Camisa Apoyo Administrativo Mujer.png',
-  'Pantalon Apoyo Administrativo Mujer.png',
+  'Camisa Apoyo Administrativo Mujer.webp',
+  'Pantalon Apoyo Administrativo Mujer.webp',
   
   // Uniformes de Gestión Administrativa
-  'Camisa Gestion Administratica Mujer.png',
+  'Camisa Gestion Administratica Mujer.webp',
   
   // Uniformes Institucionales
-  'Camisa Institucional Hombre.png',
-  'Camisa Institucional NAUTICO Hombre.png',
-  'Camisa Institucional NAUTICO Mujer.png',
-  'Camisa Institucional PETROQUIMICO Hombre.png.jpg',
-  'Pantalon Institucional.png',
-  'Pantalon Institucional PETROQUIMICO.png',
+  'Camisa Institucional Hombre.webp',
+  'Camisa Institucional NAUTICO Hombre.webp',
+  'Camisa Institucional NAUTICO Mujer.webp',
+  'Camisa Institucional PETROQUIMICO Hombre.webp',
+  'Pantalon Institucional.webp',
+  'Pantalon Institucional PETROQUIMICO.webp',
   
   // Camisas Polo
-  'Camisa Polo Blanca.jpeg',
-  'Camisa Polo Negra.jpeg',
-  'Camisa Polo Verde.jpeg',
+  'Camisa Polo Blanca.webp',
+  'Camisa Polo Negra.webp',
+  'Camisa Polo Verde.webp',
 ]
 
 export default function ProductForm({ initialData = {}, loading = false, onSubmit, submitLabel = 'Guardar' }) {
