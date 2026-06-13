@@ -21,12 +21,21 @@ public class PasswordResetMailService {
     private String fromAddress;
 
     public void sendResetLink(User user, String token) {
+
+        System.out.println("========== INICIO ENVIO CORREO ==========");
+        System.out.println("Usuario: " + user.getUsername());
+        System.out.println("Email destino: " + user.getEmail());
+        System.out.println("From: " + fromAddress);
+        System.out.println("Frontend URL: " + frontendUrl);
+
         String resetLink = UriComponentsBuilder
                 .fromUriString(frontendUrl)
                 .path("/reset-password")
                 .queryParam("token", token)
                 .build()
                 .toUriString();
+
+        System.out.println("Reset Link: " + resetLink);
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(fromAddress);
@@ -43,6 +52,24 @@ public class PasswordResetMailService {
                 El enlace vence en 30 minutos. Si no solicitaste este cambio, puedes ignorar este mensaje.
                 """.formatted(user.getUsername(), resetLink));
 
-        mailSender.send(message);
+        try {
+
+            System.out.println("Intentando enviar correo...");
+
+            mailSender.send(message);
+
+            System.out.println("CORREO ENVIADO CORRECTAMENTE");
+            System.out.println("========== FIN ENVIO CORREO ==========");
+
+        } catch (Exception e) {
+
+            System.out.println("ERROR AL ENVIAR CORREO");
+            System.out.println("Tipo: " + e.getClass().getName());
+            System.out.println("Mensaje: " + e.getMessage());
+
+            e.printStackTrace();
+
+            throw e;
+        }
     }
 }
