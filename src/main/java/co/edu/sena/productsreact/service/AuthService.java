@@ -1,8 +1,10 @@
 package co.edu.sena.productsreact.service;
 
 import co.edu.sena.productsreact.dto.auth.AuthResponse;
+import co.edu.sena.productsreact.dto.auth.ForgotPasswordRequest;
 import co.edu.sena.productsreact.dto.auth.LoginRequest;
 import co.edu.sena.productsreact.dto.auth.RegisterRequest;
+import co.edu.sena.productsreact.dto.auth.ResetPasswordRequest;
 import co.edu.sena.productsreact.dto.auth.UserDto;
 import co.edu.sena.productsreact.entity.Role;
 import co.edu.sena.productsreact.entity.User;
@@ -29,6 +31,8 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final PasswordResetTokenService passwordResetTokenService;
+    private final PasswordResetMailService passwordResetMailService;
 
     /**
      * Registrar nuevo usuario
@@ -46,8 +50,6 @@ public class AuthService {
                     "El email '" + request.email() + "' ya está registrado");
         }
 
-        System.out.println(request);
-        
         User user = User.builder()
                 .username(request.username())
                 .email(request.email())
@@ -91,6 +93,30 @@ public class AuthService {
                 token,
                 new UserDto(loggedUser.getUsername(), loggedUser.getEmail(), loggedUser.getRole().name())
         );
+    }
+
+    public void requestPasswordReset(ForgotPasswordRequest request) {
+        userRepository.findByEmail(request.email().trim().toLowerCase())
+                .ifPresent(user -> {
+                    String token = passwordResetTokenService.generateToken(user.getEmail(), user.getPassword());
+                    passwordResetMailService.sendResetLink(user, token);
+                });
+    }
+
+    @Transactional
+    public void resetPassword(ResetPasswordRequest request) {
+        PasswordResetTokenService.PasswordResetToken resetToken =
+                passwordResetTokenService.parseToken(request.token());
+
+        User user = userRepository.findByEmail(resetToken.email())
+                .orElseThrow(() -> new IllegalArgumentException("El enlace de recuperacion no es valido"));
+
+        if (!passwordResetTokenService.matchesCurrentPassword(resetToken, user.getPassword())) {
+            throw new IllegalArgumentException("El enlace de recuperacion ya fue utilizado");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.password()));
+        userRepository.save(user);
     }
 
     /**
