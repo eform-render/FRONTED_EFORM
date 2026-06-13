@@ -25,8 +25,21 @@ public class PasswordResetMailService {
         System.out.println("========== INICIO ENVIO CORREO ==========");
         System.out.println("Usuario: " + user.getUsername());
         System.out.println("Email destino: " + user.getEmail());
-        System.out.println("From: " + fromAddress);
-        System.out.println("Frontend URL: " + frontendUrl);
+
+        System.out.println("MAIL_HOST=" + System.getenv("MAIL_HOST"));
+        System.out.println("MAIL_PORT=" + System.getenv("MAIL_PORT"));
+        System.out.println("MAIL_USERNAME=" + System.getenv("MAIL_USERNAME"));
+
+        System.out.println(
+                "MAIL_PASSWORD VACIO=" +
+                        (
+                                System.getenv("MAIL_PASSWORD") == null ||
+                                        System.getenv("MAIL_PASSWORD").isBlank()
+                        )
+        );
+
+        System.out.println("FROM=" + fromAddress);
+        System.out.println("FRONTEND_URL=" + frontendUrl);
 
         String resetLink = UriComponentsBuilder
                 .fromUriString(frontendUrl)
@@ -35,7 +48,7 @@ public class PasswordResetMailService {
                 .build()
                 .toUriString();
 
-        System.out.println("Reset Link: " + resetLink);
+        System.out.println("RESET LINK=" + resetLink);
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(fromAddress);
@@ -49,7 +62,9 @@ public class PasswordResetMailService {
                 Abre este enlace para crear una nueva contraseña:
                 %s
 
-                El enlace vence en 30 minutos. Si no solicitaste este cambio, puedes ignorar este mensaje.
+                El enlace vence en 30 minutos.
+
+                Si no solicitaste este cambio, puedes ignorar este mensaje.
                 """.formatted(user.getUsername(), resetLink));
 
         try {
