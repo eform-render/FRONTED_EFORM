@@ -22,25 +22,6 @@ public class PasswordResetMailService {
 
     public void sendResetLink(User user, String token) {
 
-        System.out.println("========== INICIO ENVIO CORREO ==========");
-        System.out.println("Usuario: " + user.getUsername());
-        System.out.println("Email destino: " + user.getEmail());
-
-        System.out.println("MAIL_HOST=" + System.getenv("MAIL_HOST"));
-        System.out.println("MAIL_PORT=" + System.getenv("MAIL_PORT"));
-        System.out.println("MAIL_USERNAME=" + System.getenv("MAIL_USERNAME"));
-
-        System.out.println(
-                "MAIL_PASSWORD VACIO=" +
-                        (
-                                System.getenv("MAIL_PASSWORD") == null ||
-                                        System.getenv("MAIL_PASSWORD").isBlank()
-                        )
-        );
-
-        System.out.println("FROM=" + fromAddress);
-        System.out.println("FRONTEND_URL=" + frontendUrl);
-
         String resetLink = UriComponentsBuilder
                 .fromUriString(frontendUrl)
                 .path("/reset-password")
@@ -48,18 +29,16 @@ public class PasswordResetMailService {
                 .build()
                 .toUriString();
 
-        System.out.println("RESET LINK=" + resetLink);
-
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(fromAddress);
         message.setTo(user.getEmail());
-        message.setSubject("Recuperacion de contraseña - EFORM");
+        message.setSubject("Recuperacion de contrasena - EFORM");
         message.setText("""
                 Hola %s:
 
-                Recibimos una solicitud para cambiar la contraseña de tu cuenta EFORM.
+                Recibimos una solicitud para cambiar la contrasena de tu cuenta EFORM.
 
-                Abre este enlace para crear una nueva contraseña:
+                Abre este enlace para crear una nueva contrasena:
                 %s
 
                 El enlace vence en 30 minutos.
@@ -67,24 +46,6 @@ public class PasswordResetMailService {
                 Si no solicitaste este cambio, puedes ignorar este mensaje.
                 """.formatted(user.getUsername(), resetLink));
 
-        try {
-
-            System.out.println("Intentando enviar correo...");
-
-            mailSender.send(message);
-
-            System.out.println("CORREO ENVIADO CORRECTAMENTE");
-            System.out.println("========== FIN ENVIO CORREO ==========");
-
-        } catch (Exception e) {
-
-            System.out.println("ERROR AL ENVIAR CORREO");
-            System.out.println("Tipo: " + e.getClass().getName());
-            System.out.println("Mensaje: " + e.getMessage());
-
-            e.printStackTrace();
-
-            throw e;
-        }
+        mailSender.send(message);
     }
 }
