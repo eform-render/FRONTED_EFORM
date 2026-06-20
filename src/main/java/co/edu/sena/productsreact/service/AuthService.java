@@ -96,11 +96,32 @@ public class AuthService {
     }
 
     public void requestPasswordReset(ForgotPasswordRequest request) {
+
+        System.out.println("========== FORGOT PASSWORD ==========");
+        System.out.println("EMAIL RECIBIDO: " + request.email());
+
         userRepository.findByEmail(request.email().trim().toLowerCase())
-                .ifPresent(user -> {
-                    String token = passwordResetTokenService.generateToken(user.getEmail(), user.getPassword());
+                .ifPresentOrElse(user -> {
+
+                    System.out.println("USUARIO ENCONTRADO: " + user.getEmail());
+
+                    String token = passwordResetTokenService.generateToken(
+                            user.getEmail(),
+                            user.getPassword()
+                    );
+
+                    System.out.println("TOKEN GENERADO");
+
                     passwordResetMailService.sendResetLink(user, token);
+
+                    System.out.println("ENVIO FINALIZADO");
+
+                }, () -> {
+
+                    System.out.println("USUARIO NO ENCONTRADO");
+
                 });
+
     }
 
     @Transactional

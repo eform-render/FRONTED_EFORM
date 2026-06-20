@@ -3,7 +3,11 @@ package co.edu.sena.productsreact.service;
 import co.edu.sena.productsreact.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -28,6 +32,8 @@ public class PasswordResetMailService {
 
     public void sendResetLink(User user, String token) {
 
+        System.out.println("ENTRO A sendResetLink");
+
         String resetLink = UriComponentsBuilder
                 .fromUriString(frontendUrl)
                 .path("/reset-password")
@@ -36,15 +42,15 @@ public class PasswordResetMailService {
                 .toUriString();
 
         String html = """
-                <h2>Recuperación de contraseña - EFORM</h2>
+                <h2>Recuperacion de contrasena - EFORM</h2>
 
                 <p>Hola %s</p>
 
-                <p>Recibimos una solicitud para cambiar tu contraseña.</p>
+                <p>Recibimos una solicitud para cambiar tu contrasena.</p>
 
                 <p>
                     <a href="%s">
-                        Haz clic aquí para restablecer tu contraseña
+                        Haz clic aqui para restablecer tu contrasena
                     </a>
                 </p>
 
@@ -65,7 +71,7 @@ public class PasswordResetMailService {
                 "to", List.of(
                         Map.of("email", user.getEmail())
                 ),
-                "subject", "Recuperación de contraseña - EFORM",
+                "subject", "Recuperacion de contrasena - EFORM",
                 "htmlContent", html
         );
 
@@ -77,6 +83,7 @@ public class PasswordResetMailService {
             System.out.println("========== BREVO ==========");
             System.out.println("FROM: " + fromAddress);
             System.out.println("TO: " + user.getEmail());
+            System.out.println("RESET LINK: " + resetLink);
 
             System.out.println("API KEY VACIA: " +
                     (brevoApiKey == null || brevoApiKey.isBlank()));
@@ -85,11 +92,11 @@ public class PasswordResetMailService {
                     (brevoApiKey == null ? 0 : brevoApiKey.length()));
 
             if (brevoApiKey != null && brevoApiKey.length() > 30) {
-                System.out.println("PRIMEROS 15: " +
-                        brevoApiKey.substring(0, 15));
+                System.out.println("PRIMEROS 15: "
+                        + brevoApiKey.substring(0, 15));
 
-                System.out.println("ULTIMOS 15: " +
-                        brevoApiKey.substring(brevoApiKey.length() - 15));
+                System.out.println("ULTIMOS 15: "
+                        + brevoApiKey.substring(brevoApiKey.length() - 15));
             }
 
             ResponseEntity<String> response = restTemplate.exchange(
