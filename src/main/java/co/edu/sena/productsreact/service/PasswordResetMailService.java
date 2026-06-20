@@ -36,15 +36,15 @@ public class PasswordResetMailService {
                 .toUriString();
 
         String html = """
-                <h2>Recuperacion de contrasena - EFORM</h2>
+                <h2>Recuperación de contraseña - EFORM</h2>
 
                 <p>Hola %s</p>
 
-                <p>Recibimos una solicitud para cambiar tu contrasena.</p>
+                <p>Recibimos una solicitud para cambiar tu contraseña.</p>
 
                 <p>
                     <a href="%s">
-                        Haz clic aqui para restablecer tu contrasena
+                        Haz clic aquí para restablecer tu contraseña
                     </a>
                 </p>
 
@@ -65,7 +65,7 @@ public class PasswordResetMailService {
                 "to", List.of(
                         Map.of("email", user.getEmail())
                 ),
-                "subject", "Recuperacion de contrasena - EFORM",
+                "subject", "Recuperación de contraseña - EFORM",
                 "htmlContent", html
         );
 
@@ -77,13 +77,20 @@ public class PasswordResetMailService {
             System.out.println("========== BREVO ==========");
             System.out.println("FROM: " + fromAddress);
             System.out.println("TO: " + user.getEmail());
-            System.out.println("RESET LINK: " + resetLink);
 
             System.out.println("API KEY VACIA: " +
                     (brevoApiKey == null || brevoApiKey.isBlank()));
 
             System.out.println("LONGITUD API KEY: " +
                     (brevoApiKey == null ? 0 : brevoApiKey.length()));
+
+            if (brevoApiKey != null && brevoApiKey.length() > 30) {
+                System.out.println("PRIMEROS 15: " +
+                        brevoApiKey.substring(0, 15));
+
+                System.out.println("ULTIMOS 15: " +
+                        brevoApiKey.substring(brevoApiKey.length() - 15));
+            }
 
             ResponseEntity<String> response = restTemplate.exchange(
                     "https://api.brevo.com/v3/smtp/email",
