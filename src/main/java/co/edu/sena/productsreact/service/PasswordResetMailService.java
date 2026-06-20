@@ -79,6 +79,12 @@ public class PasswordResetMailService {
             System.out.println("TO: " + user.getEmail());
             System.out.println("RESET LINK: " + resetLink);
 
+            System.out.println("API KEY VACIA: " +
+                    (brevoApiKey == null || brevoApiKey.isBlank()));
+
+            System.out.println("LONGITUD API KEY: " +
+                    (brevoApiKey == null ? 0 : brevoApiKey.length()));
+
             ResponseEntity<String> response = restTemplate.exchange(
                     "https://api.brevo.com/v3/smtp/email",
                     HttpMethod.POST,
