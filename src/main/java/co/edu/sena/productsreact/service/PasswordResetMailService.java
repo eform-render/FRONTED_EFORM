@@ -36,15 +36,15 @@ public class PasswordResetMailService {
                 .toUriString();
 
         String html = """
-                <h2>Recuperacion de contraseña - EFORM</h2>
+                <h2>Recuperacion de contrasena - EFORM</h2>
 
                 <p>Hola %s</p>
 
-                <p>Recibimos una solicitud para cambiar tu contraseña.</p>
+                <p>Recibimos una solicitud para cambiar tu contrasena.</p>
 
                 <p>
                     <a href="%s">
-                        Haz clic aqui para restablecer tu contraseña
+                        Haz clic aqui para restablecer tu contrasena
                     </a>
                 </p>
 
@@ -54,7 +54,6 @@ public class PasswordResetMailService {
                 """.formatted(user.getUsername(), resetLink);
 
         HttpHeaders headers = new HttpHeaders();
-
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("api-key", brevoApiKey);
 
@@ -66,18 +65,40 @@ public class PasswordResetMailService {
                 "to", List.of(
                         Map.of("email", user.getEmail())
                 ),
-                "subject", "Recuperacion de contraseña - EFORM",
+                "subject", "Recuperacion de contrasena - EFORM",
                 "htmlContent", html
         );
 
         HttpEntity<Map<String, Object>> request =
                 new HttpEntity<>(body, headers);
 
-        restTemplate.exchange(
-                "https://api.brevo.com/v3/smtp/email",
-                HttpMethod.POST,
-                request,
-                String.class
-        );
+        try {
+
+            System.out.println("========== BREVO ==========");
+            System.out.println("FROM: " + fromAddress);
+            System.out.println("TO: " + user.getEmail());
+            System.out.println("RESET LINK: " + resetLink);
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    "https://api.brevo.com/v3/smtp/email",
+                    HttpMethod.POST,
+                    request,
+                    String.class
+            );
+
+            System.out.println("BREVO OK");
+            System.out.println("STATUS: " + response.getStatusCode());
+            System.out.println("BODY: " + response.getBody());
+
+        } catch (Exception e) {
+
+            System.out.println("ERROR BREVO");
+            System.out.println("TIPO: " + e.getClass().getName());
+            System.out.println("MENSAJE: " + e.getMessage());
+
+            e.printStackTrace();
+
+            throw e;
+        }
     }
 }
