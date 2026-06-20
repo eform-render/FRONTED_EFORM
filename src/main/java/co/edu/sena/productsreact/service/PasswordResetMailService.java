@@ -3,22 +3,28 @@ package co.edu.sena.productsreact.service;
 import co.edu.sena.productsreact.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class PasswordResetMailService {
 
-    private final JavaMailSender mailSender;
+    private final RestTemplate restTemplate;
 
     @Value("${app.frontend-url}")
     private String frontendUrl;
 
-    @Value("${app.mail.from:${spring.mail.username}}")
+    @Value("${app.mail.from}")
     private String fromAddress;
+
+    @Value("${brevo.api.key}")
+    private String brevoApiKey;
 
     public void sendResetLink(User user, String token) {
 
@@ -29,23 +35,49 @@ public class PasswordResetMailService {
                 .build()
                 .toUriString();
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(fromAddress);
-        message.setTo(user.getEmail());
-        message.setSubject("Recuperacion de contrasena - EFORM");
-        message.setText("""
-                Hola %s:
+        String html = """
+                <h2>Recuperacion de contraseña - EFORM</h2>
 
-                Recibimos una solicitud para cambiar la contrasena de tu cuenta EFORM.
+                <p>Hola %s</p>
 
-                Abre este enlace para crear una nueva contrasena:
-                %s
+                <p>Recibimos una solicitud para cambiar tu contraseña.</p>
 
-                El enlace vence en 30 minutos.
+                <p>
+                    <a href="%s">
+                        Haz clic aqui para restablecer tu contraseña
+                    </a>
+                </p>
 
-                Si no solicitaste este cambio, puedes ignorar este mensaje.
-                """.formatted(user.getUsername(), resetLink));
+                <p>Este enlace vence en 30 minutos.</p>
 
-        mailSender.send(message);
+                <p>Si no solicitaste este cambio puedes ignorar este correo.</p>
+                """.formatted(user.getUsername(), resetLink);
+
+        HttpHeaders headers = new HttpHeaders();
+
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("api-key", brevoApiKey);
+
+        Map<String, Object> body = Map.of(
+                "sender", Map.of(
+                        "name", "EFORM",
+                        "email", fromAddress
+                ),
+                "to", List.of(
+                        Map.of("email", user.getEmail())
+                ),
+                "subject", "Recuperacion de contraseña - EFORM",
+                "htmlContent", html
+        );
+
+        HttpEntity<Map<String, Object>> request =
+                new HttpEntity<>(body, headers);
+
+        restTemplate.exchange(
+                "https://api.brevo.com/v3/smtp/email",
+                HttpMethod.POST,
+                request,
+                String.class
+        );
     }
 }
