@@ -1,5 +1,6 @@
 package co.edu.sena.productsreact.service;
 
+import co.edu.sena.productsreact.dto.CategoriesResponse;
 import co.edu.sena.productsreact.dto.product.ProductRequest;
 import co.edu.sena.productsreact.dto.product.ProductResponse;
 import co.edu.sena.productsreact.entity.Product;
@@ -193,6 +194,58 @@ public class ProductService {
         int current = product.getStock() == null ? 0 : product.getStock();
         product.setStock(current + released);
         productRepository.save(product);
+    }
+
+    /**
+     * Obtener todas las categorías disponibles
+     */
+    public CategoriesResponse getCategories() {
+        List<Product> allProducts = productRepository.findAllByIsDeletedFalse();
+
+        List<String> generos = allProducts.stream()
+                .map(Product::getGenero)
+                .filter(Objects::nonNull)
+                .distinct()
+                .sorted()
+                .toList();
+
+        List<String> tiposPrenda = allProducts.stream()
+                .map(Product::getTipoPrenda)
+                .filter(Objects::nonNull)
+                .distinct()
+                .sorted()
+                .toList();
+
+        List<String> carreras = allProducts.stream()
+                .map(Product::getCarrera)
+                .filter(Objects::nonNull)
+                .distinct()
+                .sorted()
+                .toList();
+
+        List<String> tiposUniforme = allProducts.stream()
+                .map(Product::getTipoUniforme)
+                .filter(Objects::nonNull)
+                .distinct()
+                .sorted()
+                .toList();
+
+        return new CategoriesResponse(generos, tiposPrenda, carreras, tiposUniforme);
+    }
+
+    /**
+     * Filtrar productos por género, tipo de prenda, carrera, etc.
+     */
+    public List<ProductResponse> filterProducts(String genero, String tipoPrenda, String carrera, String tipoUniforme) {
+        List<Product> products = productRepository.findAllByIsDeletedFalse();
+
+        return products.stream()
+                .filter(p -> genero == null || genero.equals(p.getGenero()))
+                .filter(p -> tipoPrenda == null || tipoPrenda.equals(p.getTipoPrenda()))
+                .filter(p -> carrera == null || carrera.equals(p.getCarrera()))
+                .filter(p -> tipoUniforme == null || tipoUniforme.equals(p.getTipoUniforme()))
+                .map(this::toResponse)
+                .toList();
     }
 
     /**

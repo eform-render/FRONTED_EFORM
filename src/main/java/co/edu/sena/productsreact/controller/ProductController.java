@@ -1,5 +1,7 @@
 package co.edu.sena.productsreact.controller;
 
+import co.edu.sena.productsreact.dto.CategoriesResponse;
+import co.edu.sena.productsreact.dto.ProductFilterRequest;
 import co.edu.sena.productsreact.dto.product.ProductRequest;
 import co.edu.sena.productsreact.dto.product.ProductResponse;
 import co.edu.sena.productsreact.service.ProductImageStorageService;
@@ -100,5 +102,25 @@ public class ProductController {
                                               @RequestParam(required = false) String sessionId) {
         productService.releaseStock(id, qty, sessionId);
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Obtener categorías disponibles
+     */
+    @GetMapping("/categories/all")
+    public ResponseEntity<CategoriesResponse> getCategories() {
+        return ResponseEntity.ok(productService.getCategories());
+    }
+
+    /**
+     * Filtrar productos por género, tipo de prenda, carrera, etc.
+     */
+    @GetMapping("/filter")
+    public ResponseEntity<List<ProductResponse>> filterProducts(
+            @RequestParam(required = false) String genero,
+            @RequestParam(required = false) String tipoPrenda,
+            @RequestParam(required = false) String carrera,
+            @RequestParam(required = false) String tipoUniforme) {
+        return ResponseEntity.ok(productService.filterProducts(genero, tipoPrenda, carrera, tipoUniforme));
     }
 }
