@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './ProductCard.module.css'
+import { getImageUrl } from '../../utils/imageUrl'
 
 const formatPrice = (value) =>
   new Intl.NumberFormat('es-CO', {
@@ -22,7 +23,7 @@ const ProductCard = ({ product, isAdmin = false, onAddToCart, onDelete }) => {
         onClick={() => navigate(`/products/${product.id}`)}
         type="button"
       >
-        {product.imageUrl ? <img src={product.imageUrl} alt={product.nombre} /> : <span>Sin imagen</span>}
+        {product.imageUrl ? <img src={getImageUrl(product.imageUrl)} alt={product.nombre} /> : <span>Sin imagen</span>}
       </button>
 
       <div className={styles['product-card__header']}>

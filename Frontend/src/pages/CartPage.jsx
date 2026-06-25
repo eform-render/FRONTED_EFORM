@@ -16,6 +16,7 @@ const CartPage = () => {
   const [customerEmail, setCustomerEmail] = useState('')
   const [order, setOrder] = useState(null)
   const [paymentError, setPaymentError] = useState('')
+  const [isPaying, setIsPaying] = useState(false)
 
   useEffect(() => {
     const handleCartUpdate = (event) => {
@@ -58,18 +59,27 @@ const CartPage = () => {
       return
     }
 
+    if (items.length === 0) {
+      setPaymentError('Agrega productos al carrito antes de pagar.')
+      return
+    }
+
     try {
-      await checkoutPayment({
+      setIsPaying(true)
+      const payment = await checkoutPayment({
         customerName,
         customerEmail,
         paymentMethod,
+        items,
       })
 
       const confirmedOrder = checkoutCart()
-      setOrder({ ...confirmedOrder, customerName, customerEmail, paymentMethod })
+      setOrder({ ...confirmedOrder, customerName, customerEmail, paymentMethod, payment })
       setItems([])
     } catch (error) {
-      setPaymentError('No se pudo procesar el pago. Revisa tu conexión e intenta nuevamente.')
+      setPaymentError(error?.response?.data?.message || 'No se pudo procesar el pago. Revisa tu conexion e intenta nuevamente.')
+    } finally {
+      setIsPaying(false)
     }
   }
 
@@ -89,6 +99,7 @@ const CartPage = () => {
       {order && (
         <div className="alert alert-success checkout-success">
           <strong>Pago confirmado.</strong> Pedido {order.id} registrado por {formatPrice(order.total)}.
+          {order.payment?.reference && <span> Comprobante {order.payment.reference}.</span>}
         </div>
       )}
 
@@ -194,8 +205,8 @@ const CartPage = () => {
                 </select>
               </label>
               {paymentError && <p className="checkout-error">{paymentError}</p>}
-              <button className="btn btn-success" type="submit">
-                Pagar pedido
+              <button className="btn btn-success" disabled={isPaying} type="submit">
+                {isPaying ? 'Procesando pago...' : 'Pagar pedido'}
               </button>
             </form>
             <div className="cart-summary__actions">

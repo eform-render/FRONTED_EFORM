@@ -5,20 +5,49 @@ import { getAll } from '../services/productService'
 import { isAdmin } from '../utils/roles'
 import ProductCard from '../components/products/ProductCard'
 
+const dailyVerses = [
+  {
+    text: 'Todo lo puedo en Cristo que me fortalece.',
+    reference: 'Filipenses 4:13',
+  },
+  {
+    text: 'El Senor es mi pastor; nada me faltara.',
+    reference: 'Salmo 23:1',
+  },
+  {
+    text: 'Encomienda al Senor tus obras, y tus pensamientos seran afirmados.',
+    reference: 'Proverbios 16:3',
+  },
+  {
+    text: 'Esfuerzate y se valiente; no temas ni desmayes.',
+    reference: 'Josue 1:9',
+  },
+  {
+    text: 'Por la manana hazme saber de tu gran amor, porque en ti he puesto mi confianza.',
+    reference: 'Salmo 143:8',
+  },
+  {
+    text: 'La paz os dejo, mi paz os doy.',
+    reference: 'Juan 14:27',
+  },
+  {
+    text: 'Mas buscad primeramente el reino de Dios y su justicia.',
+    reference: 'Mateo 6:33',
+  },
+]
+
 export default function HomePage() {
   const user = getCurrentUser()
   const isAuthenticated = Boolean(user)
   const canManageProducts = isAdmin(user)
   const [products, setProducts] = useState([])
   const [filter, setFilter] = useState('')
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(isAuthenticated)
   const [error, setError] = useState('')
+  const [verseIndex] = useState(() => Math.floor(Date.now() / 86400000) % dailyVerses.length)
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      setLoading(false)
-      return
-    }
+    if (!isAuthenticated) return
 
     getAll()
       .then(setProducts)
@@ -69,37 +98,6 @@ export default function HomePage() {
     'Confirma tu pedido',
   ]
 
-  const dailyVerses = [
-    {
-      text: 'Todo lo puedo en Cristo que me fortalece.',
-      reference: 'Filipenses 4:13',
-    },
-    {
-      text: 'El Senor es mi pastor; nada me faltara.',
-      reference: 'Salmo 23:1',
-    },
-    {
-      text: 'Encomienda al Senor tus obras, y tus pensamientos seran afirmados.',
-      reference: 'Proverbios 16:3',
-    },
-    {
-      text: 'Esfuerzate y se valiente; no temas ni desmayes.',
-      reference: 'Josue 1:9',
-    },
-    {
-      text: 'Por la manana hazme saber de tu gran amor, porque en ti he puesto mi confianza.',
-      reference: 'Salmo 143:8',
-    },
-    {
-      text: 'La paz os dejo, mi paz os doy.',
-      reference: 'Juan 14:27',
-    },
-    {
-      text: 'Mas buscad primeramente el reino de Dios y su justicia.',
-      reference: 'Mateo 6:33',
-    },
-  ]
-  const verseIndex = Math.floor(Date.now() / 86400000) % dailyVerses.length
   const dailyVerse = dailyVerses[verseIndex]
 
   return (

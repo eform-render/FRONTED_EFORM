@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import PasswordInput from '../components/PasswordInput'
 import { login, saveSession } from '../services/authServices'
 import { getApiErrorMessage } from '../utils/apiError'
 import { isAdmin } from '../utils/roles'
@@ -91,18 +92,16 @@ export default function LoginPage({ onLogin }) {
             {errors.email && <small>{errors.email}</small>}
           </label>
 
-          <label>
-            Contrasena
-            <input
-              name="password"
-              className={`form-control ${errors.password ? 'is-invalid' : ''}`}
-              type="password"
-              onChange={handleChange}
-              placeholder="Tu contrasena"
-              value={form.password}
-            />
-            {errors.password && <small>{errors.password}</small>}
-          </label>
+          <PasswordInput
+            autoComplete="current-password"
+            className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+            label="Contrasena"
+            name="password"
+            onChange={handleChange}
+            placeholder="Tu contrasena"
+            value={form.password}
+          />
+          {errors.password && <small>{errors.password}</small>}
 
           <p className="auth-switch auth-switch--right">
             <Link to="/forgot-password">Olvidaste tu contrasena?</Link>

@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import PasswordInput from '../components/PasswordInput'
 import { register } from '../services/authServices'
 import { getApiErrorMessage } from '../utils/apiError'
+
+const PASSWORD_REGEX = /^(?=.*[A-Z]).{8,10}$/
 
 export default function RegisterPage() {
   const navigate = useNavigate()
@@ -31,8 +34,8 @@ export default function RegisterPage() {
     if (!emailRegex.test(form.email.trim())) {
       nextErrors.email = 'Ingresa un correo electronico valido.'
     }
-    if (form.password.length < 6) {
-      nextErrors.password = 'La contrasena debe tener minimo 6 caracteres.'
+    if (!PASSWORD_REGEX.test(form.password)) {
+      nextErrors.password = 'La contrasena debe tener entre 8 y 10 caracteres e incluir al menos una mayuscula.'
     }
     if (form.confirmPassword !== form.password) {
       nextErrors.confirmPassword = 'Las contrasenas no coinciden.'
@@ -101,31 +104,31 @@ export default function RegisterPage() {
             {errors.email && <small>{errors.email}</small>}
           </label>
 
-          <label>
-            Contrasena
-            <input
-              name="password"
-              className={`form-control ${errors.password ? 'is-invalid' : ''}`}
-              type="password"
-              onChange={handleChange}
-              placeholder="Minimo 6 caracteres"
-              value={form.password}
-            />
-            {errors.password && <small>{errors.password}</small>}
-          </label>
+          <PasswordInput
+            autoComplete="new-password"
+            className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+            label="Contrasena"
+            maxLength={10}
+            minLength={8}
+            name="password"
+            onChange={handleChange}
+            placeholder="8 a 10 caracteres y una mayuscula"
+            value={form.password}
+          />
+          {errors.password && <small>{errors.password}</small>}
 
-          <label>
-            Confirmar contrasena
-            <input
-              name="confirmPassword"
-              className={`form-control ${errors.confirmPassword ? 'is-invalid' : ''}`}
-              type="password"
-              onChange={handleChange}
-              placeholder="Repite tu contrasena"
-              value={form.confirmPassword}
-            />
-            {errors.confirmPassword && <small>{errors.confirmPassword}</small>}
-          </label>
+          <PasswordInput
+            autoComplete="new-password"
+            className={`form-control ${errors.confirmPassword ? 'is-invalid' : ''}`}
+            label="Confirmar contrasena"
+            maxLength={10}
+            minLength={8}
+            name="confirmPassword"
+            onChange={handleChange}
+            placeholder="Repite tu contrasena"
+            value={form.confirmPassword}
+          />
+          {errors.confirmPassword && <small>{errors.confirmPassword}</small>}
 
           <button className="btn btn-primary btn-lg" disabled={loading} type="submit">
             {loading ? 'Creando cuenta...' : 'Crear cuenta'}

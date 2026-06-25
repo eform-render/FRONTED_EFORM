@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { getById } from '../services/productService'
 import { addToCart, getCart } from '../services/cartService'
 import { getApiErrorMessage } from '../utils/apiError'
+import { getImageUrl } from '../utils/imageUrl'
 import { isAdmin } from '../utils/roles'
 
 const formatPrice = (value) =>
@@ -21,9 +22,18 @@ const ProductDetailPage = ({ user }) => {
   const [success, setSuccess] = useState('')
   const [cartError, setCartError] = useState('')
   const [selectedSize, setSelectedSize] = useState('')
-  const [addedCount, setAddedCount] = useState(0)
+  const [cartVersion, setCartVersion] = useState(0)
   const admin = isAdmin(user)
   const sizes = product?.tallasDisponibles?.length ? product.tallasDisponibles : ['Unica']
+  const addedCount = (() => {
+    void cartVersion
+    if (!product || !selectedSize) return 0
+
+    const item = getCart().find(
+      (cartItem) => cartItem.id === product.id && (cartItem.selectedSize || 'Unica') === selectedSize
+    )
+    return item?.quantity || 0
+  })()
 
   useEffect(() => {
     getById(id)
@@ -38,11 +48,7 @@ const ProductDetailPage = ({ user }) => {
 
   useEffect(() => {
     const handler = (e) => {
-      const cart = (e && e.detail && e.detail.cart) ? e.detail.cart : getCart()
-      const item = cart.find(
-        (cartItem) => String(cartItem.id) === String(id) && (cartItem.selectedSize || 'Unica') === selectedSize
-      )
-      setAddedCount(item?.quantity || 0)
+      if (e?.detail?.cart) setCartVersion((currentVersion) => currentVersion + 1)
     }
 
     const onReserveFailed = (e) => {
@@ -57,15 +63,6 @@ const ProductDetailPage = ({ user }) => {
       window.removeEventListener('cartReserveFailed', onReserveFailed)
     }
   }, [id, selectedSize])
-
-  useEffect(() => {
-    if (!product || !selectedSize) return
-
-    const item = getCart().find(
-      (cartItem) => cartItem.id === product.id && (cartItem.selectedSize || 'Unica') === selectedSize
-    )
-    setAddedCount(item?.quantity || 0)
-  }, [product, selectedSize])
 
   if (loading) return <div className="catalog-message">Cargando producto...</div>
 
@@ -85,7 +82,7 @@ const ProductDetailPage = ({ user }) => {
       <section className="product-detail">
         <div className="product-detail__layout">
           <div className="product-detail__image">
-            {product.imageUrl ? <img src={product.imageUrl} alt={product.nombre} /> : <span>Sin imagen</span>}
+            {product.imageUrl ? <img src={getImageUrl(product.imageUrl)} alt={product.nombre} /> : <span>Sin imagen</span>}
           </div>
 
           <div>
@@ -150,10 +147,7 @@ const ProductDetailPage = ({ user }) => {
                   setProduct((prev) =>
                     prev ? { ...prev, stock: Math.max(0, Number(prev.stock || 0) - 1) } : prev
                   )
-                  const item = result.cart.find(
-                    (cartItem) => cartItem.id === product.id && (cartItem.selectedSize || 'Unica') === selectedSize
-                  )
-                  setAddedCount(item?.quantity || 0)
+                  setCartVersion((currentVersion) => currentVersion + 1)
                 }
               }}
               type="button"

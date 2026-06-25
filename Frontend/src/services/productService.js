@@ -25,6 +25,13 @@ export const remove = async (id) => {
   return response.data
 }
 
+export const uploadImage = async (file) => {
+  const formData = new FormData()
+  formData.append('file', file)
+  const response = await axiosClient.post('/products/images', formData)
+  return response.data
+}
+
 export const reserve = async (id, qty = 1) => {
   let sessionId = localStorage.getItem('reserveSession')
   if (!sessionId) {

@@ -4,25 +4,21 @@ import { getAll, remove } from '../services/productService'
 import { addToCart, getCart } from '../services/cartService'
 import ProductCard from '../components/products/ProductCard'
 import { getApiErrorMessage } from '../utils/apiError'
+import { getImageUrl } from '../utils/imageUrl'
 import { isAdmin } from '../utils/roles'
 
 const ProductPage = ({ user }) => {
+  const [searchParams] = useSearchParams()
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
-  const [filter, setFilter] = useState('')
+  const [filter, setFilter] = useState(() => searchParams.get('tipo') || '')
   const [stockFilter, setStockFilter] = useState('all')
   const [cartQuantity, setCartQuantity] = useState(() =>
     getCart().reduce((sum, item) => sum + Number(item.quantity || 1), 0)
   )
   const admin = isAdmin(user)
-  const [searchParams] = useSearchParams()
-
-  useEffect(() => {
-    const typeFilter = searchParams.get('tipo')
-    if (typeFilter) setFilter(typeFilter)
-  }, [searchParams])
 
   useEffect(() => {
     getAll()
@@ -234,7 +230,7 @@ const ProductPage = ({ user }) => {
             {filteredProducts.map((product) => (
               <article className="admin-product-row" key={product.id}>
                 <div className="admin-product-row__image">
-                  {product.imageUrl ? <img src={product.imageUrl} alt={product.nombre} /> : <span>Sin imagen</span>}
+                  {product.imageUrl ? <img src={getImageUrl(product.imageUrl)} alt={product.nombre} /> : <span>Sin imagen</span>}
                 </div>
                 <div>
                   <h3>{product.nombre}</h3>

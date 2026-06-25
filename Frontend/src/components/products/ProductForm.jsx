@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { uploadImage } from '../../services/productService'
+import { getImageUrl } from '../../utils/imageUrl'
 
 const uniformImageFiles = [
   'WhatsApp Image 2026-05-12 at 6.55.09 PM (1).jpeg',
@@ -10,17 +12,22 @@ const uniformImageFiles = [
   'pantalon_azul.jpeg',
 ]
 
+const commonSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '28', '30', '32', '34', '36', '38', '40']
+
+const buildFormData = (product = {}) => ({
+  nombre: product?.nombre || '',
+  precio: product?.precio || '',
+  descripcion: product?.descripcion || '',
+  tipoTela: product?.tipoTela || '',
+  stock: product?.stock ?? '',
+  imageUrl: product?.imageUrl || '',
+  tallasText: product?.tallasDisponibles?.join(', ') || '',
+})
+
 export default function ProductForm({ initialData = {}, loading = false, onSubmit, submitLabel = 'Guardar' }) {
-  const [form, setForm] = useState({
-    nombre: initialData?.nombre || '',
-    precio: initialData?.precio || '',
-    descripcion: initialData?.descripcion || '',
-    tipoTela: initialData?.tipoTela || '',
-    stock: initialData?.stock ?? '',
-    imageUrl: initialData?.imageUrl || '',
-    tallasText: initialData?.tallasDisponibles?.join(', ') || '',
-  })
+  const [form, setForm] = useState(() => buildFormData(initialData))
   const [errors, setErrors] = useState({})
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
 
   const resizeImage = (file) =>
     new Promise((resolve, reject) => {
@@ -36,7 +43,18 @@ export default function ProductForm({ initialData = {}, loading = false, onSubmi
 
           const context = canvas.getContext('2d')
           context.drawImage(image, 0, 0, canvas.width, canvas.height)
-          resolve(canvas.toDataURL('image/jpeg', 0.72))
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error('No fue posible preparar la imagen.'))
+                return
+              }
+
+              resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }))
+            },
+            'image/jpeg',
+            0.72
+          )
         }
         image.onerror = reject
         image.src = reader.result
@@ -63,12 +81,32 @@ export default function ProductForm({ initialData = {}, loading = false, onSubmi
     }
 
     try {
-      const imageUrl = await resizeImage(file)
+      setUploadingPhoto(true)
+      const resizedFile = await resizeImage(file)
+      const { imageUrl } = await uploadImage(resizedFile)
       setForm((currentForm) => ({ ...currentForm, imageUrl }))
       setErrors((currentErrors) => ({ ...currentErrors, imageUrl: '' }))
     } catch {
       setErrors({ ...errors, imageUrl: 'No fue posible cargar la imagen.' })
+    } finally {
+      setUploadingPhoto(false)
     }
+  }
+
+  const getSelectedSizes = () =>
+    form.tallasText
+      .split(',')
+      .map((size) => size.trim())
+      .filter(Boolean)
+
+  const toggleSize = (size) => {
+    const selectedSizes = getSelectedSizes()
+    const nextSizes = selectedSizes.includes(size)
+      ? selectedSizes.filter((selectedSize) => selectedSize !== size)
+      : [...selectedSizes, size]
+
+    setForm((currentForm) => ({ ...currentForm, tallasText: nextSizes.join(', ') }))
+    setErrors((currentErrors) => ({ ...currentErrors, tallasText: '' }))
   }
 
   const validateForm = () => {
@@ -194,6 +232,18 @@ export default function ProductForm({ initialData = {}, loading = false, onSubmi
           onChange={handleChange}
         />
         <span className="form-help">Separa cada talla con una coma.</span>
+        <div className="size-template-picker" aria-label="Tallas rapidas">
+          {commonSizes.map((size) => (
+            <button
+              className={getSelectedSizes().includes(size) ? 'size-template-picker__item is-selected' : 'size-template-picker__item'}
+              key={size}
+              onClick={() => toggleSize(size)}
+              type="button"
+            >
+              {size}
+            </button>
+          ))}
+        </div>
         {errors.tallasText && <small>{errors.tallasText}</small>}
       </label>
 
@@ -206,7 +256,7 @@ export default function ProductForm({ initialData = {}, loading = false, onSubmi
 
         <div className="product-form__preview">
           {form.imageUrl ? (
-            <img src={form.imageUrl} alt="Vista previa del producto" />
+            <img src={getImageUrl(form.imageUrl)} alt="Vista previa del producto" />
           ) : (
             <span>Vista previa</span>
           )}
@@ -215,7 +265,8 @@ export default function ProductForm({ initialData = {}, loading = false, onSubmi
         <div className="product-form__image-controls">
           <label>
             Subir foto
-            <input className="form-control" name="photoFile" type="file" accept="image/*" onChange={handlePhotoChange} />
+            <input className="form-control" disabled={uploadingPhoto} name="photoFile" type="file" accept="image/*" onChange={handlePhotoChange} />
+            {uploadingPhoto && <span className="form-help">Cargando imagen...</span>}
           </label>
 
           <label>
@@ -224,9 +275,9 @@ export default function ProductForm({ initialData = {}, loading = false, onSubmi
               className={`form-control ${errors.imageUrl ? 'is-invalid' : ''}`}
               name="imageUrl"
               placeholder="https://ejemplo.com/foto-producto.jpg"
-              value={form.imageUrl.startsWith('data:image') ? 'Imagen cargada desde tu equipo' : form.imageUrl}
+              value={form.imageUrl.startsWith('/uploads/') ? 'Imagen cargada desde tu equipo' : form.imageUrl}
               onChange={handleChange}
-              readOnly={form.imageUrl.startsWith('data:image')}
+              readOnly={form.imageUrl.startsWith('/uploads/')}
             />
             {errors.imageUrl && <small>{errors.imageUrl}</small>}
           </label>
@@ -264,7 +315,7 @@ export default function ProductForm({ initialData = {}, loading = false, onSubmi
         </div>
       </section>
 
-      <button className="btn btn-primary btn-lg product-form__wide" disabled={loading} type="submit">
+      <button className="btn btn-primary btn-lg product-form__wide" disabled={loading || uploadingPhoto} type="submit">
         {loading ? 'Guardando...' : submitLabel}
       </button>
     </form>

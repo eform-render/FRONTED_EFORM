@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { getCurrentUser } from '../services/authServices'
 import * as setService from '../services/setService'
@@ -73,20 +73,7 @@ export default function SetsPage() {
   const [formLoading, setFormLoading] = useState(false)
   const [filterStock, setFilterStock] = useState('all')
 
-  useEffect(() => {
-    const user = getCurrentUser()
-    if (!user) {
-      navigate('/login')
-      return
-    }
-
-    loadSets()
-  }, [navigate])
-
-  const currentUser = getCurrentUser()
-  const isAdmin = currentUser?.role === 'admin' || currentUser?.type === 'admin'
-
-  const loadSets = async () => {
+  const loadSets = useCallback(async () => {
     try {
       setLoading(true)
       // Try to load from API, fallback to initial data
@@ -106,7 +93,20 @@ export default function SetsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    const user = getCurrentUser()
+    if (!user) {
+      navigate('/login')
+      return
+    }
+
+    loadSets()
+  }, [loadSets, navigate])
+
+  const currentUser = getCurrentUser()
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.type === 'admin'
 
   const filteredAndSortedSets = useMemo(() => {
     let result = sets.filter((set) => {

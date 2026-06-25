@@ -1,3 +1,4 @@
+import axiosClient from '../api/axiosClient'
 import { reserve, release } from './productService'
 
 const CART_KEY = 'cart'
@@ -18,7 +19,7 @@ export const saveCart = (cart) => {
   localStorage.setItem(CART_KEY, JSON.stringify(cart))
   try {
     window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart } }))
-  } catch (e) {
+  } catch {
     // no-op if dispatch fails (older browsers)
   }
 }
@@ -69,9 +70,13 @@ export const addToCart = (product) => {
           reverted = current2.filter((item) => !(item.id === product.id && (item.selectedSize || 'Unica') === selectedSize))
         }
         saveCart(reverted)
-        try { window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: reverted } })) } catch {}
+        try { window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: reverted } })) } catch {
+          // ignore event dispatch failures
+        }
       }
-      try { window.dispatchEvent(new CustomEvent('cartReserveFailed', { detail: { message: err?.response?.data?.message || err.message } })) } catch {}
+      try { window.dispatchEvent(new CustomEvent('cartReserveFailed', { detail: { message: err?.response?.data?.message || err.message } })) } catch {
+        // ignore event dispatch failures
+      }
     })
 
     return {
@@ -89,8 +94,12 @@ export const addToCart = (product) => {
     const current2 = getCart()
     const reverted = current2.filter((item) => !(item.id === product.id && (item.selectedSize || 'Unica') === selectedSize))
     saveCart(reverted)
-    try { window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: reverted } })) } catch {}
-    try { window.dispatchEvent(new CustomEvent('cartReserveFailed', { detail: { message: err?.response?.data?.message || err.message } })) } catch {}
+    try { window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: reverted } })) } catch {
+      // ignore event dispatch failures
+    }
+    try { window.dispatchEvent(new CustomEvent('cartReserveFailed', { detail: { message: err?.response?.data?.message || err.message } })) } catch {
+      // ignore event dispatch failures
+    }
   })
 
   return {
@@ -125,12 +134,16 @@ export const updateCartQuantity = (id, quantity, selectedSize = 'Unica') => {
           : item
       )
       saveCart(reverted)
-      try { window.dispatchEvent(new CustomEvent('cartReserveFailed', { detail: { message: err?.response?.data?.message || err.message } })) } catch {}
+      try { window.dispatchEvent(new CustomEvent('cartReserveFailed', { detail: { message: err?.response?.data?.message || err.message } })) } catch {
+        // ignore event dispatch failures
+      }
     })
   }
   if (targetItem && delta < 0) {
     release(id, Math.abs(delta)).catch(() => {
-      try { window.dispatchEvent(new CustomEvent('cartReleaseFailed', { detail: { id, qty: Math.abs(delta) } })) } catch {}
+      try { window.dispatchEvent(new CustomEvent('cartReleaseFailed', { detail: { id, qty: Math.abs(delta) } })) } catch {
+        // ignore event dispatch failures
+      }
     })
   }
 
@@ -146,7 +159,9 @@ export const removeFromCart = (id, selectedSize = 'Unica') => {
 
   if (removedQty > 0) {
     release(id, removedQty).catch(() => {
-      try { window.dispatchEvent(new CustomEvent('cartReleaseFailed', { detail: { id, qty: removedQty } })) } catch {}
+      try { window.dispatchEvent(new CustomEvent('cartReleaseFailed', { detail: { id, qty: removedQty } })) } catch {
+        // ignore event dispatch failures
+      }
     })
   }
 
@@ -158,19 +173,34 @@ export const clearCart = () => {
   localStorage.removeItem(CART_KEY)
   try {
     window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: [] } }))
-  } catch (e) {
+  } catch {
     // ignore
   }
 
   // release reserved quantities in backend
   prev.forEach((item) => {
     const qty = Number(item.quantity || 0)
-    if (qty > 0) release(item.id, qty).catch(() => {})
+    if (qty > 0) release(item.id, qty).catch(() => {
+      // ignore release failures while clearing the local cart
+    })
   })
 }
 
-export const checkoutPayment = async (payment) => {
-  const response = await axiosClient.post('/payments', payment)
+export const checkoutPayment = async ({ customerName, customerEmail, paymentMethod, items }) => {
+  const amount = items.reduce((sum, item) => sum + Number(item.precio || 0) * Number(item.quantity || 1), 0)
+  const response = await axiosClient.post('/payments', {
+    customerName,
+    customerEmail,
+    paymentMethod,
+    amount,
+    items: items.map((item) => ({
+      productId: item.id,
+      productName: item.nombre,
+      selectedSize: item.selectedSize || 'Unica',
+      quantity: Number(item.quantity || 1),
+      unitPrice: Number(item.precio || 0),
+    })),
+  })
   return response.data
 }
 
@@ -186,7 +216,7 @@ export const checkoutCart = () => {
   localStorage.removeItem(CART_KEY)
   try {
     window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: [] } }))
-  } catch (e) {
+  } catch {
     // ignore
   }
   return order

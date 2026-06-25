@@ -70,6 +70,7 @@ function ProductFormPage() {
 
       <section className="form-panel">
         <ProductForm
+          key={id || 'new'}
           initialData={initialData}
           loading={saving}
           onSubmit={handleSubmit}

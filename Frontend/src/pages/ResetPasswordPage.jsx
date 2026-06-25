@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import PasswordInput from '../components/PasswordInput'
 import { resetPassword } from '../services/authServices'
 import { getApiErrorMessage } from '../utils/apiError'
+
+const PASSWORD_REGEX = /^(?=.*[A-Z]).{8,10}$/
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate()
@@ -27,8 +30,8 @@ export default function ResetPasswordPage() {
       setError('El enlace de recuperacion no es valido.')
       return
     }
-    if (form.password.length < 6) {
-      setError('La contrasena debe tener minimo 6 caracteres.')
+    if (!PASSWORD_REGEX.test(form.password)) {
+      setError('La contrasena debe tener entre 8 y 10 caracteres e incluir al menos una mayuscula.')
       return
     }
     if (form.password !== form.confirmPassword) {
@@ -60,29 +63,29 @@ export default function ResetPasswordPage() {
         <form className="auth-form" onSubmit={handleSubmit} noValidate>
           {error && <div className="alert alert-danger">{error}</div>}
 
-          <label>
-            Nueva contrasena
-            <input
-              name="password"
-              className="form-control"
-              type="password"
-              onChange={handleChange}
-              placeholder="Minimo 6 caracteres"
-              value={form.password}
-            />
-          </label>
+          <PasswordInput
+            autoComplete="new-password"
+            className="form-control"
+            label="Nueva contrasena"
+            maxLength={10}
+            minLength={8}
+            name="password"
+            onChange={handleChange}
+            placeholder="8 a 10 caracteres y una mayuscula"
+            value={form.password}
+          />
 
-          <label>
-            Confirmar contrasena
-            <input
-              name="confirmPassword"
-              className="form-control"
-              type="password"
-              onChange={handleChange}
-              placeholder="Repite tu contrasena"
-              value={form.confirmPassword}
-            />
-          </label>
+          <PasswordInput
+            autoComplete="new-password"
+            className="form-control"
+            label="Confirmar contrasena"
+            maxLength={10}
+            minLength={8}
+            name="confirmPassword"
+            onChange={handleChange}
+            placeholder="Repite tu contrasena"
+            value={form.confirmPassword}
+          />
 
           <button className="btn btn-primary btn-lg" disabled={loading} type="submit">
             {loading ? 'Guardando...' : 'Guardar contrasena'}
