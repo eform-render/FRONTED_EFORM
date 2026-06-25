@@ -271,7 +271,11 @@ public class ProductService {
                 p.getPrecio(),
                 p.getStock(),
                 p.getCreatedAt(),
-                p.getUpdatedAt()
+                p.getUpdatedAt(),
+                p.getGenero(),
+                p.getTipoPrenda(),
+                p.getCarrera(),
+                p.getTipoUniforme()
         );
     }
 }

@@ -14,6 +14,10 @@ public record ProductResponse(
         BigDecimal precio,
         Integer stock,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        String genero,
+        String tipoPrenda,
+        String carrera,
+        String tipoUniforme
 ) {
 }
