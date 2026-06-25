@@ -38,6 +38,9 @@ public class User {
     @Column(nullable = false, length = 100)
     private String password;
 
+    @Column(name = "avatar_url", length = 255)
+    private String avatarUrl;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Role role;

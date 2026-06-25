@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -18,10 +19,11 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AvatarStorageService avatarStorageService;
 
     public UserDto getProfile(String username) {
         User user = findByUsername(username);
-        return new UserDto(user.getUsername(), user.getEmail(), user.getRole().name());
+        return new UserDto(user.getUsername(), user.getEmail(), user.getRole().name(), user.getAvatarUrl());
     }
 
     @Transactional
@@ -43,7 +45,7 @@ public class UserService {
         user.setEmail(newEmail);
         User saved = userRepository.save(user);
 
-        return new UserDto(saved.getUsername(), saved.getEmail(), saved.getRole().name());
+        return new UserDto(saved.getUsername(), saved.getEmail(), saved.getRole().name(), saved.getAvatarUrl());
     }
 
     @Transactional
@@ -60,6 +62,15 @@ public class UserService {
 
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
+    }
+
+    @Transactional
+    public UserDto uploadAvatar(String username, MultipartFile file) {
+        User user = findByUsername(username);
+        String avatarUrl = avatarStorageService.store(file);
+        user.setAvatarUrl(avatarUrl);
+        User saved = userRepository.save(user);
+        return new UserDto(saved.getUsername(), saved.getEmail(), saved.getRole().name(), saved.getAvatarUrl());
     }
 
     private User findByUsername(String username) {
