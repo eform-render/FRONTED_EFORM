@@ -1,5 +1,6 @@
 package co.edu.sena.productsreact.service;
 
+import co.edu.sena.productsreact.dto.auth.AuthResponse;
 import co.edu.sena.productsreact.dto.auth.UserDto;
 import co.edu.sena.productsreact.dto.user.ChangePasswordRequest;
 import co.edu.sena.productsreact.dto.user.UpdateProfileRequest;
@@ -7,11 +8,16 @@ import co.edu.sena.productsreact.entity.User;
 import co.edu.sena.productsreact.exception.DuplicateResourceException;
 import co.edu.sena.productsreact.exception.ResourceNotFoundException;
 import co.edu.sena.productsreact.repository.UserRepository;
+import co.edu.sena.productsreact.security.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +26,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AvatarStorageService avatarStorageService;
+    private final JwtService jwtService;
 
     public UserDto getProfile(String username) {
         User user = findByUsername(username);
@@ -27,7 +34,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserDto updateProfile(String username, UpdateProfileRequest request) {
+    public AuthResponse updateProfile(String username, UpdateProfileRequest request) {
         User user = findByUsername(username);
 
         String newUsername = request.username().trim();
@@ -45,7 +52,11 @@ public class UserService {
         user.setEmail(newEmail);
         User saved = userRepository.save(user);
 
-        return new UserDto(saved.getUsername(), saved.getEmail(), saved.getRole().name(), saved.getAvatarUrl());
+        UserDetails userDetails = buildUserDetails(saved);
+        String token = jwtService.generateToken(userDetails);
+        UserDto userDto = new UserDto(saved.getUsername(), saved.getEmail(), saved.getRole().name(), saved.getAvatarUrl());
+
+        return new AuthResponse(token, userDto);
     }
 
     @Transactional
@@ -76,5 +87,13 @@ public class UserService {
     private User findByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+    }
+
+    private UserDetails buildUserDetails(User user) {
+        return new org.springframework.security.core.userdetails.User(
+                user.getUsername(),
+                user.getPassword(),
+                List.of(new SimpleGrantedAuthority(user.getRole().name()))
+        );
     }
 }

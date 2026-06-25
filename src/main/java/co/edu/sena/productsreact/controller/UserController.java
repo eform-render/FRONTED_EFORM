@@ -1,5 +1,6 @@
 package co.edu.sena.productsreact.controller;
 
+import co.edu.sena.productsreact.dto.auth.AuthResponse;
 import co.edu.sena.productsreact.dto.auth.MessageResponse;
 import co.edu.sena.productsreact.dto.auth.UserDto;
 import co.edu.sena.productsreact.dto.user.ChangePasswordRequest;
@@ -33,11 +34,11 @@ public class UserController {
     }
 
     @PutMapping("/me")
-    public ResponseEntity<UserDto> updateProfile(
+    public ResponseEntity<AuthResponse> updateProfile(
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody UpdateProfileRequest request) {
-        UserDto updated = userService.updateProfile(userDetails.getUsername(), request);
-        return ResponseEntity.ok(updated);
+        AuthResponse response = userService.updateProfile(userDetails.getUsername(), request);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/me/avatar")
