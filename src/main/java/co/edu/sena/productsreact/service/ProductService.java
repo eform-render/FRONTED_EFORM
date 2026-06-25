@@ -59,6 +59,10 @@ public class ProductService {
                 .tallasDisponibles(joinTallas(request.tallasDisponibles()))
                 .precio(request.precio())
                 .stock(request.stock())
+                .genero(request.genero())
+                .tipoPrenda(request.tipoPrenda())
+                .carrera(request.carrera())
+                .tipoUniforme(request.tipoUniforme() != null ? request.tipoUniforme() : "INDIVIDUAL")
                 .isDeleted(false)
                 .build();
 
@@ -84,6 +88,10 @@ public class ProductService {
         product.setTallasDisponibles(joinTallas(request.tallasDisponibles()));
         product.setPrecio(request.precio());
         product.setStock(request.stock());
+        product.setGenero(request.genero());
+        product.setTipoPrenda(request.tipoPrenda());
+        product.setCarrera(request.carrera());
+        product.setTipoUniforme(request.tipoUniforme() != null ? request.tipoUniforme() : "INDIVIDUAL");
 
         Product updated = productRepository.save(product);
 
