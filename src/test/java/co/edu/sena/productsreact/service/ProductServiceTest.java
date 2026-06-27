@@ -72,7 +72,13 @@ class ProductServiceTest {
                 null,
                 List.of("S", "M", "L"),
                 new BigDecimal("150"),
-                5
+                5,
+                "HOMBRE",
+                "PANTALON",
+                "Ingenieria",
+                "INDIVIDUAL",
+                null,
+                null
         );
 
         when(productRepository.save(any(Product.class)))

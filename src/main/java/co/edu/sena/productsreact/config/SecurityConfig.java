@@ -35,8 +35,19 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
+<<<<<<< Updated upstream
                         .requestMatchers("/products/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/payments").permitAll()
+=======
+                        .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
+                        .requestMatchers("/users/me/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/products/*/reserve", "/products/*/release").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/products/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/products/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/products/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/payments/**").permitAll()
+>>>>>>> Stashed changes
                         .requestMatchers("/", "/error").permitAll()
                         .anyRequest().authenticated()
                 )

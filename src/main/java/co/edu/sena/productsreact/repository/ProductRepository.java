@@ -13,4 +13,22 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findAllByIsDeletedFalse();
 
     Optional<Product> findByIdAndIsDeletedFalse(Long id);
+
+    List<Product> findByGeneroAndIsDeletedFalse(String genero);
+
+    List<Product> findByTipoPrendaAndIsDeletedFalse(String tipoPrenda);
+
+    List<Product> findByCarreraAndIsDeletedFalse(String carrera);
+
+    List<Product> findByTipoUniformeAndIsDeletedFalse(String tipoUniforme);
+
+    List<Product> findByGeneroAndTipoPrendaAndIsDeletedFalse(String genero, String tipoPrenda);
+
+    List<Product> findByGeneroAndCarreraAndIsDeletedFalse(String genero, String carrera);
+
+    List<Product> findByGeneroAndTipoUniformeAndIsDeletedFalse(String genero, String tipoUniforme);
+
+    List<Product> findByGeneroAndTipoPrendaAndCarreraAndIsDeletedFalse(String genero, String tipoPrenda, String carrera);
+
+    List<Product> findByGeneroAndTipoPrendaAndTipoUniformeAndIsDeletedFalse(String genero, String tipoPrenda, String tipoUniforme);
 }

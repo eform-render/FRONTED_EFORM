@@ -44,6 +44,25 @@ public class Product {
     @Column(name = "tallas_disponibles", length = 512)
     private String tallasDisponibles;
 
+    @Column(length = 20)
+    private String genero;
+
+    @Column(name = "tipo_prenda", length = 50)
+    private String tipoPrenda;
+
+    @Column(length = 100)
+    private String carrera;
+
+    @Column(name = "tipo_uniforme", length = 20)
+    @Builder.Default
+    private String tipoUniforme = "INDIVIDUAL";
+
+    @Column(name = "prenda_images", columnDefinition = "TEXT")
+    private String prendaImages;
+
+    @Column(name = "prenda_tallas", columnDefinition = "TEXT")
+    private String prendaTallas;
+
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal precio;
 
