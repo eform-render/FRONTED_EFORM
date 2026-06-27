@@ -44,3 +44,17 @@ export const resetPassword = async (data) => {
   const response = await axiosClient.post('/auth/reset-password', data)
   return response.data
 }
+
+export const getAllUsers = async () => {
+  const response = await axiosClient.get('/users')
+  return response.data
+}
+
+export const changeUserRole = async (userId, newRole) => {
+  const response = await axiosClient.put(`/users/${userId}/role`, { role: newRole })
+  return response.data
+}
+
+export const deleteUser = async (userId) => {
+  await axiosClient.delete(`/users/${userId}`)
+}

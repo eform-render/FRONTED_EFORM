@@ -157,6 +157,11 @@ export default function DashboardPage() {
                 <h3>Ver pagos</h3>
                 <p>Revisar los pagos registrados y el historial de pedidos.</p>
               </Link>
+
+              <Link to="/users" className="action-card">
+                <h3>Gestionar usuarios</h3>
+                <p>Cambiar roles de usuarios o eliminarlos del sistema.</p>
+              </Link>
             </>
           ) : (
             <>

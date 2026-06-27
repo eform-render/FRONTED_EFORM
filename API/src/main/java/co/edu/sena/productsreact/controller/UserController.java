@@ -48,4 +48,16 @@ public class UserController {
         UserDto updated = userService.changeUserRole(id, newRole);
         return ResponseEntity.ok(updated);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long id) {
+        if (userDetails == null || !userDetails.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+            return ResponseEntity.status(403).build();
+        }
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
 }

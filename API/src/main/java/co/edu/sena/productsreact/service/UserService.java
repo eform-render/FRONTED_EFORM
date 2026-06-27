@@ -38,4 +38,11 @@ public class UserService {
             throw new IllegalArgumentException("Rol inválido: " + newRole);
         }
     }
+
+    @Transactional
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+        userRepository.delete(user);
+    }
 }
