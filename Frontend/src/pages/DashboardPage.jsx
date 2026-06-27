@@ -76,9 +76,6 @@ export default function DashboardPage({ onLogout }) {
           <Link className="btn btn-outline-primary" to="/products/new">
             Crear producto
           </Link>
-          <Link className="btn btn-outline-primary" to="/sets">
-            Revisar sets
-          </Link>
         </nav>
       )}
 
@@ -162,11 +159,6 @@ export default function DashboardPage({ onLogout }) {
               <Link to="/products" className="action-card">
                 <h3>Ver productos</h3>
                 <p>Consultar, editar o eliminar productos existentes.</p>
-              </Link>
-
-              <Link to="/sets" className="action-card">
-                <h3>Gestionar sets</h3>
-                <p>Administrar combinaciones y combos de uniformes.</p>
               </Link>
             </>
           ) : (
