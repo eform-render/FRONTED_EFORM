@@ -34,7 +34,7 @@ function App() {
 
   return (
     <>
-      {isAuthenticated && <Navbar user={user} onLogout={handleLogout} />}
+      <Navbar user={user} onLogout={handleLogout} />
       <div className="app-content">
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -61,14 +61,14 @@ function App() {
             path="/users"
             element={canManageProducts ? <UserManagementPage /> : <Navigate to="/home" replace />}
           />
-          <Route path="/products" element={isAuthenticated ? <ProductsPage user={user} /> : <Navigate to="/" replace />} />
+          <Route path="/products" element={<ProductsPage user={user} />} />
           <Route
             path="/products/new"
             element={canManageProducts ? <ProductFormPage /> : <Navigate to="/products" replace />}
           />
           <Route
             path="/products/:id"
-            element={isAuthenticated ? <ProductDetailPage user={user} /> : <Navigate to="/" replace />}
+            element={<ProductDetailPage user={user} />}
           />
           <Route
             path="/products/:id/edit"
@@ -76,13 +76,13 @@ function App() {
           />
           <Route
             path="/cart"
-            element={!canManageProducts && isAuthenticated ? <CartPage /> : <Navigate to="/products" replace />}
+            element={!canManageProducts ? <CartPage user={user} /> : <Navigate to="/products" replace />}
           />
           <Route path="/sets" element={canManageProducts ? <SetsPage /> : <Navigate to="/products" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
-      {isAuthenticated && <Footer />}
+      <Footer />
     </>
   )
 }

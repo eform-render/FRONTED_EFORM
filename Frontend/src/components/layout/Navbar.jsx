@@ -95,10 +95,14 @@ const Navbar = ({ user, onLogout }) => {
           >
             {theme === 'dark' ? '☀' : '☾'}
           </button>
-          {user && (
+          {user ? (
             <button className="site-menu__button" onClick={handleLogout} type="button">
               Salir
             </button>
+          ) : (
+            <NavLink className="site-menu__button" to="/login">
+              Iniciar sesión
+            </NavLink>
           )}
         </div>
       </div>

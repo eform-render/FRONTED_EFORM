@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { checkoutCart, checkoutPayment, clearCart, getCart, removeFromCart, updateCartQuantity } from '../services/cartService'
+import { getCurrentUser } from '../services/authServices'
 
 const formatPrice = (value) =>
   new Intl.NumberFormat('es-CO', {
@@ -10,6 +11,8 @@ const formatPrice = (value) =>
   }).format(Number(value || 0))
 
 const CartPage = () => {
+  const navigate = useNavigate()
+  const user = getCurrentUser()
   const [items, setItems] = useState(() => getCart())
   const [paymentMethod, setPaymentMethod] = useState('PSE')
   const [customerName, setCustomerName] = useState('')
@@ -60,6 +63,11 @@ const CartPage = () => {
   const handleCheckout = async (event) => {
     event.preventDefault()
     setPaymentError('')
+
+    if (!user) {
+      navigate('/login')
+      return
+    }
 
     if (!customerName.trim() || !customerEmail.trim()) {
       setPaymentError('Completa tu nombre y correo para confirmar el pago.')
