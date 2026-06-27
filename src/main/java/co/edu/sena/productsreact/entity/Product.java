@@ -60,6 +60,9 @@ public class Product {
     @Column(name = "prenda_images", columnDefinition = "TEXT")
     private String prendaImages;
 
+    @Column(name = "prenda_tallas", columnDefinition = "TEXT")
+    private String prendaTallas;
+
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal precio;
 

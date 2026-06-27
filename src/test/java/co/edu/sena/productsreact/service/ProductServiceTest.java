@@ -77,6 +77,7 @@ class ProductServiceTest {
                 "PANTALON",
                 "Ingenieria",
                 "INDIVIDUAL",
+                null,
                 null
         );
 

@@ -19,6 +19,7 @@ public record ProductResponse(
         String tipoPrenda,
         String carrera,
         String tipoUniforme,
-        Object prendaImages
+        Object prendaImages,
+        Object prendaTallas
 ) {
 }

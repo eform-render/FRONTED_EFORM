@@ -65,6 +65,7 @@ public class ProductService {
                 .carrera(request.carrera())
                 .tipoUniforme(request.tipoUniforme() != null ? request.tipoUniforme() : "INDIVIDUAL")
                 .prendaImages(prendaImagesToJson(request.prendaImages()))
+                .prendaTallas(prendaImagesToJson(request.prendaTallas()))
                 .isDeleted(false)
                 .build();
 
@@ -95,6 +96,7 @@ public class ProductService {
         product.setCarrera(request.carrera());
         product.setTipoUniforme(request.tipoUniforme() != null ? request.tipoUniforme() : "INDIVIDUAL");
         product.setPrendaImages(prendaImagesToJson(request.prendaImages()));
+        product.setPrendaTallas(prendaImagesToJson(request.prendaTallas()));
 
         Product updated = productRepository.save(product);
 
@@ -304,7 +306,8 @@ public class ProductService {
                 p.getTipoPrenda(),
                 p.getCarrera(),
                 p.getTipoUniforme(),
-                jsonToPrendaImages(p.getPrendaImages())
+                jsonToPrendaImages(p.getPrendaImages()),
+                jsonToPrendaImages(p.getPrendaTallas())
         );
     }
 }
