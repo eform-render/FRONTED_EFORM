@@ -42,6 +42,9 @@ public class User {
     @Column(nullable = false, length = 20)
     private Role role;
 
+    @Column(length = 255)
+    private String avatarUrl;
+
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
