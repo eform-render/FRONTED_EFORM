@@ -60,7 +60,7 @@ public class UserService {
         user.setEmail(request.email());
         User updated = userRepository.save(user);
 
-        UserDto userDto = new UserDto(updated.getUsername(), updated.getEmail(), updated.getRole().name(), updated.getAvatarUrl());
+        UserDto userDto = new UserDto(updated.getId(), updated.getUsername(), updated.getEmail(), updated.getRole().name(), updated.getAvatarUrl());
         String token = jwtService.generateToken(org.springframework.security.core.userdetails.User.builder()
                 .username(updated.getUsername())
                 .password(updated.getPassword())
@@ -110,7 +110,7 @@ public class UserService {
             user.setAvatarUrl(avatarUrl);
             User updated = userRepository.save(user);
 
-            return new UserDto(updated.getUsername(), updated.getEmail(), updated.getRole().name(), updated.getAvatarUrl());
+            return new UserDto(updated.getId(), updated.getUsername(), updated.getEmail(), updated.getRole().name(), updated.getAvatarUrl());
         } catch (IOException e) {
             throw new RuntimeException("Error al guardar la imagen: " + e.getMessage());
         }
@@ -148,7 +148,7 @@ public class UserService {
             Role role = Role.valueOf(newRole);
             user.setRole(role);
             User updated = userRepository.save(user);
-            return new UserDto(updated.getUsername(), updated.getEmail(), updated.getRole().name(), updated.getAvatarUrl());
+            return new UserDto(updated.getId(), updated.getUsername(), updated.getEmail(), updated.getRole().name(), updated.getAvatarUrl());
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Rol inválido: " + newRole);
         }

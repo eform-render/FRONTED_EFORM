@@ -65,7 +65,7 @@ public class AuthService {
 
         return new AuthResponse(
                 token,
-                new UserDto(saved.getUsername(), saved.getEmail(), saved.getRole().name(), saved.getAvatarUrl())
+                new UserDto(saved.getId(), saved.getUsername(), saved.getEmail(), saved.getRole().name(), saved.getAvatarUrl())
         );
     }
 
@@ -91,7 +91,7 @@ public class AuthService {
 
         return new AuthResponse(
                 token,
-                new UserDto(loggedUser.getUsername(), loggedUser.getEmail(), loggedUser.getRole().name(), loggedUser.getAvatarUrl())
+                new UserDto(loggedUser.getId(), loggedUser.getUsername(), loggedUser.getEmail(), loggedUser.getRole().name(), loggedUser.getAvatarUrl())
         );
     }
 
