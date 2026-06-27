@@ -1,17 +1,25 @@
 package co.edu.sena.productsreact.dto.auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-public record UserDto(
-        @JsonProperty("username")
-        String username,
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserDto {
+    @JsonProperty("username")
+    private String username;
 
-        @JsonProperty("email")
-        String email,
+    @JsonProperty("email")
+    private String email;
 
-        @JsonProperty("role")
-        String role,
+    @JsonProperty("role")
+    private String role;
 
-        @JsonProperty("avatarUrl")
-        String avatarUrl
-) {}
+    @JsonProperty("avatarUrl")
+    private String avatarUrl;
+}
