@@ -1,11 +1,8 @@
 package co.edu.sena.productsreact.controller;
 
 import co.edu.sena.productsreact.dto.auth.AuthResponse;
-import co.edu.sena.productsreact.dto.auth.ForgotPasswordRequest;
 import co.edu.sena.productsreact.dto.auth.LoginRequest;
-import co.edu.sena.productsreact.dto.auth.MessageResponse;
 import co.edu.sena.productsreact.dto.auth.RegisterRequest;
-import co.edu.sena.productsreact.dto.auth.ResetPasswordRequest;
 import co.edu.sena.productsreact.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,19 +30,5 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/forgot-password")
-    public ResponseEntity<MessageResponse> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
-        authService.requestPasswordReset(request);
-        return ResponseEntity.ok(new MessageResponse(
-                "Si el correo esta registrado, recibiras un enlace para cambiar tu contraseña."
-        ));
-    }
-
-    @PostMapping("/reset-password")
-    public ResponseEntity<MessageResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
-        authService.resetPassword(request);
-        return ResponseEntity.ok(new MessageResponse("La contraseña fue actualizada correctamente."));
     }
 }
