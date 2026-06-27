@@ -76,7 +76,8 @@ class ProductServiceTest {
                 "HOMBRE",
                 "PANTALON",
                 "Ingenieria",
-                "INDIVIDUAL"
+                "INDIVIDUAL",
+                null
         );
 
         when(productRepository.save(any(Product.class)))
