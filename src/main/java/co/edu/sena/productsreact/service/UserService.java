@@ -1,16 +1,15 @@
-﻿package co.edu.sena.productsreact.service;
+package co.edu.sena.productsreact.service;
 
+import co.edu.sena.productsreact.dto.auth.AuthResponse;
 import co.edu.sena.productsreact.dto.auth.UserDto;
-import co.edu.sena.productsreact.dto.user.AvatarUploadResponse;
 import co.edu.sena.productsreact.dto.user.ChangePasswordRequest;
-import co.edu.sena.productsreact.dto.user.UserUpdateRequest;
+import co.edu.sena.productsreact.dto.user.UpdateProfileRequest;
 import co.edu.sena.productsreact.entity.User;
 import co.edu.sena.productsreact.exception.ResourceNotFoundException;
 import co.edu.sena.productsreact.repository.UserRepository;
+import co.edu.sena.productsreact.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,26 +27,23 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     @Value("${app.upload.dir:uploads/avatars}")
     private String uploadDir;
 
-    private User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        return userRepository.findByUsername(username)
+    public UserDto getProfile(String username) {
+        User user = userRepository.findByUsername(username)
                 .or(() -> userRepository.findByEmail(username))
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
-    }
-
-    public UserDto getProfile() {
-        User user = getCurrentUser();
         return new UserDto(user.getUsername(), user.getEmail(), user.getRole().name(), user.getAvatarUrl());
     }
 
     @Transactional
-    public UserDto updateProfile(UserUpdateRequest request) {
-        User user = getCurrentUser();
+    public AuthResponse updateProfile(String username, UpdateProfileRequest request) {
+        User user = userRepository.findByUsername(username)
+                .or(() -> userRepository.findByEmail(username))
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
         if (!user.getUsername().equals(request.username()) && userRepository.existsByUsername(request.username())) {
             throw new IllegalArgumentException("El nombre de usuario ya está en uso");
@@ -61,12 +57,21 @@ public class UserService {
         user.setEmail(request.email());
         User updated = userRepository.save(user);
 
-        return new UserDto(updated.getUsername(), updated.getEmail(), updated.getRole().name(), updated.getAvatarUrl());
+        UserDto userDto = new UserDto(updated.getUsername(), updated.getEmail(), updated.getRole().name(), updated.getAvatarUrl());
+        String token = jwtService.generateToken(org.springframework.security.core.userdetails.User.builder()
+                .username(updated.getUsername())
+                .password(updated.getPassword())
+                .authorities(updated.getRole().name())
+                .build());
+
+        return new AuthResponse(token, userDto);
     }
 
     @Transactional
-    public void changePassword(ChangePasswordRequest request) {
-        User user = getCurrentUser();
+    public void changePassword(String username, ChangePasswordRequest request) {
+        User user = userRepository.findByUsername(username)
+                .or(() -> userRepository.findByEmail(username))
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
         if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
             throw new IllegalArgumentException("La contraseña actual es incorrecta");
@@ -77,7 +82,7 @@ public class UserService {
     }
 
     @Transactional
-    public AvatarUploadResponse uploadAvatar(MultipartFile file) throws IOException {
+    public UserDto uploadAvatar(String username, MultipartFile file) {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("El archivo está vacío");
         }
@@ -87,19 +92,25 @@ public class UserService {
             throw new IllegalArgumentException("Solo se permiten imágenes JPG, PNG o WEBP");
         }
 
-        User user = getCurrentUser();
-        String filename = UUID.randomUUID().toString() + getFileExtension(contentType);
-        Path uploadPath = Paths.get(uploadDir);
+        User user = userRepository.findByUsername(username)
+                .or(() -> userRepository.findByEmail(username))
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
-        Files.createDirectories(uploadPath);
-        Path filePath = uploadPath.resolve(filename);
-        Files.write(filePath, file.getBytes());
+        try {
+            String filename = UUID.randomUUID().toString() + getFileExtension(contentType);
+            Path uploadPath = Paths.get(uploadDir);
+            Files.createDirectories(uploadPath);
+            Path filePath = uploadPath.resolve(filename);
+            Files.write(filePath, file.getBytes());
 
-        String avatarUrl = "/uploads/avatars/" + filename;
-        user.setAvatarUrl(avatarUrl);
-        User updated = userRepository.save(user);
+            String avatarUrl = "/uploads/avatars/" + filename;
+            user.setAvatarUrl(avatarUrl);
+            User updated = userRepository.save(user);
 
-        return new AvatarUploadResponse(updated.getAvatarUrl(), "Foto de perfil actualizada correctamente");
+            return new UserDto(updated.getUsername(), updated.getEmail(), updated.getRole().name(), updated.getAvatarUrl());
+        } catch (IOException e) {
+            throw new RuntimeException("Error al guardar la imagen: " + e.getMessage());
+        }
     }
 
     private boolean isValidImageType(String contentType) {
