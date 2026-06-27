@@ -1,23 +1,26 @@
-package co.edu.sena.productsreact.service;
+﻿package co.edu.sena.productsreact.service;
 
-import co.edu.sena.productsreact.dto.auth.AuthResponse;
 import co.edu.sena.productsreact.dto.auth.UserDto;
+import co.edu.sena.productsreact.dto.user.AvatarUploadResponse;
 import co.edu.sena.productsreact.dto.user.ChangePasswordRequest;
-import co.edu.sena.productsreact.dto.user.UpdateProfileRequest;
+import co.edu.sena.productsreact.dto.user.UserUpdateRequest;
 import co.edu.sena.productsreact.entity.User;
-import co.edu.sena.productsreact.exception.DuplicateResourceException;
 import co.edu.sena.productsreact.exception.ResourceNotFoundException;
 import co.edu.sena.productsreact.repository.UserRepository;
-import co.edu.sena.productsreact.security.JwtService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -25,50 +28,48 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AvatarStorageService avatarStorageService;
-    private final JwtService jwtService;
 
-    public UserDto getProfile(String username) {
-        User user = findByUsername(username);
+    @Value("${app.upload.dir:uploads/avatars}")
+    private String uploadDir;
+
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        return userRepository.findByUsername(username)
+                .or(() -> userRepository.findByEmail(username))
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+    }
+
+    public UserDto getProfile() {
+        User user = getCurrentUser();
         return new UserDto(user.getUsername(), user.getEmail(), user.getRole().name(), user.getAvatarUrl());
     }
 
     @Transactional
-    public AuthResponse updateProfile(String username, UpdateProfileRequest request) {
-        User user = findByUsername(username);
+    public UserDto updateProfile(UserUpdateRequest request) {
+        User user = getCurrentUser();
 
-        String newUsername = request.username().trim();
-        String newEmail = request.email().trim().toLowerCase();
-
-        if (!user.getUsername().equals(newUsername) && userRepository.existsByUsername(newUsername)) {
-            throw new DuplicateResourceException("El nombre de usuario '" + newUsername + "' ya está en uso");
+        if (!user.getUsername().equals(request.username()) && userRepository.existsByUsername(request.username())) {
+            throw new IllegalArgumentException("El nombre de usuario ya está en uso");
         }
 
-        if (!user.getEmail().equals(newEmail) && userRepository.existsByEmail(newEmail)) {
-            throw new DuplicateResourceException("El email '" + newEmail + "' ya está registrado");
+        if (!user.getEmail().equals(request.email()) && userRepository.existsByEmail(request.email())) {
+            throw new IllegalArgumentException("El email ya está registrado");
         }
 
-        user.setUsername(newUsername);
-        user.setEmail(newEmail);
-        User saved = userRepository.save(user);
+        user.setUsername(request.username());
+        user.setEmail(request.email());
+        User updated = userRepository.save(user);
 
-        UserDetails userDetails = buildUserDetails(saved);
-        String token = jwtService.generateToken(userDetails);
-        UserDto userDto = new UserDto(saved.getUsername(), saved.getEmail(), saved.getRole().name(), saved.getAvatarUrl());
-
-        return new AuthResponse(token, userDto);
+        return new UserDto(updated.getUsername(), updated.getEmail(), updated.getRole().name(), updated.getAvatarUrl());
     }
 
     @Transactional
-    public void changePassword(String username, ChangePasswordRequest request) {
-        User user = findByUsername(username);
+    public void changePassword(ChangePasswordRequest request) {
+        User user = getCurrentUser();
 
         if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
             throw new IllegalArgumentException("La contraseña actual es incorrecta");
-        }
-
-        if (passwordEncoder.matches(request.newPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("La nueva contraseña debe ser diferente a la actual");
         }
 
         user.setPassword(passwordEncoder.encode(request.newPassword()));
@@ -76,24 +77,45 @@ public class UserService {
     }
 
     @Transactional
-    public UserDto uploadAvatar(String username, MultipartFile file) {
-        User user = findByUsername(username);
-        String avatarUrl = avatarStorageService.store(file);
+    public AvatarUploadResponse uploadAvatar(MultipartFile file) throws IOException {
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("El archivo está vacío");
+        }
+
+        String contentType = file.getContentType();
+        if (!isValidImageType(contentType)) {
+            throw new IllegalArgumentException("Solo se permiten imágenes JPG, PNG o WEBP");
+        }
+
+        User user = getCurrentUser();
+        String filename = UUID.randomUUID().toString() + getFileExtension(contentType);
+        Path uploadPath = Paths.get(uploadDir);
+
+        Files.createDirectories(uploadPath);
+        Path filePath = uploadPath.resolve(filename);
+        Files.write(filePath, file.getBytes());
+
+        String avatarUrl = "/uploads/avatars/" + filename;
         user.setAvatarUrl(avatarUrl);
-        User saved = userRepository.save(user);
-        return new UserDto(saved.getUsername(), saved.getEmail(), saved.getRole().name(), saved.getAvatarUrl());
+        User updated = userRepository.save(user);
+
+        return new AvatarUploadResponse(updated.getAvatarUrl(), "Foto de perfil actualizada correctamente");
     }
 
-    private User findByUsername(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
-    }
-
-    private UserDetails buildUserDetails(User user) {
-        return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
-                user.getPassword(),
-                List.of(new SimpleGrantedAuthority(user.getRole().name()))
+    private boolean isValidImageType(String contentType) {
+        return contentType != null && (
+                contentType.equals("image/jpeg") ||
+                contentType.equals("image/png") ||
+                contentType.equals("image/webp")
         );
+    }
+
+    private String getFileExtension(String contentType) {
+        return switch (contentType) {
+            case "image/jpeg" -> ".jpg";
+            case "image/png" -> ".png";
+            case "image/webp" -> ".webp";
+            default -> ".jpg";
+        };
     }
 }
