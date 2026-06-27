@@ -39,7 +39,7 @@ public class UserService {
         User user = userRepository.findByUsername(username)
                 .or(() -> userRepository.findByEmail(username))
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
-        return new UserDto(user.getUsername(), user.getEmail(), user.getRole().name(), user.getAvatarUrl());
+        return new UserDto(user.getId(), user.getUsername(), user.getEmail(), user.getRole().name(), user.getAvatarUrl());
     }
 
     @Transactional
@@ -135,7 +135,7 @@ public class UserService {
 
     public List<UserDto> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(user -> new UserDto(user.getUsername(), user.getEmail(), user.getRole().name(), user.getAvatarUrl()))
+                .map(user -> new UserDto(user.getId(), user.getUsername(), user.getEmail(), user.getRole().name(), user.getAvatarUrl()))
                 .collect(Collectors.toList());
     }
 
