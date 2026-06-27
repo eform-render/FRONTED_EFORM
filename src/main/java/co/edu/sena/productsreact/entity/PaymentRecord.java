@@ -23,6 +23,9 @@ public class PaymentRecord {
     @Column(name = "amount", nullable = false)
     private Double amount;
 
+    @Column(name = "status", nullable = false, length = 50)
+    private String status = "PENDIENTE";
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -35,6 +38,7 @@ public class PaymentRecord {
         this.paymentMethod = paymentMethod;
         this.amount = amount;
         this.createdAt = createdAt;
+        this.status = "PENDIENTE";
     }
 
     public Long getId() {
@@ -79,5 +83,13 @@ public class PaymentRecord {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

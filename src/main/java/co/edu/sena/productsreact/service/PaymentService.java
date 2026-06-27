@@ -59,4 +59,12 @@ public class PaymentService {
         }
     }
 
+    @Transactional
+    public PaymentRecord updateStatus(Long id, String newStatus) {
+        PaymentRecord payment = paymentRecordRepository.findById(id)
+                .orElseThrow(() -> new co.edu.sena.productsreact.exception.ResourceNotFoundException("Pedido no encontrado"));
+        payment.setStatus(newStatus);
+        return paymentRecordRepository.save(payment);
+    }
+
 }

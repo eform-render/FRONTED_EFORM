@@ -41,4 +41,14 @@ public class PaymentController {
         paymentService.deleteByIds(ids);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}/status")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<co.edu.sena.productsreact.entity.PaymentRecord> updatePaymentStatus(
+            @PathVariable Long id,
+            @RequestBody java.util.Map<String, String> request) {
+        String newStatus = request.get("status");
+        var updated = paymentService.updateStatus(id, newStatus);
+        return ResponseEntity.ok(updated);
+    }
 }
