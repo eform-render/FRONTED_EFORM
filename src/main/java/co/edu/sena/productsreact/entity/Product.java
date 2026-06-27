@@ -57,6 +57,9 @@ public class Product {
     @Builder.Default
     private String tipoUniforme = "INDIVIDUAL";
 
+    @Column(name = "prenda_images", columnDefinition = "TEXT")
+    private String prendaImages;
+
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal precio;
 

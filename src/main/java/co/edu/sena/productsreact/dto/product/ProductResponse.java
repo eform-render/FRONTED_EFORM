@@ -18,6 +18,7 @@ public record ProductResponse(
         String genero,
         String tipoPrenda,
         String carrera,
-        String tipoUniforme
+        String tipoUniforme,
+        Object prendaImages
 ) {
 }

@@ -43,6 +43,8 @@ public record ProductRequest(
         String carrera,
 
         @Size(max = 20, message = "El tipo de uniforme no puede superar los 20 caracteres")
-        String tipoUniforme
+        String tipoUniforme,
+
+        Object prendaImages
 ) {
 }

@@ -8,6 +8,7 @@ import co.edu.sena.productsreact.exception.ResourceNotFoundException;
 import co.edu.sena.productsreact.repository.ProductRepository;
 import co.edu.sena.productsreact.repository.ReservationRepository;
 import co.edu.sena.productsreact.entity.Reservation;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -63,6 +64,7 @@ public class ProductService {
                 .tipoPrenda(request.tipoPrenda())
                 .carrera(request.carrera())
                 .tipoUniforme(request.tipoUniforme() != null ? request.tipoUniforme() : "INDIVIDUAL")
+                .prendaImages(prendaImagesToJson(request.prendaImages()))
                 .isDeleted(false)
                 .build();
 
@@ -92,6 +94,7 @@ public class ProductService {
         product.setTipoPrenda(request.tipoPrenda());
         product.setCarrera(request.carrera());
         product.setTipoUniforme(request.tipoUniforme() != null ? request.tipoUniforme() : "INDIVIDUAL");
+        product.setPrendaImages(prendaImagesToJson(request.prendaImages()));
 
         Product updated = productRepository.save(product);
 
@@ -116,6 +119,31 @@ public class ProductService {
         }
 
         return List.of(tallas.split("\\s*,\\s*"));
+    }
+
+    private String prendaImagesToJson(Object prendaImages) {
+        if (prendaImages == null) return null;
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            if (prendaImages instanceof String) {
+                return (String) prendaImages;
+            }
+            return mapper.writeValueAsString(prendaImages);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private Object jsonToPrendaImages(String json) {
+        if (json == null || json.isBlank()) return null;
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(json, Object.class);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
@@ -275,7 +303,8 @@ public class ProductService {
                 p.getGenero(),
                 p.getTipoPrenda(),
                 p.getCarrera(),
-                p.getTipoUniforme()
+                p.getTipoUniforme(),
+                jsonToPrendaImages(p.getPrendaImages())
         );
     }
 }
