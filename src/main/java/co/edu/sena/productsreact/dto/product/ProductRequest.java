@@ -31,22 +31,6 @@ public record ProductRequest(
 
         @NotNull(message = "El stock es obligatorio")
         @PositiveOrZero(message = "El stock no puede ser negativo")
-        Integer stock,
-
-        @Size(max = 20, message = "El género no puede superar los 20 caracteres")
-        String genero,
-
-        @Size(max = 50, message = "El tipo de prenda no puede superar los 50 caracteres")
-        String tipoPrenda,
-
-        @Size(max = 100, message = "La carrera no puede superar los 100 caracteres")
-        String carrera,
-
-        @Size(max = 20, message = "El tipo de uniforme no puede superar los 20 caracteres")
-        String tipoUniforme,
-
-        Object prendaImages,
-
-        Object prendaTallas
+        Integer stock
 ) {
 }

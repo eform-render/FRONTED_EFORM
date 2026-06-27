@@ -1,23 +1,17 @@
 package co.edu.sena.productsreact.controller;
 
-import co.edu.sena.productsreact.dto.CategoriesResponse;
-import co.edu.sena.productsreact.dto.ProductFilterRequest;
 import co.edu.sena.productsreact.dto.product.ProductRequest;
 import co.edu.sena.productsreact.dto.product.ProductResponse;
-import co.edu.sena.productsreact.service.ProductImageStorageService;
 import co.edu.sena.productsreact.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/products")
@@ -25,7 +19,6 @@ import java.util.Map;
 public class ProductController {
 
     private final ProductService productService;
-    private final ProductImageStorageService productImageStorageService;
 
     /**
      * Obtener todos los productos
@@ -33,12 +26,6 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<List<ProductResponse>> getAll() {
         return ResponseEntity.ok(productService.findAll());
-    }
-
-    @PostMapping(value = "/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("file") MultipartFile file) {
-        String imageUrl = productImageStorageService.store(file);
-        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("imageUrl", imageUrl));
     }
 
     /**
@@ -102,25 +89,5 @@ public class ProductController {
                                               @RequestParam(required = false) String sessionId) {
         productService.releaseStock(id, qty, sessionId);
         return ResponseEntity.ok().build();
-    }
-
-    /**
-     * Obtener categorías disponibles
-     */
-    @GetMapping("/categories/all")
-    public ResponseEntity<CategoriesResponse> getCategories() {
-        return ResponseEntity.ok(productService.getCategories());
-    }
-
-    /**
-     * Filtrar productos por género, tipo de prenda, carrera, etc.
-     */
-    @GetMapping("/filter")
-    public ResponseEntity<List<ProductResponse>> filterProducts(
-            @RequestParam(required = false) String genero,
-            @RequestParam(required = false) String tipoPrenda,
-            @RequestParam(required = false) String carrera,
-            @RequestParam(required = false) String tipoUniforme) {
-        return ResponseEntity.ok(productService.filterProducts(genero, tipoPrenda, carrera, tipoUniforme));
     }
 }

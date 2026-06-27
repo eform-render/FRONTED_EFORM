@@ -164,10 +164,8 @@ Además hay 3 productos de ejemplo.
 
 ## Seguridad
 
-- `/auth/**`, `GET /products/**` y `/payments/**` son publicos para consulta y checkout.
-- `POST /products/{id}/reserve` y `POST /products/{id}/release` requieren usuario autenticado.
-- `POST`, `PUT` y `DELETE` sobre `/products/**` requieren rol `ROLE_ADMIN`.
-- El resto de rutas requiere JWT valido en `Authorization: Bearer <token>`.
+- `/auth/**` y `/products/**` son públicos (según requerimiento de la actividad del front).
+- El resto de rutas requiere JWT válido en `Authorization: Bearer <token>`.
 - Los tokens se firman con HS256 y la clave viene de `JWT_SECRET`.
 - Las contraseñas se almacenan con **BCrypt** (strength 10).
 
