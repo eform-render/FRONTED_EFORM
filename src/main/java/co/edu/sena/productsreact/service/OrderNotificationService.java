@@ -1,0 +1,126 @@
+package co.edu.sena.productsreact.service;
+
+import co.edu.sena.productsreact.entity.PaymentRecord;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
+import java.util.Map;
+
+@Service
+@RequiredArgsConstructor
+public class OrderNotificationService {
+
+    private final RestTemplate restTemplate;
+
+    @Value("${app.mail.from:noreply@eform.com}")
+    private String fromAddress;
+
+    @Value("${brevo.api.key:}")
+    private String brevoApiKey;
+
+    public void notifyOrderStatusChange(PaymentRecord payment) {
+        if (brevoApiKey == null || brevoApiKey.isBlank()) {
+            System.out.println("BREVO API KEY no configurado. Email no enviado.");
+            return;
+        }
+
+        String statusLabel = getStatusLabel(payment.getStatus());
+        String html = buildEmailContent(payment, statusLabel);
+
+        try {
+            sendEmail(payment.getCustomerEmail(), "Cambio de estado en tu pedido #" + payment.getId(), html);
+        } catch (Exception e) {
+            System.err.println("Error enviando email de notificación: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private String getStatusLabel(String status) {
+        return switch (status) {
+            case "PENDIENTE" -> "Pendiente";
+            case "CONFIRMADO" -> "Confirmado";
+            case "ENVIADO" -> "Enviado";
+            case "COMPLETADO" -> "Completado";
+            case "CANCELADO" -> "Cancelado";
+            default -> status;
+        };
+    }
+
+    private String buildEmailContent(PaymentRecord payment, String statusLabel) {
+        String observationHtml = payment.getObservation() != null && !payment.getObservation().isBlank()
+                ? "<p><strong>Observación:</strong> " + payment.getObservation() + "</p>"
+                : "";
+
+        return """
+                <h2>Notificación de cambio de estado - EFORM</h2>
+                <p>Hola %s,</p>
+                <p>El estado de tu pedido ha cambiado.</p>
+                <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                    <p><strong>Número de Pedido:</strong> #%d</p>
+                    <p><strong>Nuevo Estado:</strong> <span style="color: #007bff; font-weight: bold;">%s</span></p>
+                    <p><strong>Monto:</strong> $%,.0f COP</p>
+                    <p><strong>Método de Pago:</strong> %s</p>
+                    %s
+                </div>
+                <p>Si tienes preguntas sobre tu pedido, por favor contáctanos.</p>
+                <p>Gracias por tu compra en EFORM.</p>
+                """.formatted(
+                payment.getCustomerName(),
+                payment.getId(),
+                statusLabel,
+                payment.getAmount(),
+                payment.getPaymentMethod(),
+                observationHtml
+        );
+    }
+
+    private void sendEmail(String toEmail, String subject, String htmlContent) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("api-key", brevoApiKey);
+
+        Map<String, Object> body = Map.of(
+                "sender", Map.of(
+                        "name", "EFORM",
+                        "email", fromAddress
+                ),
+                "to", List.of(
+                        Map.of("email", toEmail)
+                ),
+                "subject", subject,
+                "htmlContent", htmlContent
+        );
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+
+        try {
+            System.out.println("========== ENVIANDO NOTIFICACIÓN ==========");
+            System.out.println("FROM: " + fromAddress);
+            System.out.println("TO: " + toEmail);
+            System.out.println("SUBJECT: " + subject);
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    "https://api.brevo.com/v3/smtp/email",
+                    HttpMethod.POST,
+                    request,
+                    String.class
+            );
+
+            System.out.println("EMAIL ENVIADO OK");
+            System.out.println("STATUS: " + response.getStatusCode());
+        } catch (Exception e) {
+            System.err.println("ERROR ENVIANDO EMAIL");
+            System.err.println("TIPO: " + e.getClass().getName());
+            System.err.println("MENSAJE: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}

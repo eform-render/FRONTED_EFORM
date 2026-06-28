@@ -16,6 +16,7 @@ public class PaymentService {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(PaymentService.class);
 
     private final PaymentRecordRepository paymentRecordRepository;
+    private final OrderNotificationService orderNotificationService;
 
     @Transactional
     public PaymentRecord save(PaymentRequest request) {
@@ -67,7 +68,12 @@ public class PaymentService {
         if (observation != null && !observation.isBlank()) {
             payment.setObservation(observation);
         }
-        return paymentRecordRepository.save(payment);
+        PaymentRecord updated = paymentRecordRepository.save(payment);
+
+        // Enviar email de notificación
+        orderNotificationService.notifyOrderStatusChange(updated);
+
+        return updated;
     }
 
     @Transactional(readOnly = true)
