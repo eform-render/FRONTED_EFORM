@@ -15,3 +15,8 @@ export const deletePayments = async (ids) => {
   const response = await axiosClient.delete('/payments', { data: ids })
   return response.data
 }
+
+export const updatePaymentStatus = async (id, status) => {
+  const response = await axiosClient.put(`/payments/${id}/status`, { status })
+  return response.data
+}

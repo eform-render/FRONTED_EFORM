@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getPayments } from '../services/paymentService'
+import { getPayments, updatePaymentStatus } from '../services/paymentService'
 
 const currencyFormat = new Intl.NumberFormat('es-CO', {
   style: 'currency',
@@ -12,8 +12,10 @@ const AdminPaymentsPage = () => {
   const [payments, setPayments] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const [sortField, setSortField] = useState('createdAt')
   const [sortDirection, setSortDirection] = useState('desc')
+  const [updatingStatus, setUpdatingStatus] = useState(null)
   // deletion is disabled from frontend by design
 
   useEffect(() => {
@@ -59,6 +61,27 @@ const AdminPaymentsPage = () => {
     }
   }
 
+  const handleStatusChange = async (paymentId, newStatus) => {
+    try {
+      setUpdatingStatus(paymentId)
+      setError('')
+      await updatePaymentStatus(paymentId, newStatus)
+      setSuccess('Estado actualizado correctamente')
+
+      // Actualizar la lista sin recargar
+      setPayments(payments.map(p =>
+        p.id === paymentId ? { ...p, status: newStatus } : p
+      ))
+
+      setTimeout(() => setSuccess(''), 3000)
+    } catch (err) {
+      setError('No fue posible actualizar el estado del pedido.')
+      console.error(err)
+    } finally {
+      setUpdatingStatus(null)
+    }
+  }
+
   const getStatusBadgeClass = (status) => {
     const normalizedStatus = (status || 'Confirmado').toLowerCase()
     if (normalizedStatus.includes('completado') || normalizedStatus.includes('confirmado')) {
@@ -86,6 +109,7 @@ const AdminPaymentsPage = () => {
 
       {loading && <div className="catalog-message">Cargando pagos...</div>}
       {error && <div className="alert alert-danger">{error}</div>}
+      {success && <div className="alert alert-success">{success}</div>}
 
       {/* Resumen superior eliminado: ya se muestra en el panel de estadísticas */}
 
@@ -155,9 +179,18 @@ const AdminPaymentsPage = () => {
                       <strong>{currencyFormat.format(Number(payment.amount || 0))}</strong>
                     </td>
                     <td>
-                      <span className={getStatusBadgeClass(payment.status)}>
-                        {payment.status || 'Confirmado'}
-                      </span>
+                      <select
+                        value={payment.status || 'PENDIENTE'}
+                        onChange={(e) => handleStatusChange(payment.id, e.target.value)}
+                        disabled={updatingStatus === payment.id}
+                        className="status-select"
+                      >
+                        <option value="PENDIENTE">Pendiente</option>
+                        <option value="CONFIRMADO">Confirmado</option>
+                        <option value="ENVIADO">Enviado</option>
+                        <option value="COMPLETADO">Completado</option>
+                        <option value="CANCELADO">Cancelado</option>
+                      </select>
                     </td>
                   </tr>
                 ))}
