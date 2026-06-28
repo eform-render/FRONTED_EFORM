@@ -26,6 +26,9 @@ public class PaymentRecord {
     @Column(name = "status", nullable = false, length = 50)
     private String status = "PENDIENTE";
 
+    @Column(name = "observation", length = 500)
+    private String observation;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -91,5 +94,13 @@ public class PaymentRecord {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getObservation() {
+        return observation;
+    }
+
+    public void setObservation(String observation) {
+        this.observation = observation;
     }
 }

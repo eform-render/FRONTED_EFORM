@@ -50,7 +50,8 @@ public class PaymentController {
             @PathVariable Long id,
             @RequestBody java.util.Map<String, String> request) {
         String newStatus = request.get("status");
-        var updated = paymentService.updateStatus(id, newStatus);
+        String observation = request.get("observation");
+        var updated = paymentService.updateStatus(id, newStatus, observation);
         return ResponseEntity.ok(updated);
     }
 

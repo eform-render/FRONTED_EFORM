@@ -60,10 +60,13 @@ public class PaymentService {
     }
 
     @Transactional
-    public PaymentRecord updateStatus(Long id, String newStatus) {
+    public PaymentRecord updateStatus(Long id, String newStatus, String observation) {
         PaymentRecord payment = paymentRecordRepository.findById(id)
                 .orElseThrow(() -> new co.edu.sena.productsreact.exception.ResourceNotFoundException("Pedido no encontrado"));
         payment.setStatus(newStatus);
+        if (observation != null && !observation.isBlank()) {
+            payment.setObservation(observation);
+        }
         return paymentRecordRepository.save(payment);
     }
 
