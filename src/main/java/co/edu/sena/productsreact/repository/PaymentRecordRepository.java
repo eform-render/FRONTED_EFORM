@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PaymentRecordRepository extends JpaRepository<PaymentRecord, Long> {
+    java.util.List<PaymentRecord> findByCustomerEmailOrderByCreatedAtDesc(String customerEmail);
 }

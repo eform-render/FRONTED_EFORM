@@ -67,4 +67,9 @@ public class PaymentService {
         return paymentRecordRepository.save(payment);
     }
 
+    @Transactional(readOnly = true)
+    public java.util.List<PaymentRecord> getOrdersByEmail(String email) {
+        return paymentRecordRepository.findByCustomerEmailOrderByCreatedAtDesc(email);
+    }
+
 }

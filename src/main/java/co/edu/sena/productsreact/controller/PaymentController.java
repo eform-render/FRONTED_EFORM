@@ -6,6 +6,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -50,5 +52,13 @@ public class PaymentController {
         String newStatus = request.get("status");
         var updated = paymentService.updateStatus(id, newStatus);
         return ResponseEntity.ok(updated);
+    }
+
+    @GetMapping("/my-orders")
+    @org.springframework.security.access.prepost.PreAuthorize("isAuthenticated()")
+    public ResponseEntity<java.util.List<co.edu.sena.productsreact.entity.PaymentRecord>> getMyOrders(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        var orders = paymentService.getOrdersByEmail(userDetails.getUsername());
+        return ResponseEntity.ok(orders);
     }
 }
