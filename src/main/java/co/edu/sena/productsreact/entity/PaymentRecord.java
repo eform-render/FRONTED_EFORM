@@ -23,7 +23,7 @@ public class PaymentRecord {
     @Column(name = "amount", nullable = false)
     private Double amount;
 
-    @Column(name = "status", nullable = false, length = 50)
+    @Column(name = "status", length = 50)
     private String status = "PENDIENTE";
 
     @Column(name = "observation", length = 500)
