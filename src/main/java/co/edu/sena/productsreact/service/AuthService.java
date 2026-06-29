@@ -29,6 +29,8 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final PasswordResetTokenService passwordResetTokenService;
+    private final PasswordResetMailService passwordResetMailService;
 
     /**
      * Registrar nuevo usuario
@@ -91,6 +93,18 @@ public class AuthService {
                 token,
                 new UserDto(loggedUser.getId(), loggedUser.getUsername(), loggedUser.getEmail(), loggedUser.getRole().name(), loggedUser.getAvatarUrl())
         );
+    }
+
+    /**
+     * Solicitar recuperación de contraseña
+     */
+    @Transactional
+    public void requestPasswordReset(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ese email"));
+
+        String token = passwordResetTokenService.generateToken(email, user.getPassword());
+        passwordResetMailService.sendResetLink(user, token);
     }
 
     /**
