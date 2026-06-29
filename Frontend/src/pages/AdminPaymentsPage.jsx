@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
 import { getPayments, updatePaymentStatus } from '../services/paymentService'
 
@@ -16,6 +17,9 @@ const AdminPaymentsPage = () => {
   const [sortField, setSortField] = useState('createdAt')
   const [sortDirection, setSortDirection] = useState('desc')
   const [updatingStatus, setUpdatingStatus] = useState(null)
+  const [expandedPayment, setExpandedPayment] = useState(null)
+  const [pendingStatusChange, setPendingStatusChange] = useState(null)
+  const [observation, setObservation] = useState('')
   // deletion is disabled from frontend by design
 
   useEffect(() => {
@@ -61,18 +65,31 @@ const AdminPaymentsPage = () => {
     }
   }
 
-  const handleStatusChange = async (paymentId, newStatus) => {
+  const handleStatusChange = (paymentId, newStatus) => {
+    if (newStatus === 'CANCELADO' || newStatus === 'ENVIADO') {
+      setExpandedPayment(paymentId)
+      setPendingStatusChange({ paymentId, newStatus })
+      setObservation('')
+    } else {
+      confirmStatusChange(paymentId, newStatus, '')
+    }
+  }
+
+  const confirmStatusChange = async (paymentId, newStatus, obs) => {
     try {
       setUpdatingStatus(paymentId)
       setError('')
-      await updatePaymentStatus(paymentId, newStatus)
+      await updatePaymentStatus(paymentId, newStatus, obs)
       setSuccess('Estado actualizado correctamente')
 
       // Actualizar la lista sin recargar
       setPayments(payments.map(p =>
-        p.id === paymentId ? { ...p, status: newStatus } : p
+        p.id === paymentId ? { ...p, status: newStatus, observation: obs } : p
       ))
 
+      setExpandedPayment(null)
+      setPendingStatusChange(null)
+      setObservation('')
       setTimeout(() => setSuccess(''), 3000)
     } catch (err) {
       setError('No fue posible actualizar el estado del pedido.')
@@ -80,6 +97,12 @@ const AdminPaymentsPage = () => {
     } finally {
       setUpdatingStatus(null)
     }
+  }
+
+  const cancelExpanded = () => {
+    setExpandedPayment(null)
+    setPendingStatusChange(null)
+    setObservation('')
   }
 
   const getStatusBadgeClass = (status) => {
@@ -161,44 +184,94 @@ const AdminPaymentsPage = () => {
               </thead>
               <tbody>
                 {sortedPayments.map((payment) => (
-                  <tr key={payment.id} className={`payment-row`}>
-                    <td className="date-cell">
-                      <div className="date-badge">{new Date(payment.createdAt).toLocaleDateString('es-CO')}</div>
-                      <small>{new Date(payment.createdAt).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</small>
-                    </td>
-                    <td className="customer-cell">
-                      <strong>{payment.customerName || 'Cliente sin nombre'}</strong>
-                    </td>
-                    <td className="email-cell">
-                      <small>{payment.customerEmail}</small>
-                    </td>
-                    <td className="method-cell">
-                      <span className="method-badge">{payment.paymentMethod}</span>
-                    </td>
-                    <td className="amount-cell">
-                      <strong>{currencyFormat.format(Number(payment.amount || 0))}</strong>
-                    </td>
-                    <td>
-                      <select
-                        value={payment.status || 'PENDIENTE'}
-                        onChange={(e) => handleStatusChange(payment.id, e.target.value)}
-                        disabled={updatingStatus === payment.id}
-                        className="status-select"
-                      >
-                        <option value="PENDIENTE">Pendiente</option>
-                        <option value="CONFIRMADO">Confirmado</option>
-                        <option value="ENVIADO">Enviado</option>
-                        <option value="COMPLETADO">Completado</option>
-                        <option value="CANCELADO">Cancelado</option>
-                      </select>
-                    </td>
-                  </tr>
+                  <React.Fragment key={payment.id}>
+                    <tr className={`payment-row`}>
+                      <td className="date-cell">
+                        <div className="date-badge">{new Date(payment.createdAt).toLocaleDateString('es-CO')}</div>
+                        <small>{new Date(payment.createdAt).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</small>
+                      </td>
+                      <td className="customer-cell">
+                        <strong>{payment.customerName || 'Cliente sin nombre'}</strong>
+                      </td>
+                      <td className="email-cell">
+                        <small>{payment.customerEmail}</small>
+                      </td>
+                      <td className="method-cell">
+                        <span className="method-badge">{payment.paymentMethod}</span>
+                      </td>
+                      <td className="amount-cell">
+                        <strong>{currencyFormat.format(Number(payment.amount || 0))}</strong>
+                      </td>
+                      <td>
+                        <select
+                          value={payment.status || 'PENDIENTE'}
+                          onChange={(e) => handleStatusChange(payment.id, e.target.value)}
+                          disabled={updatingStatus === payment.id}
+                          className="status-select"
+                        >
+                          <option value="PENDIENTE">Pendiente</option>
+                          <option value="CONFIRMADO">Confirmado</option>
+                          <option value="ENVIADO">Enviado</option>
+                          <option value="COMPLETADO">Completado</option>
+                          <option value="CANCELADO">Cancelado</option>
+                        </select>
+                      </td>
+                    </tr>
+
+                    {expandedPayment === payment.id && pendingStatusChange && (
+                      <tr className="expanded-row">
+                        <td colSpan="6" style={{ padding: '20px', backgroundColor: '#f9f9f9' }}>
+                          <div style={{ marginBottom: '15px' }}>
+                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+                              Agregar observación para {pendingStatusChange.newStatus}:
+                            </label>
+                            <textarea
+                              value={observation}
+                              onChange={(e) => setObservation(e.target.value)}
+                              placeholder="Escriba una observación (opcional)..."
+                              rows="3"
+                              style={{
+                                width: '100%',
+                                padding: '10px',
+                                borderRadius: '4px',
+                                border: '1px solid #ddd',
+                                fontFamily: 'inherit',
+                                fontSize: '14px',
+                                resize: 'vertical',
+                              }}
+                            />
+                          </div>
+                          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                            <button
+                              className="btn btn-outline-secondary btn-sm"
+                              onClick={cancelExpanded}
+                              type="button"
+                              disabled={updatingStatus === payment.id}
+                            >
+                              Cancelar
+                            </button>
+                            <button
+                              className="btn btn-primary btn-sm"
+                              onClick={() =>
+                                confirmStatusChange(payment.id, pendingStatusChange.newStatus, observation)
+                              }
+                              disabled={updatingStatus === payment.id}
+                              type="button"
+                            >
+                              {updatingStatus === payment.id ? 'Guardando...' : 'Guardar y Notificar'}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>
           </div>
         </section>
       )}
+
     </main>
   )
 }

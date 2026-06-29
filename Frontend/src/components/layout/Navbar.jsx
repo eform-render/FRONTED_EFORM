@@ -14,6 +14,7 @@ const Navbar = ({ user, onLogout }) => {
   const navItems = [
     ...(!admin ? [{ label: 'Inicio', to: '/home' }] : []),
     { label: 'Productos', to: '/products' },
+    ...(!admin && user ? [{ label: 'Mis Pedidos', to: '/orders' }] : []),
     ...(!admin ? [{ label: 'Carrito', to: '/cart' }] : []),
     ...(admin ? [{ label: 'Pagos', to: '/payments' }, { label: 'Panel', to: '/dashboard' }] : []),
   ]

@@ -16,7 +16,12 @@ export const deletePayments = async (ids) => {
   return response.data
 }
 
-export const updatePaymentStatus = async (id, status) => {
-  const response = await axiosClient.put(`/payments/${id}/status`, { status })
+export const updatePaymentStatus = async (id, status, observation = '') => {
+  const response = await axiosClient.put(`/payments/${id}/status`, { status, observation })
+  return response.data
+}
+
+export const getMyOrders = async () => {
+  const response = await axiosClient.get('/payments/my-orders')
   return response.data
 }
