@@ -1,7 +1,7 @@
 package co.edu.sena.productsreact.service;
 
 import co.edu.sena.productsreact.entity.PaymentRecord;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -15,10 +15,10 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 public class OrderNotificationService {
 
-    private final RestTemplate restTemplate;
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Value("${app.mail.from:noreply@eform.com}")
     private String fromAddress;
