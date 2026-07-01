@@ -16,6 +16,7 @@ import CartPage from './pages/CartPage'
 import AdminPaymentsPage from './pages/AdminPaymentsPage'
 import UserManagementPage from './pages/UserManagementPage'
 import OrdersPage from './pages/OrdersPage'
+import ProfilePage from './pages/ProfilePage'
 import { clearSession, getCurrentUser } from './services/authServices'
 import { isAdmin } from './utils/roles'
 
@@ -85,6 +86,10 @@ function App() {
           <Route
             path="/orders"
             element={isAuthenticated && !canManageProducts ? <OrdersPage /> : <Navigate to="/home" replace />}
+          />
+          <Route
+            path="/profile"
+            element={isAuthenticated ? <ProfilePage /> : <Navigate to="/login" replace />}
           />
           <Route path="/sets" element={canManageProducts ? <SetsPage /> : <Navigate to="/products" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />

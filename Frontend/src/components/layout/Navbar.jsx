@@ -84,9 +84,14 @@ const Navbar = ({ user, onLogout }) => {
             <span className="theme-toggle-button__label">{theme === 'dark' ? 'Claro' : 'Oscuro'}</span>
           </button>
           {user ? (
-            <button className="site-menu__button site-menu__button--logout" onClick={handleLogout} type="button">
-              Salir
-            </button>
+            <>
+              <NavLink className="site-menu__link" to="/profile">
+                Perfil
+              </NavLink>
+              <button className="site-menu__button site-menu__button--logout" onClick={handleLogout} type="button">
+                Salir
+              </button>
+            </>
           ) : (
             <>
               <NavLink className="site-menu__button site-menu__button--login" to="/login">
