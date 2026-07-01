@@ -14,19 +14,18 @@ const CartPage = () => {
   const navigate = useNavigate()
   const user = getCurrentUser()
   const [items, setItems] = useState(() => getCart())
-  const [paymentMethod, setPaymentMethod] = useState('PSE')
+  const [paymentMethod, setPaymentMethod] = useState('Nequi')
+  const [deliveryMethod, setDeliveryMethod] = useState('domicilio')
   const [customerName, setCustomerName] = useState('')
   const [customerEmail, setCustomerEmail] = useState('')
   const [customerPhone, setCustomerPhone] = useState('')
   const [customerDocument, setCustomerDocument] = useState('')
-  const [bank, setBank] = useState('')
-  const [cardName, setCardName] = useState('')
-  const [cardNumber, setCardNumber] = useState('')
-  const [cardExpiry, setCardExpiry] = useState('')
-  const [cardCvv, setCardCvv] = useState('')
   const [order, setOrder] = useState(null)
   const [paymentError, setPaymentError] = useState('')
   const [processingPayment, setProcessingPayment] = useState(false)
+
+  const SHIPPING_COST = 5500
+  const IVA_RATE = 0.19
 
   useEffect(() => {
     const handleCartUpdate = (event) => {
@@ -37,9 +36,17 @@ const CartPage = () => {
     return () => window.removeEventListener('cartUpdated', handleCartUpdate)
   }, [])
 
-  const total = useMemo(() => {
+  const subtotal = useMemo(() => {
     return items.reduce((sum, item) => sum + Number(item.precio || 0) * Number(item.quantity || 1), 0)
   }, [items])
+
+  const shippingCost = useMemo(() => {
+    return deliveryMethod === 'recoge' ? 0 : SHIPPING_COST
+  }, [deliveryMethod])
+
+  const subtotalWithShipping = subtotal + shippingCost
+  const iva = subtotalWithShipping * IVA_RATE
+  const total = subtotalWithShipping + iva
 
   const getProductQuantityInCart = (productId) => {
     return items
@@ -89,26 +96,14 @@ const CartPage = () => {
       return
     }
 
-    if (paymentMethod === 'PSE' && !bank) {
-      setPaymentError('Selecciona el banco para continuar con PSE.')
-      return
-    }
-
-    if (paymentMethod.includes('Tarjeta')) {
-      const cardDigits = cardNumber.replace(/\D/g, '')
-      if (!cardName.trim() || cardDigits.length < 13 || !/^\d{2}\/\d{2}$/.test(cardExpiry) || !/^\d{3,4}$/.test(cardCvv)) {
-        setPaymentError('Completa correctamente los datos de la tarjeta.')
-        return
-      }
-    }
-
     try {
       setProcessingPayment(true)
       await checkoutPayment({
         customerName,
         customerEmail,
-        paymentMethod: paymentMethod === 'PSE' ? `${paymentMethod} - ${bank}` : paymentMethod,
+        paymentMethod,
         amount: total,
+        deliveryMethod,
         items: items.map(item => ({
           productId: item.id,
           quantity: item.quantity
@@ -140,7 +135,7 @@ const CartPage = () => {
 
       {order && (
         <div className="alert alert-success checkout-success">
-          <strong>Pago confirmado.</strong> Pedido {order.id} registrado por {formatPrice(order.total)}.
+          <strong>Pago confirmado.</strong> Pedido {order.id} registrado por {formatPrice(total)}.
         </div>
       )}
 
@@ -213,12 +208,6 @@ const CartPage = () => {
               <p>Confirma tus datos y el metodo de pago para registrar el pedido.</p>
             </div>
 
-            <div className="payment-total">
-              <span>💰 Total a pagar</span>
-              <strong>{formatPrice(total)}</strong>
-              <small>📦 {items.length} producto{items.length !== 1 ? 's' : ''} en el carrito</small>
-            </div>
-
             <form className="checkout-form payment-form" onSubmit={handleCheckout}>
               <section className="payment-form__section">
                 <h3>Datos del comprador</h3>
@@ -264,92 +253,85 @@ const CartPage = () => {
               </section>
 
               <section className="payment-form__section">
-                <h3>Metodo de pago</h3>
-                <div className="payment-methods" role="group" aria-label="Metodos de pago">
-                  {['PSE', 'Tarjeta debito', 'Tarjeta credito', 'Pago en sede'].map((method) => (
+                <h3>Método de entrega</h3>
+                <div className="payment-methods" role="group" aria-label="Métodos de entrega">
+                  {[
+                    { value: 'domicilio', label: 'Envío a domicilio', description: `+${formatPrice(SHIPPING_COST)}` },
+                    { value: 'recoge', label: 'Cliente recoge', description: 'Sin costo adicional' }
+                  ].map((method) => (
                     <button
-                      className={paymentMethod === method ? 'payment-method is-selected' : 'payment-method'}
-                      key={method}
-                      onClick={() => setPaymentMethod(method)}
+                      className={deliveryMethod === method.value ? 'payment-method is-selected' : 'payment-method'}
+                      key={method.value}
+                      onClick={() => setDeliveryMethod(method.value)}
                       type="button"
                     >
                       <span className="payment-method__icon">
-                        {method === 'PSE' && '🏦'}
-                        {method === 'Tarjeta debito' && '💳'}
-                        {method === 'Tarjeta credito' && '💰'}
-                        {method === 'Pago en sede' && '🏢'}
+                        {method.value === 'domicilio' && '🚚'}
+                        {method.value === 'recoge' && '🏪'}
                       </span>
-                      <strong>{method}</strong>
-                      <span>{method === 'PSE' ? 'Banco en línea' : method.includes('Tarjeta') ? 'Pago inmediato' : 'Confirmación presencial'}</span>
+                      <strong>{method.label}</strong>
+                      <span>{method.description}</span>
                     </button>
                   ))}
                 </div>
+              </section>
 
-                {paymentMethod === 'PSE' && (
-                  <label>
-                    Banco
-                    <select className="form-control" onChange={(event) => setBank(event.target.value)} value={bank}>
-                      <option value="">Selecciona tu banco</option>
-                      <option value="Bancolombia">Bancolombia</option>
-                      <option value="Davivienda">Davivienda</option>
-                      <option value="Banco de Bogota">Banco de Bogota</option>
-                      <option value="Nequi">Nequi</option>
-                    </select>
-                  </label>
-                )}
+              <section className="payment-form__section">
+                <h3>Metodo de pago</h3>
+                <div className="payment-methods" role="group" aria-label="Metodos de pago">
+                  {[
+                    { value: 'Nequi', label: 'Nequi', description: 'Pago inmediato' },
+                    { value: 'Transferencia BRE-BE', label: 'Transferencia BRE-BE', description: 'Transferencia electrónica' },
+                    { value: 'Pago contra entrega', label: 'Pago contra entrega', description: 'Paga al recibir' }
+                  ].map((method) => (
+                    <button
+                      className={paymentMethod === method.value ? 'payment-method is-selected' : 'payment-method'}
+                      key={method.value}
+                      onClick={() => setPaymentMethod(method.value)}
+                      type="button"
+                    >
+                      <span className="payment-method__icon">
+                        {method.value === 'Nequi' && '📱'}
+                        {method.value === 'Transferencia BRE-BE' && '💳'}
+                        {method.value === 'Pago contra entrega' && '🏠'}
+                      </span>
+                      <strong>{method.label}</strong>
+                      <span>{method.description}</span>
+                    </button>
+                  ))}
+                </div>
+              </section>
 
-                {paymentMethod.includes('Tarjeta') && (
-                  <div className="card-fields">
-                    <label>
-                      Nombre en la tarjeta
-                      <input
-                        className="form-control"
-                        onChange={(event) => setCardName(event.target.value)}
-                        placeholder="Como aparece en la tarjeta"
-                        value={cardName}
-                      />
-                    </label>
-                    <label>
-                      Numero de tarjeta
-                      <input
-                        className="form-control"
-                        inputMode="numeric"
-                        maxLength="19"
-                        onChange={(event) => setCardNumber(event.target.value)}
-                        placeholder="0000 0000 0000 0000"
-                        value={cardNumber}
-                      />
-                    </label>
-                    <div className="payment-form__grid">
-                      <label>
-                        Vence
-                        <input
-                          className="form-control"
-                          maxLength="5"
-                          onChange={(event) => setCardExpiry(event.target.value)}
-                          placeholder="MM/AA"
-                          value={cardExpiry}
-                        />
-                      </label>
-                      <label>
-                        CVV
-                        <input
-                          className="form-control"
-                          inputMode="numeric"
-                          maxLength="4"
-                          onChange={(event) => setCardCvv(event.target.value)}
-                          placeholder="123"
-                          type="password"
-                          value={cardCvv}
-                        />
-                      </label>
-                    </div>
+              <section className="payment-form__section">
+                <h3>Resumen del pedido</h3>
+                <div className="order-summary">
+                  <div className="summary-row">
+                    <span>Subtotal productos</span>
+                    <strong>{formatPrice(subtotal)}</strong>
                   </div>
-                )}
+                  {shippingCost > 0 && (
+                    <div className="summary-row">
+                      <span>Domicilio/Envío</span>
+                      <strong>{formatPrice(shippingCost)}</strong>
+                    </div>
+                  )}
+                  <div className="summary-row">
+                    <span>Subtotal gravado</span>
+                    <strong>{formatPrice(subtotalWithShipping)}</strong>
+                  </div>
+                  <div className="summary-row">
+                    <span>IVA (19%)</span>
+                    <strong>{formatPrice(iva)}</strong>
+                  </div>
+                  <div className="summary-row summary-total">
+                    <span>TOTAL A PAGAR</span>
+                    <strong>{formatPrice(total)}</strong>
+                  </div>
+                </div>
               </section>
 
               {paymentError && <p className="checkout-error">⚠️ {paymentError}</p>}
-              <button className="btn btn-success btn-lg btn-pay" disabled={processingPayment || total <= 0} type="submit">
+              <button className="btn btn-success btn-lg btn-pay" disabled={processingPayment || subtotal <= 0} type="submit">
                 {processingPayment ? '⏳ Procesando pago...' : `✓ Pagar ${formatPrice(total)}`}
               </button>
             </form>
