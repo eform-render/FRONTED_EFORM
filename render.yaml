@@ -26,9 +26,9 @@ services:
     name: productos-frontend
     env: node
     branch: main
-    path: Frontend
+    rootDir: Frontend
     buildCommand: npm install && npm run build
-    publishPath: dist
+    publishPath: Frontend/dist
     envVars:
       - key: VITE_API_URL
         value: "https://products-react-api.onrender.com"
