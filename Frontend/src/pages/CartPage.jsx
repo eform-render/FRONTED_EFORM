@@ -16,10 +16,11 @@ const CartPage = () => {
   const [items, setItems] = useState(() => getCart())
   const [paymentMethod, setPaymentMethod] = useState('Nequi')
   const [deliveryMethod, setDeliveryMethod] = useState('domicilio')
-  const [customerName, setCustomerName] = useState('')
-  const [customerEmail, setCustomerEmail] = useState('')
-  const [customerPhone, setCustomerPhone] = useState('')
-  const [customerDocument, setCustomerDocument] = useState('')
+  const [customerName, setCustomerName] = useState(user?.name || '')
+  const [customerEmail, setCustomerEmail] = useState(user?.email || '')
+  const [customerPhone, setCustomerPhone] = useState(user?.phone || '')
+  const [customerDocument, setCustomerDocument] = useState(user?.document || '')
+  const [deliveryAddress, setDeliveryAddress] = useState('')
   const [order, setOrder] = useState(null)
   const [paymentError, setPaymentError] = useState('')
   const [processingPayment, setProcessingPayment] = useState(false)
@@ -93,6 +94,11 @@ const CartPage = () => {
       return
     }
 
+    if (deliveryMethod === 'domicilio' && !deliveryAddress.trim()) {
+      setPaymentError('Completa tu dirección de entrega.')
+      return
+    }
+
     try {
       setProcessingPayment(true)
       await checkoutPayment({
@@ -101,6 +107,7 @@ const CartPage = () => {
         paymentMethod,
         amount: total,
         deliveryMethod,
+        deliveryAddress,
         items: items.map(item => ({
           productId: item.id,
           quantity: item.quantity
@@ -248,6 +255,21 @@ const CartPage = () => {
                   </label>
                 </div>
               </section>
+
+              {deliveryMethod === 'domicilio' && (
+                <section className="payment-form__section">
+                  <h3>Dirección de entrega</h3>
+                  <label>
+                    Dirección completa
+                    <input
+                      className="form-control"
+                      onChange={(event) => setDeliveryAddress(event.target.value)}
+                      placeholder="Calle, número, apartamento, ciudad"
+                      value={deliveryAddress}
+                    />
+                  </label>
+                </section>
+              )}
 
               <section className="payment-form__section">
                 <h3>Método de entrega</h3>
