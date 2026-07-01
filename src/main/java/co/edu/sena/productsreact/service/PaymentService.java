@@ -18,6 +18,7 @@ public class PaymentService {
     private final PaymentRecordRepository paymentRecordRepository;
     private final OrderNotificationService orderNotificationService;
     private final PaymentReferenceService paymentReferenceService;
+    private final PaymentConfirmationMailService paymentConfirmationMailService;
 
     @Transactional
     public PaymentRecord save(PaymentRequest request) {
@@ -33,7 +34,13 @@ public class PaymentService {
             record.setPaymentReferenceCode(paymentReferenceService.generatePaymentReference());
         }
 
-        return paymentRecordRepository.save(record);
+        PaymentRecord saved = paymentRecordRepository.save(record);
+
+        if (saved.getPaymentReferenceCode() != null) {
+            paymentConfirmationMailService.sendPaymentConfirmation(saved);
+        }
+
+        return saved;
     }
 
     @Transactional(readOnly = true)

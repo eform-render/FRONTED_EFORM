@@ -15,13 +15,10 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class OrderNotificationService {
+public class PaymentConfirmationMailService {
 
     @Autowired
     private RestTemplate restTemplate;
-
-    @Autowired
-    private InvoiceMailService invoiceMailService;
 
     @Value("${app.mail.from:noreply@eform.com}")
     private String fromAddress;
@@ -29,64 +26,56 @@ public class OrderNotificationService {
     @Value("${brevo.api.key:}")
     private String brevoApiKey;
 
-    public void notifyOrderStatusChange(PaymentRecord payment) {
+    public void sendPaymentConfirmation(PaymentRecord payment) {
         if (brevoApiKey == null || brevoApiKey.isBlank()) {
             System.out.println("BREVO API KEY no configurado. Email no enviado.");
             return;
         }
 
-        if ("ENVIADO".equals(payment.getStatus())) {
-            invoiceMailService.sendInvoice(payment);
+        if (payment.getPaymentReferenceCode() == null) {
             return;
         }
 
-        String statusLabel = getStatusLabel(payment.getStatus());
-        String html = buildEmailContent(payment, statusLabel);
+        String html = buildEmailContent(payment);
 
         try {
-            sendEmail(payment.getCustomerEmail(), "Cambio de estado en tu pedido #" + payment.getId(), html);
+            sendEmail(payment.getCustomerEmail(),
+                    "Confirmación de tu pedido - EFORM #" + payment.getId(),
+                    html);
         } catch (Exception e) {
-            System.err.println("Error enviando email de notificación: " + e.getMessage());
+            System.err.println("Error enviando email de confirmación: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private String getStatusLabel(String status) {
-        return switch (status) {
-            case "PENDIENTE" -> "Pendiente";
-            case "CONFIRMADO" -> "Confirmado";
-            case "ENVIADO" -> "Enviado";
-            case "COMPLETADO" -> "Completado";
-            case "CANCELADO" -> "Cancelado";
-            default -> status;
-        };
-    }
-
-    private String buildEmailContent(PaymentRecord payment, String statusLabel) {
-        String observationHtml = payment.getObservation() != null && !payment.getObservation().isBlank()
-                ? "<p><strong>Observación:</strong> " + payment.getObservation() + "</p>"
-                : "";
+    private String buildEmailContent(PaymentRecord payment) {
+        String currencyFormat = String.format("$%,.0f COP", payment.getAmount());
 
         return """
-                <h2>Notificación de cambio de estado - EFORM</h2>
+                <h2>Confirmación de Pedido - EFORM</h2>
                 <p>Hola %s,</p>
-                <p>El estado de tu pedido ha cambiado.</p>
+                <p>Tu pedido ha sido registrado correctamente. A continuación encontrarás los detalles:</p>
+
                 <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
                     <p><strong>Número de Pedido:</strong> #%d</p>
-                    <p><strong>Nuevo Estado:</strong> <span style="color: #007bff; font-weight: bold;">%s</span></p>
-                    <p><strong>Monto:</strong> $%,.0f COP</p>
+                    <p><strong>Código de Referencia:</strong> <span style="color: #007bff; font-weight: bold; font-size: 16px;">%s</span></p>
+                    <p><strong>Monto:</strong> %s</p>
                     <p><strong>Método de Pago:</strong> %s</p>
-                    %s
+                    <p><strong>Estado:</strong> Pendiente de confirmación</p>
                 </div>
-                <p>Si tienes preguntas sobre tu pedido, por favor contáctanos.</p>
+
+                <p><strong>Importante:</strong> Utiliza el código de referencia <strong>%s</strong> para realizar tu pago en la sede.</p>
+
+                <p>Cuando confirmemos tu pago, recibirás un email con la factura del pedido.</p>
+                <p>Si tienes preguntas, contáctanos.</p>
                 <p>Gracias por tu compra en EFORM.</p>
                 """.formatted(
                 payment.getCustomerName(),
                 payment.getId(),
-                statusLabel,
-                payment.getAmount(),
+                payment.getPaymentReferenceCode(),
+                currencyFormat,
                 payment.getPaymentMethod(),
-                observationHtml
+                payment.getPaymentReferenceCode()
         );
     }
 
@@ -110,11 +99,6 @@ public class OrderNotificationService {
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
 
         try {
-            System.out.println("========== ENVIANDO NOTIFICACIÓN ==========");
-            System.out.println("FROM: " + fromAddress);
-            System.out.println("TO: " + toEmail);
-            System.out.println("SUBJECT: " + subject);
-
             ResponseEntity<String> response = restTemplate.exchange(
                     "https://api.brevo.com/v3/smtp/email",
                     HttpMethod.POST,
@@ -122,12 +106,9 @@ public class OrderNotificationService {
                     String.class
             );
 
-            System.out.println("EMAIL ENVIADO OK");
-            System.out.println("STATUS: " + response.getStatusCode());
+            System.out.println("EMAIL DE CONFIRMACIÓN ENVIADO - STATUS: " + response.getStatusCode());
         } catch (Exception e) {
-            System.err.println("ERROR ENVIANDO EMAIL");
-            System.err.println("TIPO: " + e.getClass().getName());
-            System.err.println("MENSAJE: " + e.getMessage());
+            System.err.println("ERROR ENVIANDO EMAIL DE CONFIRMACIÓN: " + e.getMessage());
             e.printStackTrace();
         }
     }
