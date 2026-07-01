@@ -25,7 +25,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                         "Usuario no encontrado: " + emailOrUsername));
 
         return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
+                user.getEmail(),
                 user.getPassword(),
                 List.of(new SimpleGrantedAuthority(user.getRole().name()))
         );
