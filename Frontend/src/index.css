@@ -1643,7 +1643,7 @@ body {
 .cart-item {
   align-items: center;
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) 150px 150px 150px auto;
+  grid-template-columns: minmax(220px, 1fr) 120px 120px 120px 95px;
   gap: 16px;
 }
 
@@ -2108,17 +2108,20 @@ body {
 }
 
 .cart-remove {
-  padding: 8px 12px;
+  padding: 6px 8px;
   border: 1px solid #ffcccc;
   background: #fff5f5;
   color: #b42318;
-  font-weight: 700;
-  border-radius: 6px;
+  font-weight: 600;
+  border-radius: 5px;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   transition: all 0.2s ease;
-  white-space: nowrap;
-  min-width: fit-content;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  line-height: 1.2;
 }
 
 .cart-remove:hover {
