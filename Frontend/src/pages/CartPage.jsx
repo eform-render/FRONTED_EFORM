@@ -195,7 +195,7 @@ const CartPage = () => {
                   <strong>{formatPrice(Number(item.precio || 0) * Number(item.quantity || 1))}</strong>
                 </div>
                 <button className="cart-remove" onClick={() => handleRemove(item)} type="button">
-                  Eliminar producto
+                  Eliminar
                 </button>
               </article>
             ))}
