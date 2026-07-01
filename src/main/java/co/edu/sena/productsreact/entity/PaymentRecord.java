@@ -29,6 +29,9 @@ public class PaymentRecord {
     @Column(name = "observation", length = 500)
     private String observation;
 
+    @Column(name = "payment_reference_code", length = 50)
+    private String paymentReferenceCode;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -102,5 +105,13 @@ public class PaymentRecord {
 
     public void setObservation(String observation) {
         this.observation = observation;
+    }
+
+    public String getPaymentReferenceCode() {
+        return paymentReferenceCode;
+    }
+
+    public void setPaymentReferenceCode(String paymentReferenceCode) {
+        this.paymentReferenceCode = paymentReferenceCode;
     }
 }

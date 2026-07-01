@@ -17,6 +17,7 @@ public class PaymentService {
 
     private final PaymentRecordRepository paymentRecordRepository;
     private final OrderNotificationService orderNotificationService;
+    private final PaymentReferenceService paymentReferenceService;
 
     @Transactional
     public PaymentRecord save(PaymentRequest request) {
@@ -27,6 +28,10 @@ public class PaymentService {
                 request.amount(),
                 LocalDateTime.now()
         );
+
+        if ("pago en sede".equalsIgnoreCase(request.paymentMethod())) {
+            record.setPaymentReferenceCode(paymentReferenceService.generatePaymentReference());
+        }
 
         return paymentRecordRepository.save(record);
     }
