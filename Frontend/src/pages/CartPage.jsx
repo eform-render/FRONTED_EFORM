@@ -25,7 +25,6 @@ const CartPage = () => {
   const [processingPayment, setProcessingPayment] = useState(false)
 
   const SHIPPING_COST = 5500
-  const IVA_RATE = 0.19
 
   useEffect(() => {
     const handleCartUpdate = (event) => {
@@ -44,9 +43,7 @@ const CartPage = () => {
     return deliveryMethod === 'recoge' ? 0 : SHIPPING_COST
   }, [deliveryMethod])
 
-  const subtotalWithShipping = subtotal + shippingCost
-  const iva = subtotalWithShipping * IVA_RATE
-  const total = subtotalWithShipping + iva
+  const total = subtotal + shippingCost
 
   const getProductQuantityInCart = (productId) => {
     return items
@@ -315,14 +312,6 @@ const CartPage = () => {
                       <strong>{formatPrice(shippingCost)}</strong>
                     </div>
                   )}
-                  <div className="summary-row">
-                    <span>Subtotal gravado</span>
-                    <strong>{formatPrice(subtotalWithShipping)}</strong>
-                  </div>
-                  <div className="summary-row">
-                    <span>IVA (19%)</span>
-                    <strong>{formatPrice(iva)}</strong>
-                  </div>
                   <div className="summary-row summary-total">
                     <span>TOTAL A PAGAR</span>
                     <strong>{formatPrice(total)}</strong>
