@@ -25,3 +25,8 @@ export const getMyOrders = async () => {
   const response = await axiosClient.get('/payments/my-orders')
   return response.data
 }
+
+export const getOrderDetails = async (orderId) => {
+  const response = await axiosClient.get(`/payments/${orderId}/details`)
+  return response.data
+}

@@ -23,6 +23,21 @@ public class PaymentRecord {
     @Column(name = "amount", nullable = false)
     private Double amount;
 
+    @Column(name = "status", length = 50)
+    private String status = "PENDIENTE";
+
+    @Column(name = "observation", length = 500)
+    private String observation;
+
+    @Column(name = "payment_reference_code", length = 50)
+    private String paymentReferenceCode;
+
+    @Column(name = "delivery_method", length = 50)
+    private String deliveryMethod = "domicilio";
+
+    @Column(name = "shipping_cost")
+    private Double shippingCost = 0.0;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -35,6 +50,7 @@ public class PaymentRecord {
         this.paymentMethod = paymentMethod;
         this.amount = amount;
         this.createdAt = createdAt;
+        this.status = "PENDIENTE";
     }
 
     public Long getId() {
@@ -79,5 +95,45 @@ public class PaymentRecord {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getObservation() {
+        return observation;
+    }
+
+    public void setObservation(String observation) {
+        this.observation = observation;
+    }
+
+    public String getPaymentReferenceCode() {
+        return paymentReferenceCode;
+    }
+
+    public void setPaymentReferenceCode(String paymentReferenceCode) {
+        this.paymentReferenceCode = paymentReferenceCode;
+    }
+
+    public String getDeliveryMethod() {
+        return deliveryMethod;
+    }
+
+    public void setDeliveryMethod(String deliveryMethod) {
+        this.deliveryMethod = deliveryMethod;
+    }
+
+    public Double getShippingCost() {
+        return shippingCost;
+    }
+
+    public void setShippingCost(Double shippingCost) {
+        this.shippingCost = shippingCost;
     }
 }

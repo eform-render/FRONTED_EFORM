@@ -7,17 +7,19 @@ import { getAll } from '../services/productService'
 import { getApiErrorMessage } from '../utils/apiError'
 import { isAdmin } from '../utils/roles'
 
+// Página de inicio optimizada
+
 const dailyVerses = [
   {
     text: 'Todo lo puedo en Cristo que me fortalece.',
     reference: 'Filipenses 4:13',
   },
   {
-    text: 'El Senor es mi pastor; nada me faltara.',
+    text: 'El Señor es mi pastor; nada me faltará.',
     reference: 'Salmo 23:1',
   },
   {
-    text: 'Encomienda al Senor tus obras, y tus pensamientos seran afirmados.',
+    text: 'Encomienda al Señor tus obras, y tus pensamientos serán afirmados.',
     reference: 'Proverbios 16:3',
   },
   {
@@ -54,31 +56,31 @@ export default function HomePage() {
   const highlights = [
     {
       icon: '01',
-      title: 'Compra Rapida y Segura',
-      text: 'Selecciona tus uniformes, revisa disponibilidad y continua tu compra en pocos pasos.',
+      title: 'Compra rápida y segura',
+      text: 'Selecciona tus uniformes, revisa disponibilidad y continúa tu compra en pocos pasos.',
     },
     {
       icon: '02',
-      title: 'Productos Completos',
-      text: 'Consulta prendas institucionales SENA con descripcion, tallas, precios y stock actualizado.',
+      title: 'Productos completos',
+      text: 'Consulta prendas institucionales SENA con descripción, tallas, precios y stock actualizado.',
     },
     {
       icon: '03',
-      title: 'Trazabilidad Total',
-      text: 'Ten claridad sobre tu pedido desde la seleccion hasta la entrega.',
+      title: 'Trazabilidad total',
+      text: 'Ten claridad sobre tu pedido desde la selección hasta la entrega.',
     },
     {
       icon: '04',
-      title: 'Soporte Dedicado',
-      text: 'Recibe orientacion sobre tallas, disponibilidad y detalles de cada uniforme.',
+      title: 'Soporte dedicado',
+      text: 'Recibe orientación sobre tallas, disponibilidad y detalles de cada uniforme.',
     },
   ]
 
   const benefits = [
-    { number: '500+', label: 'Uniformes Disponibles', description: 'Variedad de productos SENA' },
-    { number: '24/7', label: 'Plataforma Disponible', description: 'Compra en cualquier momento' },
-    { number: '2-5', label: 'Dias de Entrega', description: 'Envio para pedidos confirmados' },
-    { number: '100%', label: 'Compra Confiable', description: 'Informacion clara de cada producto' },
+    { number: '500+', label: 'Uniformes disponibles', description: 'Variedad de productos SENA' },
+    { number: '24/7', label: 'Plataforma disponible', description: 'Compra en cualquier momento' },
+    { number: '2-5', label: 'Días de entrega', description: 'Envío para pedidos confirmados' },
+    { number: '100%', label: 'Compra confiable', description: 'Información clara de cada producto' },
   ]
 
   const workflow = [
@@ -140,14 +142,14 @@ export default function HomePage() {
       <section className="home-hero-banner">
         <div className="home-hero-banner__content">
           <div className="hero-badge">UNIFORMES SENA | TIENDA OFICIAL ONLINE</div>
-          <h1 className="hero-title">Uniformes SENA con Confianza y Calidad</h1>
+          <h1 className="hero-title">Uniformes SENA con confianza y calidad</h1>
           <p className="hero-subtitle">
             Compra tus uniformes institucionales en una plataforma clara, segura y pensada para aprendices SENA.
           </p>
         </div>
         <div className="home-hero-banner__visual">
           <div className="daily-verse-card">
-            <span>Frase biblica del dia</span>
+            <span>Frase bíblica del día</span>
             <blockquote>{dailyVerse.text}</blockquote>
             <strong>{dailyVerse.reference}</strong>
           </div>

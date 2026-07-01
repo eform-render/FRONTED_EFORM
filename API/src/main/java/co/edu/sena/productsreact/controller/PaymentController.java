@@ -1,11 +1,14 @@
 package co.edu.sena.productsreact.controller;
 
+// Controlador de pagos actualizado
 import co.edu.sena.productsreact.dto.payment.PaymentRequest;
 import co.edu.sena.productsreact.service.PaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -40,5 +43,31 @@ public class PaymentController {
     public ResponseEntity<Void> deletePayments(@RequestBody java.util.List<Long> ids) {
         paymentService.deleteByIds(ids);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/status")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<co.edu.sena.productsreact.entity.PaymentRecord> updatePaymentStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody co.edu.sena.productsreact.dto.payment.UpdatePaymentStatusRequest request) {
+        var updated = paymentService.updateStatus(id, request.status(), request.observation());
+        return ResponseEntity.ok(updated);
+    }
+
+    @GetMapping("/my-orders")
+    @org.springframework.security.access.prepost.PreAuthorize("isAuthenticated()")
+    public ResponseEntity<java.util.List<co.edu.sena.productsreact.entity.PaymentRecord>> getMyOrders(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        var orders = paymentService.getOrdersByEmail(userDetails.getUsername());
+        return ResponseEntity.ok(orders);
+    }
+
+    @GetMapping("/{id}/details")
+    @org.springframework.security.access.prepost.PreAuthorize("isAuthenticated()")
+    public ResponseEntity<co.edu.sena.productsreact.dto.payment.OrderDetailsResponse> getOrderDetails(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        var orderDetails = paymentService.getOrderDetails(id, userDetails.getUsername());
+        return ResponseEntity.ok(orderDetails);
     }
 }

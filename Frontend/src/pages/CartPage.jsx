@@ -109,6 +109,10 @@ const CartPage = () => {
         customerEmail,
         paymentMethod: paymentMethod === 'PSE' ? `${paymentMethod} - ${bank}` : paymentMethod,
         amount: total,
+        items: items.map(item => ({
+          productId: item.id,
+          quantity: item.quantity
+        }))
       })
 
       const confirmedOrder = checkoutCart()

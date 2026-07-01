@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -30,5 +32,19 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String, String>> forgotPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        if (email == null || email.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Email es requerido"));
+        }
+        try {
+            authService.requestPasswordReset(email);
+            return ResponseEntity.ok(Map.of("message", "Si el email existe, recibirás un enlace para recuperar tu contraseña"));
+        } catch (Exception e) {
+            return ResponseEntity.ok(Map.of("message", "Si el email existe, recibirás un enlace para recuperar tu contraseña"));
+        }
     }
 }
