@@ -2108,10 +2108,27 @@ body {
 }
 
 .cart-remove {
-  border: 0;
-  background: transparent;
+  padding: 8px 12px;
+  border: 1px solid #ffcccc;
+  background: #fff5f5;
   color: #b42318;
-  font-weight: 900;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-width: fit-content;
+}
+
+.cart-remove:hover {
+  background: #ffe6e6;
+  border-color: #b42318;
+  color: #8b1a13;
+}
+
+.cart-remove:active {
+  transform: scale(0.98);
 }
 
 .cart-summary {
