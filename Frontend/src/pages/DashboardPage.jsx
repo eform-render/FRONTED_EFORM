@@ -48,9 +48,9 @@ export default function DashboardPage() {
       <div className="dashboard-header">
         <div className="dashboard-header__content">
           <div>
-            <span className="dashboard-badge">Panel administrativo</span>
-            <h1>Bienvenido, {user.username || user.email}</h1>
-            <p>{admin ? 'Panel de control de gestion' : 'Explora productos y administra tu carrito'}</p>
+            <span className="dashboard-badge">{admin ? 'Panel administrativo' : 'Mi cuenta'}</span>
+            <h1>Bienvenido, {user.username || user.email.split('@')[0]}</h1>
+            <p>{admin ? 'Gestión centralizada de productos e inventario' : 'Explora productos y administra tu carrito'}</p>
           </div>
           {admin && (
             <div className="dashboard-header__visual" aria-hidden="true">
@@ -61,67 +61,38 @@ export default function DashboardPage() {
       </div>
 
       {admin && (
-        <nav className="dashboard-back-nav" aria-label="Opciones de revision del panel">
-          <Link className="btn btn-outline-primary" to="/products">
-            Revisar inventario completo
-          </Link>
-          <Link className="btn btn-outline-primary" to="/products/new">
-            Crear producto
-          </Link>
-        </nav>
-      )}
-
-      {admin && (
-        <section className="dashboard-summary">
-          <article>
-            <span>Productos totales</span>
-            <strong>{loadingProducts ? '...' : products.length}</strong>
-          </article>
-          <article>
-            <span>Unidades en stock</span>
-            <strong>{loadingProducts ? '...' : totalStock}</strong>
-          </article>
-          <article>
-            <span>Stock bajo</span>
-            <strong>{loadingProducts ? '...' : lowStockProducts.length}</strong>
-          </article>
-        </section>
-      )}
-
-      {admin && (
-        <div className="dashboard-stats">
-          <div className="stat-card">
-            <h3>{loadingProducts ? '...' : products.length}</h3>
-            <p>Total de productos</p>
-            <p className="stat-note">Los productos activos se muestran a los clientes.</p>
-            <Link to="/products/new" className="btn btn-primary">
-              Agregar producto
+        <>
+          <nav className="dashboard-back-nav" aria-label="Opciones de revision del panel">
+            <Link className="btn btn-primary" to="/products/new">
+              + Crear producto
             </Link>
-          </div>
-
-          <div className="stat-card">
-            <h3>{loadingProducts ? '...' : totalStock}</h3>
-            <p>Unidades disponibles</p>
-            <Link to="/products" className="btn btn-outline-primary">
-              Revisar inventario
+            <Link className="btn btn-outline-primary" to="/products">
+              Ver inventario
             </Link>
-          </div>
+          </nav>
 
-          <div className="stat-card">
-            <h3>{loadingProducts ? '...' : lowStockProducts.length}</h3>
-            <p>Productos con stock bajo</p>
-            <Link to="/products" className="btn btn-outline-primary">
-              Gestionar stock
-            </Link>
-          </div>
-        </div>
+          <section className="dashboard-summary">
+            <article>
+              <span>📦 Productos totales</span>
+              <strong>{loadingProducts ? '...' : products.length}</strong>
+            </article>
+            <article>
+              <span>📊 Unidades en stock</span>
+              <strong>{loadingProducts ? '...' : totalStock}</strong>
+            </article>
+            <article>
+              <span>⚠️ Stock bajo</span>
+              <strong>{loadingProducts ? '...' : lowStockProducts.length}</strong>
+            </article>
+          </section>
+        </>
       )}
 
       {admin && (
         <section className="dashboard-stock-review">
           <div className="dashboard-stock-review__header">
-            <h2>Unidades en stock por tipo</h2>
-            <p>Resumen para validar que productos existen y cuantas unidades hay registradas.</p>
+            <h2>📊 Inventario por tipo de tela</h2>
+            <p>Resumem de productos y unidades disponibles clasificadas por tipo</p>
           </div>
           <div className="inventory-type-grid">
             {Object.entries(productTypes).map(([type, summary]) => (
@@ -138,59 +109,63 @@ export default function DashboardPage() {
         </section>
       )}
 
-      <div className="dashboard-actions">
-        <h2>Acciones rapidas</h2>
+      <section className="dashboard-actions">
+        <h2>{admin ? '⚡ Acciones rápidas' : '🛍️ Tu panel'}</h2>
         <div className="action-grid">
           {admin ? (
             <>
               <Link to="/products/new" className="action-card">
-                <h3>Nuevo producto</h3>
-                <p>Agregar una prenda nueva a productos.</p>
+                <h3>➕ Crear producto</h3>
+                <p>Agregar nuevas prendas al catálogo y al inventario.</p>
               </Link>
 
               <Link to="/products" className="action-card">
-                <h3>Ver productos</h3>
-                <p>Consultar, editar o eliminar productos existentes.</p>
+                <h3>📦 Gestionar productos</h3>
+                <p>Editar información, precios, stock y características.</p>
               </Link>
 
               <Link to="/payments" className="action-card">
-                <h3>Ver pagos</h3>
-                <p>Revisar los pagos registrados y el historial de pedidos.</p>
+                <h3>💳 Historial de pagos</h3>
+                <p>Ver pedidos confirmados y sus transacciones de pago.</p>
               </Link>
 
               <Link to="/users" className="action-card">
-                <h3>Gestionar usuarios</h3>
-                <p>Cambiar roles de usuarios o eliminarlos del sistema.</p>
+                <h3>👥 Gestionar usuarios</h3>
+                <p>Administrar roles, permisos y usuarios del sistema.</p>
               </Link>
             </>
           ) : (
             <>
               <Link to="/products" className="action-card">
-                <h3>Ver productos</h3>
-                <p>Consultar precios, stock, tallas y caracteristicas.</p>
+                <h3>🛒 Ver catálogo</h3>
+                <p>Explorar todas las prendas disponibles con precios y tallas.</p>
               </Link>
 
               <Link to="/cart" className="action-card">
-                <h3>Ver carrito</h3>
-                <p>Revisar los productos seleccionados y continuar al pago.</p>
+                <h3>🛍️ Mi carrito</h3>
+                <p>Revisar productos seleccionados e ir al pago.</p>
               </Link>
             </>
           )}
         </div>
-      </div>
+      </section>
 
       {admin && (
         <div className="dashboard-activity">
-          <h2>Alertas de inventario</h2>
+          <h2>⚠️ Alertas de inventario</h2>
           {lowStockProducts.length === 0 && unavailableProducts.length === 0 ? (
-            <p>No hay alertas por ahora. El inventario se ve estable.</p>
+            <p>✅ No hay alertas. El inventario se ve estable y en buen estado.</p>
           ) : (
             <ul className="activity-list">
-              {lowStockProducts.slice(0, 5).map((product) => (
-                <li key={product.id}>{product.nombre}: quedan {product.stock} unidades.</li>
+              {lowStockProducts.slice(0, 8).map((product) => (
+                <li key={product.id}>
+                  <strong>{product.nombre}:</strong> Solo quedan <strong>{product.stock}</strong> unidades.
+                </li>
               ))}
-              {unavailableProducts.slice(0, 5).map((product) => (
-                <li key={product.id}>{product.nombre}: sin stock.</li>
+              {unavailableProducts.slice(0, 8).map((product) => (
+                <li key={product.id}>
+                  <strong>{product.nombre}:</strong> Sin stock (0 unidades).
+                </li>
               ))}
             </ul>
           )}

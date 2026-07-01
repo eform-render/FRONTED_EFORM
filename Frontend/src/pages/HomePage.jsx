@@ -1,5 +1,10 @@
-import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import ProductCard from '../components/products/ProductCard'
 import { getCurrentUser } from '../services/authServices'
+import { addToCart } from '../services/cartService'
+import { getAll } from '../services/productService'
+import { getApiErrorMessage } from '../utils/apiError'
 import { isAdmin } from '../utils/roles'
 
 const dailyVerses = [
@@ -37,9 +42,14 @@ const initialVerseIndex = Math.floor(Date.now() / 86400000) % dailyVerses.length
 const initialDailyVerse = dailyVerses[initialVerseIndex]
 
 export default function HomePage() {
+  const navigate = useNavigate()
   const user = getCurrentUser()
   const isAuthenticated = Boolean(user)
   const canManageProducts = isAdmin(user)
+  const [products, setProducts] = useState([])
+  const [loadingProducts, setLoadingProducts] = useState(true)
+  const [productsError, setProductsError] = useState('')
+  const [productsSuccess, setProductsSuccess] = useState('')
 
   const highlights = [
     {
@@ -97,6 +107,34 @@ export default function HomePage() {
 
   const dailyVerse = initialDailyVerse
 
+  useEffect(() => {
+    getAll()
+      .then(setProducts)
+      .catch((apiError) => setProductsError(getApiErrorMessage(apiError, 'No fue posible cargar los productos.')))
+      .finally(() => setLoadingProducts(false))
+  }, [])
+
+  const handleProductAction = (product) => {
+    setProductsSuccess('')
+    setProductsError('')
+
+    if (canManageProducts) {
+      navigate('/products')
+      return
+    }
+
+    const result = addToCart(product)
+    setProductsSuccess(result.added ? result.message : '')
+    setProductsError(result.added ? '' : result.message)
+    if (result.added) {
+      setProducts((prev) =>
+        prev.map((item) =>
+          item.id === product.id ? { ...item, stock: Math.max(0, Number(item.stock || 0) - 1) } : item
+        )
+      )
+    }
+  }
+
   return (
     <main className="home-page">
       <section className="home-hero-banner">
@@ -106,14 +144,6 @@ export default function HomePage() {
           <p className="hero-subtitle">
             Compra tus uniformes institucionales en una plataforma clara, segura y pensada para aprendices SENA.
           </p>
-          <div className="hero-cta-buttons">
-            <Link className="btn btn-primary btn-lg" to={isAuthenticated ? (canManageProducts ? '/dashboard' : '/products') : '/login'}>
-              {isAuthenticated ? (canManageProducts ? 'Ver Dashboard' : 'Ver Productos') : 'Iniciar Sesion'}
-            </Link>
-            <Link className="btn btn-outline-light btn-lg" to={isAuthenticated && !canManageProducts ? '/cart' : '/register'}>
-              {isAuthenticated && !canManageProducts ? 'Ver Carrito' : 'Registrarme'}
-            </Link>
-          </div>
         </div>
         <div className="home-hero-banner__visual">
           <div className="daily-verse-card">
@@ -208,6 +238,37 @@ export default function HomePage() {
             </div>
           ))}
         </div>
+
+        <div className="home-public-products">
+          <div className="section-heading-featured">
+            <div>
+              <h2>Productos disponibles por el momento</h2>
+              <p>
+                Puedes revisar los uniformes antes de registrarte. Para comprar, crea tu cuenta o inicia sesion.
+              </p>
+            </div>
+          </div>
+
+          {productsError && <div className="catalog-message catalog-message--error">{productsError}</div>}
+          {productsSuccess && <div className="alert alert-success">{productsSuccess}</div>}
+          {loadingProducts && <div className="catalog-message">Cargando productos...</div>}
+          {!loadingProducts && !productsError && products.length === 0 && (
+            <div className="catalog-message">Todavia no hay productos registrados.</div>
+          )}
+          {!loadingProducts && products.length > 0 && (
+            <div className="home-product-grid-enhanced">
+              {products.map((product) => (
+                <ProductCard
+                  actionLabel="Agregar"
+                  isAdmin={canManageProducts}
+                  key={product.id}
+                  onAddToCart={handleProductAction}
+                  product={product}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </section>
 
       {isAuthenticated ? (
@@ -226,25 +287,7 @@ export default function HomePage() {
             </Link>
           </div>
         </section>
-      ) : (
-        <section className="home-section home-guest-cta">
-          <div className="guest-cta-card">
-            <h2>Empieza hoy mismo</h2>
-            <p>
-              Crea tu cuenta para acceder al catálogo completo de uniformes SENA, gestionar tu carrito y
-              completar tu compra de forma segura.
-            </p>
-            <div className="hero-cta-buttons guest-buttons">
-              <Link className="btn btn-primary btn-lg" to="/register">
-                Registrarme
-              </Link>
-              <Link className="btn btn-outline-light btn-lg" to="/login">
-                Ya tengo cuenta
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
+      ) : null}
     </main>
   )
 }

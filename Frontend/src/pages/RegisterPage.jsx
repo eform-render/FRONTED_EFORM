@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { register } from '../services/authServices'
 import { getApiErrorMessage } from '../utils/apiError'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -55,7 +56,7 @@ export default function RegisterPage() {
         email: form.email.trim().toLowerCase(),
         password: form.password,
       })
-      navigate('/login', { state: { registered: true } })
+      navigate('/login', { state: { registered: true, from: location.state?.from } })
     } catch (apiError) {
       setError(getApiErrorMessage(apiError, 'No se pudo crear la cuenta.'))
     } finally {
@@ -74,6 +75,9 @@ export default function RegisterPage() {
         </div>
 
         <form className="auth-form" onSubmit={handleSubmit} noValidate>
+          <Link to="/home" className="btn btn-outline-secondary btn-sm" style={{ alignSelf: 'flex-start', marginBottom: '12px' }}>
+            ← Volver a Inicio
+          </Link>
           {error && <div className="alert alert-danger">{error}</div>}
 
           <label>
@@ -132,7 +136,7 @@ export default function RegisterPage() {
           </button>
 
           <p className="auth-switch">
-            Ya tienes cuenta? <Link to="/login">Inicia sesion</Link>
+            Ya tienes cuenta? <Link to="/login" state={{ from: location.state?.from }}>Inicia sesion</Link>
           </p>
         </form>
       </section>

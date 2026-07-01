@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Navbar from './components/layout/Navbar'
 import Footer from './components/layout/Footer'
 import HomePage from './pages/HomePage'
@@ -23,6 +23,9 @@ function App() {
   const [user, setUser] = useState(() => getCurrentUser())
   const isAuthenticated = Boolean(user)
   const canManageProducts = isAdmin(user)
+  const location = useLocation()
+  const hideNavbarRoutes = ['/login', '/register', '/forgot-password', '/reset-password']
+  const showNavbar = !hideNavbarRoutes.includes(location.pathname)
 
   const handleLogin = (nextUser) => {
     setUser(nextUser)
@@ -35,8 +38,8 @@ function App() {
 
   return (
     <>
-      <Navbar user={user} onLogout={handleLogout} />
-      <div className="app-content">
+      {showNavbar && <Navbar user={user} onLogout={handleLogout} />}
+      <div className={showNavbar ? 'app-content' : 'app-content app-content--no-navbar'}>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/home" element={<HomePage />} />

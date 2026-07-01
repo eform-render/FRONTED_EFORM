@@ -70,6 +70,9 @@ export default function LoginPage({ onLogin }) {
         </div>
 
         <form className="auth-form" onSubmit={handleSubmit} noValidate>
+          <Link to="/home" className="btn btn-outline-secondary btn-sm" style={{ alignSelf: 'flex-start', marginBottom: '12px' }}>
+            ← Volver a Inicio
+          </Link>
           {location.state?.registered && (
             <div className="alert alert-success">Cuenta creada correctamente. Ahora inicia sesion.</div>
           )}
@@ -113,7 +116,7 @@ export default function LoginPage({ onLogin }) {
           </button>
 
           <p className="auth-switch">
-            No tienes cuenta? <Link to="/register">Registrate</Link>
+            No tienes cuenta? <Link to="/register" state={{ from: location.state?.from }}>Registrate</Link>
           </p>
         </form>
       </section>

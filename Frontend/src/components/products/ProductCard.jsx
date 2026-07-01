@@ -9,7 +9,7 @@ const formatPrice = (value) =>
     maximumFractionDigits: 0,
   }).format(Number(value || 0))
 
-const ProductCard = ({ product, isAdmin = false, onAddToCart, onDelete }) => {
+const ProductCard = ({ product, isAdmin = false, onAddToCart, onDelete, actionLabel = 'Agregar' }) => {
   const navigate = useNavigate()
   const stock = Number(product.stock || 0)
   const sizes = product.tallasDisponibles?.length ? product.tallasDisponibles : ['Unica']
@@ -100,7 +100,7 @@ const ProductCard = ({ product, isAdmin = false, onAddToCart, onDelete }) => {
             disabled={stock === 0}
             onClick={() => onAddToCart?.({ ...product, selectedSize })}
           >
-            Agregar
+            {actionLabel}
           </button>
         )}
       </div>

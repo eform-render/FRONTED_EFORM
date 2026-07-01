@@ -220,9 +220,9 @@ const AdminPaymentsPage = () => {
 
                     {expandedPayment === payment.id && pendingStatusChange && (
                       <tr className="expanded-row">
-                        <td colSpan="6" style={{ padding: '20px', backgroundColor: '#f9f9f9' }}>
-                          <div style={{ marginBottom: '15px' }}>
-                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+                        <td colSpan="6" className="expanded-row__content">
+                          <div className="expanded-row__field">
+                            <label className="expanded-row__label">
                               Agregar observación para {pendingStatusChange.newStatus}:
                             </label>
                             <textarea
@@ -230,18 +230,10 @@ const AdminPaymentsPage = () => {
                               onChange={(e) => setObservation(e.target.value)}
                               placeholder="Escriba una observación (opcional)..."
                               rows="3"
-                              style={{
-                                width: '100%',
-                                padding: '10px',
-                                borderRadius: '4px',
-                                border: '1px solid #ddd',
-                                fontFamily: 'inherit',
-                                fontSize: '14px',
-                                resize: 'vertical',
-                              }}
+                              className="form-control expanded-row__textarea"
                             />
                           </div>
-                          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                          <div className="expanded-row__actions">
                             <button
                               className="btn btn-outline-secondary btn-sm"
                               onClick={cancelExpanded}

@@ -52,6 +52,11 @@ const CartPage = () => {
   }
 
   const handleQuantity = (item, nextQuantity) => {
+    if (nextQuantity <= 0) {
+      setItems(removeFromCart(item.id, item.selectedSize))
+      return
+    }
+
     setItems(updateCartQuantity(item.id, nextQuantity, item.selectedSize))
   }
 
@@ -65,7 +70,7 @@ const CartPage = () => {
     setPaymentError('')
 
     if (!user) {
-      navigate('/login')
+      navigate('/login', { state: { from: '/cart' } })
       return
     }
 
@@ -164,7 +169,6 @@ const CartPage = () => {
                 <div className="quantity-stepper" aria-label={`Cantidad de ${item.nombre}`}>
                   <button
                     aria-label="Disminuir cantidad"
-                    disabled={Number(item.quantity || 1) <= 1}
                     onClick={() => handleQuantity(item, Number(item.quantity || 1) - 1)}
                     type="button"
                   >
@@ -192,7 +196,7 @@ const CartPage = () => {
                   <strong>{formatPrice(Number(item.precio || 0) * Number(item.quantity || 1))}</strong>
                 </div>
                 <button className="cart-remove" onClick={() => handleRemove(item)} type="button">
-                  Quitar
+                  Eliminar producto
                 </button>
               </article>
             ))}

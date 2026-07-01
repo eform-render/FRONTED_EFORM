@@ -6,14 +6,13 @@ import { isAdmin } from '../../utils/roles'
 const Navbar = ({ user, onLogout }) => {
   const navigate = useNavigate()
   const admin = isAdmin(user)
-  const [hidden, setHidden] = useState(false)
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light')
   const [cartQuantity, setCartQuantity] = useState(() =>
     getCart().reduce((sum, item) => sum + Number(item.quantity || 1), 0)
   )
   const navItems = [
     ...(!admin ? [{ label: 'Inicio', to: '/home' }] : []),
-    { label: 'Productos', to: '/products' },
+    ...(user ? [{ label: 'Productos', to: '/products' }] : []),
     ...(!admin && user ? [{ label: 'Mis Pedidos', to: '/orders' }] : []),
     ...(!admin ? [{ label: 'Carrito', to: '/cart' }] : []),
     ...(admin ? [{ label: 'Pagos', to: '/payments' }, { label: 'Panel', to: '/dashboard' }] : []),
@@ -23,21 +22,6 @@ const Navbar = ({ user, onLogout }) => {
     document.documentElement.dataset.theme = theme
     localStorage.setItem('theme', theme)
   }, [theme])
-
-  useEffect(() => {
-    let lastScrollY = window.scrollY
-
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY
-      // Only show navbar completely when at top (scrollY === 0)
-      // Hide when scrolling down from any position below 60px
-      setHidden(currentScrollY > lastScrollY && currentScrollY > 60 && lastScrollY > 60)
-      lastScrollY = currentScrollY
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
 
   useEffect(() => {
     const handleCartUpdate = (event) => {
@@ -59,7 +43,7 @@ const Navbar = ({ user, onLogout }) => {
   }
 
   return (
-    <nav className={hidden ? 'site-navbar site-navbar--hidden' : 'site-navbar'}>
+    <nav className="site-navbar">
       <div className="site-navbar__inner">
         <div className="navbar-brand-section">
           <NavLink className="site-brand" to={admin ? '/dashboard' : '/home'}>
@@ -94,16 +78,24 @@ const Navbar = ({ user, onLogout }) => {
             title={theme === 'dark' ? 'Tema claro' : 'Tema oscuro'}
             type="button"
           >
-            {theme === 'dark' ? '☀' : '☾'}
+            <span className="theme-toggle-button__track" aria-hidden="true">
+              <span className="theme-toggle-button__thumb" />
+            </span>
+            <span className="theme-toggle-button__label">{theme === 'dark' ? 'Claro' : 'Oscuro'}</span>
           </button>
           {user ? (
-            <button className="site-menu__button" onClick={handleLogout} type="button">
+            <button className="site-menu__button site-menu__button--logout" onClick={handleLogout} type="button">
               Salir
             </button>
           ) : (
-            <NavLink className="site-menu__button" to="/login">
-              Iniciar sesión
-            </NavLink>
+            <>
+              <NavLink className="site-menu__button site-menu__button--login" to="/login">
+                Iniciar sesión
+              </NavLink>
+              <NavLink className="site-menu__button site-menu__button--register" to="/register">
+                Registrarme
+              </NavLink>
+            </>
           )}
         </div>
       </div>

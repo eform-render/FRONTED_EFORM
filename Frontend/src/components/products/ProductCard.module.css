@@ -295,6 +295,108 @@
   color: #dc2626;
 }
 
+:global(html[data-theme='dark']) .product-card {
+  border-color: #2c3b55;
+  background: #17233a;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.28);
+  color: #e5edf8;
+}
+
+:global(html[data-theme='dark']) .product-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 22px 44px rgba(0, 0, 0, 0.36);
+}
+
+:global(html[data-theme='dark']) .product-card--admin {
+  border-color: #854d0e;
+  background: linear-gradient(135deg, #17233a 0%, #2a2114 100%);
+}
+
+:global(html[data-theme='dark']) .product-card__image {
+  background: #0f172a;
+}
+
+:global(html[data-theme='dark']) .product-card__image:hover {
+  background: #111f36;
+}
+
+:global(html[data-theme='dark']) .product-card h3 {
+  color: #f8fafc;
+}
+
+:global(html[data-theme='dark']) .product-card p,
+:global(html[data-theme='dark']) .product-card__material span,
+:global(html[data-theme='dark']) .product-card__stock span,
+:global(html[data-theme='dark']) .product-card__size,
+:global(html[data-theme='dark']) .product-card__image span {
+  color: #cbd5e1;
+}
+
+:global(html[data-theme='dark']) .product-card__material,
+:global(html[data-theme='dark']) .product-card__stock,
+:global(html[data-theme='dark']) .product-card__sizes,
+:global(html[data-theme='dark']) .product-card__actions {
+  border-color: #2c3b55;
+  background: #101a2d;
+}
+
+:global(html[data-theme='dark']) .product-card__sizes span {
+  background: #243550;
+  color: #dbeafe;
+}
+
+:global(html[data-theme='dark']) .product-card__size select {
+  border-color: #3d4f6d;
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+:global(html[data-theme='dark']) .product-card__size select:hover,
+:global(html[data-theme='dark']) .product-card__size select:focus {
+  border-color: #60a5fa;
+  background: #111f36;
+}
+
+:global(html[data-theme='dark']) .product-card__note {
+  background: #2f2a18;
+  color: #fde68a;
+}
+
+:global(html[data-theme='dark']) .product-status {
+  background: #064e3b;
+  color: #a7f3d0;
+}
+
+:global(html[data-theme='dark']) .product-status--empty {
+  background: #7f1d1d;
+  color: #fecaca;
+}
+
+:global(html[data-theme='dark']) .btn-outline-primary {
+  border-color: #60a5fa;
+  color: #bfdbfe;
+}
+
+:global(html[data-theme='dark']) .btn-outline-primary:hover {
+  background: rgba(96, 165, 250, 0.15);
+  border-color: #93c5fd;
+  color: #ffffff;
+}
+
+:global(html[data-theme='dark']) .btn-primary {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+:global(html[data-theme='dark']) .btn-primary:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+:global(html[data-theme='dark']) .btn-primary:disabled {
+  background: #334155;
+  color: #94a3b8;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .product-card__image {
